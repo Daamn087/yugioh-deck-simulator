@@ -42,19 +42,56 @@ const updateCount = (name: string, count: number) => {
   emit('update:contents', newContents);
 };
 
+const importProgress = ref(0);
+const TIMEOUT_MS = 30000; // 30 seconds
+
 const importDeck = async () => {
   if (!importUrl.value) return;
   
   importing.value = true;
   importError.value = null;
+  importProgress.value = 0;
+  
+  // Start fake progress
+  const interval = setInterval(() => {
+    // Increment progress but slow down as it gets higher, capping at 95% until done
+    if (importProgress.value < 40) {
+      importProgress.value += 2;
+    } else if (importProgress.value < 70) {
+      importProgress.value += 1;
+    } else if (importProgress.value < 95) {
+      importProgress.value += 0.5;
+    }
+  }, TIMEOUT_MS / 100); // Rough approximation to fill in ~30s
   
   try {
-    await store.importFromDuelingBook(importUrl.value);
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error(`Import timed out after ${TIMEOUT_MS/1000} seconds. The deck list might be too large or DuelingBook is unresponsive.`)), TIMEOUT_MS)
+    );
+
+    // Race the actual import against the timeout
+    await Promise.race([
+      store.importFromDuelingBook(importUrl.value),
+      timeoutPromise
+    ]);
+    
+    importProgress.value = 100;
     importUrl.value = '';
   } catch (e: any) {
     importError.value = e.message || 'Failed to import deck';
   } finally {
-    importing.value = false;
+    clearInterval(interval);
+    
+    // Keep the success state visible for a moment
+    if (!importError.value) {
+      setTimeout(() => {
+        importing.value = false;
+        setTimeout(() => { importProgress.value = 0; }, 300); // Clear bar after fade out
+      }, 1000);
+    } else {
+      importing.value = false;
+    }
   }
 };
 </script>
@@ -66,21 +103,29 @@ const importDeck = async () => {
     <!-- Import Section -->
     <div class="import-section">
       <h3>Import from DuelingBook</h3>
-      <div class="import-row">
-        <input 
-          v-model="importUrl" 
-          placeholder="https://www.duelingbook.com/deck?id=..."
-          class="import-input"
-          @keyup.enter="importDeck"
-          :disabled="importing"
-        />
-        <button 
-          @click="importDeck" 
-          :disabled="importing || !importUrl"
-          class="import-btn"
-        >
-          {{ importing ? 'Importing...' : 'Import' }}
-        </button>
+      <div class="import-group">
+        <div class="import-row">
+          <input 
+            v-model="importUrl" 
+            placeholder="https://www.duelingbook.com/deck?id=..."
+            class="import-input"
+            @keyup.enter="importDeck"
+            :disabled="importing"
+          />
+          <button 
+            @click="importDeck" 
+            :disabled="importing || !importUrl"
+            class="import-btn"
+          >
+            <div v-if="importing" class="spinner"></div>
+            <span v-else>Import</span>
+          </button>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div v-if="importing" class="progress-container">
+          <div class="progress-bar" :style="{ width: `${Math.min(importProgress, 100)}%` }"></div>
+        </div>
       </div>
       <p v-if="importError" class="error">{{ importError }}</p>
     </div>
@@ -180,6 +225,12 @@ const importDeck = async () => {
   width: 50px;
 }
 
+.import-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .import-section {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
@@ -221,6 +272,10 @@ const importDeck = async () => {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
+  min-width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .import-btn:hover:not(:disabled) {
@@ -232,5 +287,32 @@ const importDeck = async () => {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.progress-container {
+  height: 4px;
+  background-color: var(--surface-base);
+  border-radius: 2px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3333ff, #ff00cc);
+  transition: width 0.3s ease-out;
 }
 </style>
