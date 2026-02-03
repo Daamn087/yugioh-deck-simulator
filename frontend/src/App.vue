@@ -47,7 +47,7 @@ const simulationsFormatted = computed({
 <template>
   <div class="app-container">
     <header>
-      <h1>Yu-Gi-Oh! Deck Sim</h1>
+      <h1>Yu-Gi-Oh! Deck Simulator</h1>
       <div class="global-opts">
         <label>
             Hand Size:

@@ -94,6 +94,12 @@ const importDeck = async () => {
     }
   }
 };
+const clearAll = () => {
+  if (Object.keys(props.contents).length === 0) return;
+  if (confirm('Are you sure you want to clear all cards?')) {
+    emit('update:contents', {});
+  }
+};
 </script>
 
 <template>
@@ -141,7 +147,16 @@ const importDeck = async () => {
     </div>
 
     <div class="contents-list">
-      <h3>Card Categories</h3>
+      <div class="header-row">
+        <h3>Card Categories</h3>
+        <button 
+          v-if="Object.keys(contents).length > 0" 
+          class="clear-btn" 
+          @click="clearAll"
+        >
+          Clear All
+        </button>
+      </div>
       
       <div v-for="(count, name) in contents" :key="name" class="category-row">
         <span class="name">{{ name }}</span>
@@ -183,6 +198,28 @@ const importDeck = async () => {
   background: var(--surface-card);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.clear-btn {
+  background: transparent;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.clear-btn:hover {
+  background: rgba(255, 68, 68, 0.1);
 }
 
 .category-row {
