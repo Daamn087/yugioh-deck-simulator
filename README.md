@@ -1,0 +1,79 @@
+# Yu-Gi-Oh! Deck Consistency Simulator
+
+A powerful tool to simulate Yu-Gi-Oh! starting hands and calculate consistency probabilities. It features a Python backend for fast simulations and a modern Vue.js frontend for a premium user experience.
+
+## Features
+
+- **Deck Building**: Configure deck size and card categories (Starters, Extenders, Handtraps, etc.).
+- **Rule Engine**: Define complex success conditions using a visual rule builder (e.g., "Must open 1 Starter AND 1 Extender" OR "1 Starter AND 2 Handtraps").
+- **Fast Simulation**: Powered by a Python backend capable of running millions of simulations in seconds.
+- **Detailed Results**: View success rates, brick rates, and precise probability breakdowns.
+- **User-Friendly Interface**: Modern dark-mode UI with real-time feedback.
+
+## Tech Stack
+
+- **Backend**: FastAPI (Python 3.10+)
+- **Frontend**: Vue.js 3 + TypeScript + Vite
+- **Simulation**: Python standard library (optimized for speed)
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10 or higher
+- Node.js 18 or higher
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/Daamn087/yugioh-deck-simulator.git
+    cd yugioh-deck-simulator
+    ```
+
+2.  **Backend Setup:**
+    ```bash
+    cd yugioh_sim
+    # Create virtual environment
+    python3 -m venv venv
+    source venv/bin/activate
+    
+    # Install dependencies
+    pip install fastapi uvicorn
+    ```
+
+3.  **Frontend Setup:**
+    ```bash
+    # Open a new terminal in the project root
+    cd yugioh_sim/frontend
+    npm install
+    ```
+
+### Running the Application
+
+1.  **Start the Backend:**
+    ```bash
+    # From yugioh_sim/ directory with venv activated
+    python backend/main.py
+    ```
+    The API will run at `http://localhost:8000`.
+
+2.  **Start the Frontend:**
+    ```bash
+    # From yugioh_sim/frontend/ directory
+    npm run dev
+    ```
+    Open the link provided by Vite (usually `http://localhost:5173`) in your browser.
+
+## CLI Usage
+
+You can also run simulations directly from the command line:
+
+```bash
+python src/main.py
+```
+Modify `src/main.py` to change deck parameters and rules.
+
+## License
+
+MIT
