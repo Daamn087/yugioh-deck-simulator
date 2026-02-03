@@ -1,25 +1,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import DeckBuilder from './components/DeckBuilder.vue';
 import RuleBuilder from './components/RuleBuilder.vue';
 import Results from './components/Results.vue';
-import { runSimulation, type Requirement, type SimulationResult } from './api';
+import { runSimulation, type SimulationResult } from './api';
+import { useSimulationStore } from './store';
 
 // State
-const deckSize = ref(40);
-const handSize = ref(5);
-const simulations = ref(1000000);
-const deckContents = ref<Record<string, number>>({
-  "Starter": 10,
-  "Extender": 8,
-  "HandTrap": 12,
-  "Garnet": 2
-});
-
-const rules = ref<Requirement[][]>([
-  [{ card_name: "Starter", min_count: 1 }]
-]);
+const store = useSimulationStore();
+const { deckSize, handSize, simulations, deckContents, rules } = storeToRefs(store);
 
 const result = ref<SimulationResult | null>(null);
 const loading = ref(false);
@@ -74,6 +65,7 @@ const simulationsFormatted = computed({
         <DeckBuilder 
             v-model:contents="deckContents"
             v-model:deckSize="deckSize"
+            @delete-category="store.deleteCategory"
         />
         <RuleBuilder
             v-model:rules="rules"
