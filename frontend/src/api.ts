@@ -20,7 +20,8 @@ export interface SimulationResult {
     time_taken: number;
 }
 
-const API_URL = "http://127.0.0.1:8000";
+// Use environment variable for API URL or fallback to local
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export async function runSimulation(config: SimulationConfig): Promise<SimulationResult> {
     const response = await fetch(`${API_URL}/simulate`, {
