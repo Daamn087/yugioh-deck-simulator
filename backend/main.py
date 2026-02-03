@@ -21,11 +21,26 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For dev
+    # Explicitly allow localhost and 127.0.0.1 for both Vite default port and others
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add headers for Private Network Access (PNA) support
+# This prevents Chrome's "device on your local network" popup
+@app.middleware("http")
+async def add_pna_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 @app.post("/simulate", response_model=SimulationResult)
 def run_simulation(config: SimulationConfig):
