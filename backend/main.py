@@ -2,6 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import SimulationConfig, SimulationResult
+from duelingbook_parser import parse_duelingbook_deck
 import sys
 import os
 import time
@@ -76,6 +77,34 @@ def run_simulation(config: SimulationConfig):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/import-deck")
+def import_deck(request: dict):
+    """
+    Import a deck from DuelingBook URL.
+    
+    Args:
+        request: Dictionary with 'url' key containing DuelingBook deck URL
+        
+    Returns:
+        Dictionary mapping card names to counts for the main deck
+    """
+    url = request.get("url")
+    if not url:
+        raise HTTPException(status_code=400, detail="URL is required")
+    
+    try:
+        deck_contents = parse_duelingbook_deck(url)
+        return {
+            "deck_contents": deck_contents,
+            "deck_size": sum(deck_contents.values())
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to import deck: {str(e)}")
+
 
 if __name__ == "__main__":
     import uvicorn

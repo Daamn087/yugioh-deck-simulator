@@ -1,6 +1,7 @@
 
 import { defineStore } from 'pinia';
 import type { Requirement } from './api';
+import { importDeckFromDuelingBook } from './api';
 
 export const useSimulationStore = defineStore('simulation', {
     state: () => ({
@@ -42,6 +43,11 @@ export const useSimulationStore = defineStore('simulation', {
                     group.filter(req => req.card_name !== name)
                 ).filter(group => group.length > 0);
             }
+        },
+        async importFromDuelingBook(url: string) {
+            const result = await importDeckFromDuelingBook(url);
+            this.deckContents = result.deck_contents;
+            this.deckSize = result.deck_size;
         }
     }
 });
