@@ -10,6 +10,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:deckSize', size: number): void;
   (e: 'update:contents', contents: Record<string, number>): void;
+  (e: 'delete-category', name: string): void;
 }>();
 
 const newCategoryName = ref('');
@@ -27,9 +28,7 @@ const addCategory = () => {
 };
 
 const removeCategory = (name: string) => {
-  const newContents = { ...props.contents };
-  delete newContents[name];
-  emit('update:contents', newContents);
+  emit('delete-category', name);
 };
 
 const updateCount = (name: string, count: number) => {
@@ -65,8 +64,17 @@ const updateCount = (name: string, count: number) => {
       </div>
 
       <div class="add-row">
-        <input v-model="newCategoryName" placeholder="Category Name (e.g. Starter)" />
-        <input v-model.number="newCategoryCount" type="number" style="width: 60px" />
+        <input 
+            v-model="newCategoryName" 
+            placeholder="Category Name (e.g. Starter)" 
+            @keyup.enter="addCategory"
+        />
+        <input 
+            v-model.number="newCategoryCount" 
+            type="number" 
+            style="width: 60px" 
+            @keyup.enter="addCategory"
+        />
         <button @click="addCategory">Add</button>
       </div>
     </div>
