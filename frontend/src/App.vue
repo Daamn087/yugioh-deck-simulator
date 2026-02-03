@@ -51,7 +51,7 @@ const simulationsFormatted = computed({
       <div class="global-opts">
         <label>
             Hand Size:
-            <input type="number" v-model="handSize">
+            <input type="number" class="input-slim" v-model="handSize">
         </label>
         <label>
             Simulations:
@@ -159,5 +159,9 @@ h1 {
     color: red;
     margin-top: 1rem;
     text-align: center;
+}
+
+.input-slim {
+  width: 50px;
 }
 </style>

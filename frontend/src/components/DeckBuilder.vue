@@ -46,6 +46,7 @@ const updateCount = (name: string, count: number) => {
       <input 
         type="number" 
         :value="deckSize" 
+        class="input-slim"
         @input="emit('update:deckSize', Number(($event.target as HTMLInputElement).value))"
       >
     </div>
@@ -66,7 +67,7 @@ const updateCount = (name: string, count: number) => {
       <div class="add-row">
         <input 
             v-model="newCategoryName" 
-            placeholder="Category Name (e.g. Starter)" 
+            placeholder="Starter, Extender, ..." 
             @keyup.enter="addCategory"
         />
         <input 
@@ -127,5 +128,9 @@ const updateCount = (name: string, count: number) => {
 .error {
   color: #ff4444;
   font-weight: bold;
+}
+
+.input-slim {
+  width: 50px;
 }
 </style>
