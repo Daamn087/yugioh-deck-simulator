@@ -25,6 +25,7 @@ const run = async () => {
         result.value = await runSimulation({
             deck_size: deckSize.value,
             deck_contents: deckContents.value,
+            card_categories: store.cardCategories,  // Send subcategory data
             hand_size: handSize.value,
             simulations: simulations.value,
             rules: rules.value

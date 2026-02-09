@@ -100,12 +100,22 @@ def req(card_name: str) -> Rule:
     return Rule(card_name)
 
 class Simulator:
-    def __init__(self, deck: Deck):
+    def __init__(self, deck: Deck, subcategory_map: Dict[str, List[str]] = None):
+        """
+        Initialize the simulator.
+        
+        Args:
+            deck: The deck to simulate
+            subcategory_map: Maps subcategory names to list of card names
+                            e.g., {"Lunarlight Monster": ["Lunarlight Gold Leo", "Lunarlight Tiger"]}
+        """
         self.deck = deck
+        self.subcategory_map = subcategory_map or {}
 
     def check_success(self, hand: List[str], conditions: List[Callable[[Counter], bool]]) -> bool:
         """
         Checks if a hand meets ANY of the success conditions.
+        Enhanced to support subcategory matching.
         
         Args:
             hand: The list of cards drawn.
@@ -113,6 +123,12 @@ class Simulator:
                         and returns True if that specific condition is met.
         """
         hand_counts = Counter(hand)
+        
+        # Add subcategory counts
+        # For each subcategory, count how many cards in hand belong to it
+        for subcat, card_names in self.subcategory_map.items():
+            hand_counts[subcat] = sum(hand_counts[card] for card in card_names)
+        
         for condition in conditions:
             if condition(hand_counts):
                 return True

@@ -5,9 +5,16 @@ export interface Requirement {
     operator?: 'AND' | 'OR';  // Operator to use after this requirement
 }
 
+export interface CardCategory {
+    name: string;
+    count: number;
+    subcategories: string[];
+}
+
 export interface SimulationConfig {
     deck_size: number;
-    deck_contents: Record<string, number>;
+    deck_contents: Record<string, number>;  // Keep for backward compatibility
+    card_categories?: CardCategory[];  // New field with subcategory support
     hand_size: number;
     simulations: number;
     rules: Requirement[][];

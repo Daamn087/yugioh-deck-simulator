@@ -1,6 +1,8 @@
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { Requirement } from '../api';
+import { useSimulationStore } from '../store';
 
 const props = defineProps<{
   rules: Requirement[][];
@@ -11,6 +13,23 @@ const emit = defineEmits<{
   (e: 'update:rules', rules: Requirement[][]): void;
 }>();
 
+const store = useSimulationStore();
+
+// Compute all available options: categories + subcategories
+const allOptions = computed(() => {
+  const categories = props.availableCategories;
+  const subcategories = new Set<string>();
+  
+  // Collect all unique subcategories
+  store.cardCategories.forEach(cat => {
+    cat.subcategories.forEach(sub => subcategories.add(sub));
+  });
+  
+  return {
+    categories,
+    subcategories: Array.from(subcategories).sort()
+  };
+});
 
 const addGroup = () => {
     // Start with a default requirement if possible
@@ -72,7 +91,12 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
                     :value="req.card_name"
                     @change="updateReq(gIndex, rIndex, 'card_name', ($event.target as HTMLSelectElement).value)"
                 >
-                    <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat }}</option>
+                    <optgroup label="Card Names">
+                        <option v-for="cat in allOptions.categories" :key="cat" :value="cat">{{ cat }}</option>
+                    </optgroup>
+                    <optgroup v-if="allOptions.subcategories.length > 0" label="Tags (Subcategories)">
+                        <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
+                    </optgroup>
                 </select>
                 <span>>=</span>
                 <input 
@@ -100,7 +124,7 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
                 </div>
             </div>
 
-            <button class="secondary small" @click="addReq(gIndex)">+ AND Requirement</button>
+            <button class="secondary small" @click="addReq(gIndex)">+ AND / OR Requirement</button>
         </div>
     </div>
 

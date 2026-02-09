@@ -1,6 +1,6 @@
 
 import { defineStore } from 'pinia';
-import type { Requirement } from './api';
+import type { Requirement, CardCategory } from './api';
 import { importDeckFromDuelingBook } from './api';
 
 export const useSimulationStore = defineStore('simulation', {
@@ -9,23 +9,30 @@ export const useSimulationStore = defineStore('simulation', {
         handSize: 5,
         simulations: 1000000,
         deckContents: {
-        } as Record<string, number>,
+        } as Record<string, number>,  // Keep for backward compatibility
+        cardCategories: [] as CardCategory[],  // New field with subcategory support
         rules: [
             [{ card_name: "Starter", min_count: 1, operator: 'AND' }]
         ] as Requirement[][]
     }),
     persist: true,
     actions: {
+        syncDeckContents() {
+            // Sync deckContents from cardCategories for backward compatibility
+            this.deckContents = this.cardCategories.reduce((acc, cat) => {
+                acc[cat.name] = cat.count;
+                return acc;
+            }, {} as Record<string, number>);
+        },
         deleteCategory(name: string) {
             // 1. Determine fallback
-            const categories = Object.keys(this.deckContents);
+            const categories = this.cardCategories.map(c => c.name);
             const remaining = categories.filter(c => c !== name);
             const fallback = remaining.length > 0 ? remaining[0] : null;
 
-            // 2. Remove category
-            const newContents = { ...this.deckContents };
-            delete newContents[name];
-            this.deckContents = newContents;
+            // 2. Remove category from cardCategories
+            this.cardCategories = this.cardCategories.filter(c => c.name !== name);
+            this.syncDeckContents();
 
             // 3. Update rules
             if (fallback) {
@@ -46,7 +53,13 @@ export const useSimulationStore = defineStore('simulation', {
         },
         async importFromDuelingBook(url: string) {
             const result = await importDeckFromDuelingBook(url);
-            this.deckContents = result.deck_contents;
+            // Convert to cardCategories format
+            this.cardCategories = Object.entries(result.deck_contents).map(([name, count]) => ({
+                name,
+                count,
+                subcategories: []
+            }));
+            this.syncDeckContents();
             this.deckSize = result.deck_size;
         },
         exportConfig() {
@@ -54,7 +67,8 @@ export const useSimulationStore = defineStore('simulation', {
                 deckSize: this.deckSize,
                 handSize: this.handSize,
                 simulations: this.simulations,
-                deckContents: this.deckContents,
+                deckContents: this.deckContents,  // Keep for backward compatibility
+                cardCategories: this.cardCategories,  // New field with subcategories
                 rules: this.rules
             };
 
@@ -110,7 +124,21 @@ export const useSimulationStore = defineStore('simulation', {
                         if (config.deckSize !== undefined) this.deckSize = config.deckSize;
                         if (config.handSize !== undefined) this.handSize = config.handSize;
                         if (config.simulations !== undefined) this.simulations = config.simulations;
-                        if (config.deckContents !== undefined) this.deckContents = config.deckContents;
+
+                        // Handle cardCategories (new format) or deckContents (old format)
+                        if (config.cardCategories !== undefined) {
+                            this.cardCategories = config.cardCategories;
+                            this.syncDeckContents();
+                        } else if (config.deckContents !== undefined) {
+                            // Migrate from old format
+                            this.cardCategories = Object.entries(config.deckContents).map(([name, count]) => ({
+                                name,
+                                count: count as number,
+                                subcategories: []
+                            }));
+                            this.syncDeckContents();
+                        }
+
                         if (config.rules !== undefined) {
                             // Ensure backward compatibility: add default operator 'AND' if missing
                             this.rules = config.rules.map((group: Requirement[]) =>
