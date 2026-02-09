@@ -16,30 +16,107 @@ const emit = defineEmits<{
 
 const store = useSimulationStore();
 
-const newCategoryName = ref('');
-const newCategoryCount = ref(3);
+const newCardName = ref('');
+const newCardCount = ref(3);
 const importUrl = ref('');
 const importing = ref(false);
 const importError = ref<string | null>(null);
+const editingSubcategories = ref<string | null>(null);
+const newSubcategory = ref('');
+const editingCardName = ref<string | null>(null);
+const editedCardName = ref('');
 
 const currentCount = computed(() => {
-  return Object.values(props.contents).reduce((a, b) => a + b, 0);
+  return store.cardCategories.reduce((sum, cat) => sum + cat.count, 0);
+});
+
+// Compute all existing subcategories for autocomplete
+const allExistingSubcategories = computed(() => {
+  const subcats = new Set<string>();
+  store.cardCategories.forEach(cat => {
+    cat.subcategories.forEach(sub => subcats.add(sub));
+  });
+  return Array.from(subcats).sort();
 });
 
 const addCategory = () => {
-  if (!newCategoryName.value) return;
-  const newContents = { ...props.contents, [newCategoryName.value]: newCategoryCount.value };
-  emit('update:contents', newContents);
-  newCategoryName.value = '';
+  if (!newCardName.value) return;
+  store.cardCategories.push({
+    name: newCardName.value,
+    count: newCardCount.value,
+    subcategories: []
+  });
+  store.syncDeckContents();
+  newCardName.value = '';
 };
 
 const removeCategory = (name: string) => {
   emit('delete-category', name);
 };
 
-const updateCount = (name: string, count: number) => {
-  const newContents = { ...props.contents, [name]: count };
-  emit('update:contents', newContents);
+const updateCount = (categoryName: string, count: number) => {
+  const category = store.cardCategories.find(c => c.name === categoryName);
+  if (category) {
+    category.count = count;
+    store.syncDeckContents();
+  }
+};
+
+const addSubcategory = (categoryName: string) => {
+  if (!newSubcategory.value.trim()) return;
+  const category = store.cardCategories.find(c => c.name === categoryName);
+  if (category && !category.subcategories.includes(newSubcategory.value.trim())) {
+    category.subcategories.push(newSubcategory.value.trim());
+    newSubcategory.value = '';
+  }
+};
+
+const removeSubcategory = (categoryName: string, subcategory: string) => {
+  const category = store.cardCategories.find(c => c.name === categoryName);
+  if (category) {
+    category.subcategories = category.subcategories.filter(s => s !== subcategory);
+  }
+};
+
+const toggleSubcategoryEditor = (categoryName: string) => {
+  editingSubcategories.value = editingSubcategories.value === categoryName ? null : categoryName;
+  newSubcategory.value = '';
+};
+
+const startEditingCardName = (categoryName: string) => {
+  editingCardName.value = categoryName;
+  editedCardName.value = categoryName;
+};
+
+const saveCardName = (oldName: string) => {
+  if (!editedCardName.value.trim() || editedCardName.value === oldName) {
+    editingCardName.value = null;
+    return;
+  }
+  
+  const category = store.cardCategories.find(c => c.name === oldName);
+  if (category) {
+    category.name = editedCardName.value.trim();
+    store.syncDeckContents();
+  }
+  editingCardName.value = null;
+};
+
+const cancelEditCardName = () => {
+  editingCardName.value = null;
+};
+
+const handleSubcategoryKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Tab' && newSubcategory.value && allExistingSubcategories.value.length > 0) {
+    // Find first matching suggestion
+    const match = allExistingSubcategories.value.find(sub => 
+      sub.toLowerCase().startsWith(newSubcategory.value.toLowerCase())
+    );
+    if (match) {
+      event.preventDefault();
+      newSubcategory.value = match;
+    }
+  }
 };
 
 const importProgress = ref(0);
@@ -95,9 +172,10 @@ const importDeck = async () => {
   }
 };
 const clearAll = () => {
-  if (Object.keys(props.contents).length === 0) return;
+  if (store.cardCategories.length === 0) return;
   if (confirm('Are you sure you want to clear all cards?')) {
-    emit('update:contents', {});
+    store.cardCategories = [];
+    store.syncDeckContents();
   }
 };
 </script>
@@ -148,9 +226,9 @@ const clearAll = () => {
 
     <div class="contents-list">
       <div class="header-row">
-        <h3>Card Categories</h3>
+        <h3>Card Names</h3>
         <button 
-          v-if="Object.keys(contents).length > 0" 
+          v-if="store.cardCategories.length > 0" 
           class="clear-btn" 
           @click="clearAll"
         >
@@ -158,24 +236,90 @@ const clearAll = () => {
         </button>
       </div>
       
-      <div v-for="(count, name) in contents" :key="name" class="category-row">
-        <span class="name">{{ name }}</span>
-        <input 
-          type="number" 
-          :value="count"
-          @input="updateCount(name, Number(($event.target as HTMLInputElement).value))"
-        >
-        <button class="danger" @click="removeCategory(name)">X</button>
+      <div v-for="category in store.cardCategories" :key="category.name" class="category-container">
+        <div class="category-row">
+          <input 
+            v-if="editingCardName === category.name"
+            v-model="editedCardName"
+            class="name-edit-input"
+            @keyup.enter="saveCardName(category.name)"
+            @keyup.esc="cancelEditCardName"
+            @blur="saveCardName(category.name)"
+            ref="nameEditInput"
+          />
+          <span 
+            v-else
+            class="name editable" 
+            @dblclick="startEditingCardName(category.name)"
+            :title="'Double-click to edit'"
+          >
+            {{ category.name }}
+          </span>
+          <button 
+            v-if="editingCardName !== category.name"
+            class="edit-btn" 
+            @click="startEditingCardName(category.name)"
+            title="Edit card name"
+          >
+            ✏️
+          </button>
+          <input 
+            type="number" 
+            :value="category.count"
+            @input="updateCount(category.name, Number(($event.target as HTMLInputElement).value))"
+          >
+          <button class="tag-btn" @click="toggleSubcategoryEditor(category.name)" title="Manage tags">
+            🏷️ {{ category.subcategories.length }}
+          </button>
+          <button class="danger" @click="removeCategory(category.name)">X</button>
+        </div>
+        
+        <!-- Subcategory tags display -->
+        <div v-if="category.subcategories.length > 0" class="subcategory-chips">
+          <span v-for="subcat in category.subcategories" :key="subcat" class="chip">
+            {{ subcat }}
+          </span>
+        </div>
+        
+        <!-- Subcategory editor -->
+        <div v-if="editingSubcategories === category.name" class="subcategory-editor">
+          <div class="editor-header">
+            <h4>Manage Tags for {{ category.name }}</h4>
+          </div>
+          <div class="tag-list">
+            <div v-for="subcat in category.subcategories" :key="subcat" class="tag-item">
+              <span>{{ subcat }}</span>
+              <button class="remove-tag" @click="removeSubcategory(category.name, subcat)">×</button>
+            </div>
+            <div v-if="category.subcategories.length === 0" class="no-tags">
+              No tags yet. Add tags to group cards for success conditions.
+            </div>
+          </div>
+          <div class="add-tag-row">
+            <input 
+              v-model="newSubcategory" 
+              placeholder="e.g., Starter, Extender, Lunarlight Monster (Tab to autocomplete)" 
+              @keyup.enter="addSubcategory(category.name)"
+              @keydown="handleSubcategoryKeydown($event)"
+              class="tag-input"
+              list="subcategory-suggestions"
+            />
+            <datalist id="subcategory-suggestions">
+              <option v-for="subcat in allExistingSubcategories" :key="subcat" :value="subcat" />
+            </datalist>
+            <button @click="addSubcategory(category.name)" class="add-tag-btn">Add Tag</button>
+          </div>
+        </div>
       </div>
 
       <div class="add-row">
         <input 
-            v-model="newCategoryName" 
-            placeholder="Starter, Extender, ..." 
+            v-model="newCardName" 
+            placeholder="Card name (e.g., Ash Blossom, Polymerization)" 
             @keyup.enter="addCategory"
         />
         <input 
-            v-model.number="newCategoryCount" 
+            v-model.number="newCardCount" 
             type="number" 
             style="width: 60px" 
             @keyup.enter="addCategory"
@@ -232,6 +376,45 @@ const clearAll = () => {
 .name {
   flex: 1;
   font-weight: 500;
+}
+
+.name.editable {
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.name.editable:hover {
+  background: rgba(51, 51, 255, 0.1);
+}
+
+.name-edit-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 2px solid #3333ff;
+  border-radius: 4px;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.edit-btn {
+  background: transparent;
+  border: 1px solid #888;
+  color: #888;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background: rgba(136, 136, 136, 0.1);
+  border-color: #3333ff;
+  color: #3333ff;
 }
 
 .add-row {
@@ -351,5 +534,144 @@ const clearAll = () => {
   height: 100%;
   background: linear-gradient(90deg, #3333ff, #ff00cc);
   transition: width 0.3s ease-out;
+}
+
+/* Subcategory styles */
+.category-container {
+  margin-bottom: 1rem;
+}
+
+.tag-btn {
+  background: transparent;
+  border: 1px solid #3333ff;
+  color: #3333ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.tag-btn:hover {
+  background: rgba(51, 51, 255, 0.1);
+}
+
+.subcategory-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.chip {
+  background: linear-gradient(135deg, #3333ff, #5555ff);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.subcategory-editor {
+  background: rgba(51, 51, 255, 0.05);
+  border: 1px solid rgba(51, 51, 255, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 8px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.editor-header h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
+.tag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.tag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.tag-item span {
+  font-size: 0.85rem;
+}
+
+.remove-tag {
+  background: transparent;
+  border: none;
+  color: #ff4444;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 6px;
+  transition: all 0.2s;
+}
+
+.remove-tag:hover {
+  color: #ff6666;
+  transform: scale(1.2);
+}
+
+.no-tags {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 1rem;
+  text-align: center;
+}
+
+.add-tag-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tag-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.add-tag-btn {
+  padding: 6px 12px;
+  background: linear-gradient(90deg, #3333ff, #5555ff);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.add-tag-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 </style>

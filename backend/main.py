@@ -45,8 +45,23 @@ async def add_pna_headers(request, call_next):
 @app.post("/simulate", response_model=SimulationResult)
 def run_simulation(config: SimulationConfig):
     try:
-        # 1. Build Deck
-        deck = Deck(config.deck_size, config.deck_contents)
+        # 1. Build Deck - support both old and new formats
+        if config.card_categories:
+            # New format: use card_categories with subcategories
+            deck_contents = {cat.name: cat.count for cat in config.card_categories}
+            deck = Deck(config.deck_size, deck_contents)
+            
+            # Build subcategory map: subcategory -> list of card names
+            subcategory_map = {}
+            for cat in config.card_categories:
+                for subcat in cat.subcategories:
+                    if subcat not in subcategory_map:
+                        subcategory_map[subcat] = []
+                    subcategory_map[subcat].append(cat.name)
+        else:
+            # Old format: use deck_contents (backward compatibility)
+            deck = Deck(config.deck_size, config.deck_contents)
+            subcategory_map = {}
         
         # 2. Build Rules
         # config.rules is List[List[Requirement]] (OR logic of AND clauses)
@@ -80,8 +95,8 @@ def run_simulation(config: SimulationConfig):
              # But let's handle empty case gracefully
              pass 
 
-        # 3. Run Simulation
-        sim = Simulator(deck)
+        # 3. Run Simulation with subcategory support
+        sim = Simulator(deck, subcategory_map)
         start_time = time.time()
         result = sim.run(config.simulations, config.hand_size, sim_conditions)
         elapsed = time.time() - start_time

@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 class Requirement(BaseModel):
     card_name: str
@@ -12,9 +12,16 @@ class Requirement(BaseModel):
 class SuccessCondition(BaseModel):
     requirements: List[Requirement]
 
+class CardCategory(BaseModel):
+    """Represents a card category with optional subcategories/tags"""
+    name: str
+    count: int
+    subcategories: List[str] = []  # Tags like "Lunarlight Monster", "Fusion Material"
+
 class SimulationConfig(BaseModel):
     deck_size: int
-    deck_contents: Dict[str, int]
+    deck_contents: Dict[str, int]  # Keep for backward compatibility
+    card_categories: Optional[List[CardCategory]] = None  # New field with subcategory support
     hand_size: int
     simulations: int
     # A list of conditions (OR logic). Ideally "SuccessCondition" objects.
