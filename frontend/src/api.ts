@@ -1,8 +1,9 @@
 
 export interface Requirement {
-    card_name: string;
-    min_count: number;
+    card_name?: string;
+    min_count?: number;
     operator?: 'AND' | 'OR';  // Operator to use after this requirement
+    sub_requirements?: Requirement[];
 }
 
 export interface CardCategory {
@@ -51,7 +52,10 @@ export async function runSimulation(config: SimulationConfig): Promise<Simulatio
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.detail || "Simulation failed");
+        const errorMessage = error.detail
+            ? (typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail))
+            : "Simulation failed";
+        throw new Error(errorMessage);
     }
 
     return response.json();

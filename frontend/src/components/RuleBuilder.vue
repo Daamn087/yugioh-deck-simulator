@@ -3,6 +3,7 @@
 import { ref, computed } from 'vue';
 import type { Requirement } from '../api';
 import { useSimulationStore } from '../store';
+import RuleGroup from './RuleGroup.vue';
 
 const isCollapsed = ref(false);
 const toggleCollapse = () => {
@@ -48,34 +49,10 @@ const removeGroup = (index: number) => {
     newRules.splice(index, 1);
     emit('update:rules', newRules);
 };
-
-const addReq = (groupIndex: number) => {
+const updateGroup = (index: number, newGroup: Requirement[]) => {
     const newRules = [...props.rules];
-    const firstCat = props.availableCategories[0] || "Starter";
-    if (newRules[groupIndex]) {
-        newRules[groupIndex].push({ card_name: firstCat, min_count: 1, operator: 'AND' });
-        emit('update:rules', newRules);
-    }
-};
-
-const removeReq = (groupIndex: number, reqIndex: number) => {
-    const newRules = [...props.rules];
-    if (newRules[groupIndex]) {
-        newRules[groupIndex].splice(reqIndex, 1);
-        if (newRules[groupIndex].length === 0) {
-            newRules.splice(groupIndex, 1);
-        }
-        emit('update:rules', newRules);
-    }
-};
-
-const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requirement, value: any) => {
-    const newRules = [...props.rules];
-    if (newRules[groupIndex] && newRules[groupIndex][reqIndex]) {
-        const req = { ...newRules[groupIndex][reqIndex], [field]: value } as Requirement;
-        newRules[groupIndex][reqIndex] = req;
-        emit('update:rules', newRules);
-    }
+    newRules[index] = newGroup;
+    emit('update:rules', newRules);
 };
 </script>
 
@@ -96,47 +73,11 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
                     <button class="danger small" @click.stop="removeGroup(gIndex)">Remove Option</button>
                 </div>
                 
-                <div v-for="(req, rIndex) in group" :key="rIndex" class="req-row">
-                    <select 
-                        :value="req.card_name"
-                        @click.stop
-                        @change="updateReq(gIndex, rIndex, 'card_name', ($event.target as HTMLSelectElement).value)"
-                    >
-                        <optgroup label="Card Names">
-                            <option v-for="cat in allOptions.categories" :key="cat" :value="cat">{{ cat }}</option>
-                        </optgroup>
-                        <optgroup v-if="allOptions.subcategories.length > 0" label="Tags (Subcategories)">
-                            <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
-                        </optgroup>
-                    </select>
-                    <span>>=</span>
-                    <input 
-                        type="number" 
-                        :value="req.min_count"
-                        class="small-input"
-                        @click.stop
-                        @input="updateReq(gIndex, rIndex, 'min_count', Number(($event.target as HTMLInputElement).value))"
-                    >
-                    <button class="danger small" @click="removeReq(gIndex, rIndex)">x</button>
-                    
-                    <!-- Operator toggle (only show if not the last requirement) -->
-                    <div v-if="rIndex < group.length - 1" class="operator-toggle">
-                        <button 
-                            :class="['operator-btn', { active: req.operator === 'AND' || !req.operator }]"
-                            @click="updateReq(gIndex, rIndex, 'operator', 'AND')"
-                        >
-                            AND
-                        </button>
-                        <button 
-                            :class="['operator-btn', { active: req.operator === 'OR' }]"
-                            @click="updateReq(gIndex, rIndex, 'operator', 'OR')"
-                        >
-                            OR
-                        </button>
-                    </div>
-                </div>
-
-                <button class="secondary small" @click="addReq(gIndex)">+ AND / OR Requirement</button>
+                <RuleGroup 
+                    :model-value="group"
+                    :all-options="allOptions"
+                    @update:model-value="updateGroup(gIndex, $event)"
+                />
             </div>
         </div>
 
