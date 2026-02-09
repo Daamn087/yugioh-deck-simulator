@@ -66,6 +66,45 @@ A powerful tool to simulate Yu-Gi-Oh! starting hands and calculate consistency p
     ```
     Open the link provided by Vite (usually `http://localhost:5173`) in your browser.
 
+## Testing
+
+The project includes comprehensive test suites for both the simulation logic and backend integration.
+
+### Running All Tests
+
+From the project root directory with the virtual environment activated:
+
+```bash
+# Activate virtual environment if not already active
+source venv/bin/activate
+
+# Run all tests
+python -m unittest discover tests -v
+```
+
+### Running Specific Test Suites
+
+```bash
+# Test operator logic (AND/OR functionality)
+python -m unittest tests.test_operator_logic -v
+
+# Test backend integration
+python -m unittest tests.test_backend_integration -v
+
+# Test core mechanics
+python -m unittest tests.test_mechanics -v
+```
+
+### Pre-commit Hook
+
+The repository includes a pre-commit hook that automatically runs all tests before each commit. If any test fails, the commit will be blocked.
+
+The hook is automatically installed in `.git/hooks/pre-commit` and will:
+- Run all test suites
+- Display test results
+- Block the commit if any tests fail
+- Allow the commit only if all tests pass
+
 ## CLI Usage
 
 You can also run simulations directly from the command line:

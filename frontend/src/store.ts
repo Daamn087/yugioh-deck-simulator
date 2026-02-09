@@ -11,7 +11,7 @@ export const useSimulationStore = defineStore('simulation', {
         deckContents: {
         } as Record<string, number>,
         rules: [
-            [{ card_name: "Starter", min_count: 1 }]
+            [{ card_name: "Starter", min_count: 1, operator: 'AND' }]
         ] as Requirement[][]
     }),
     persist: true,
@@ -111,7 +111,15 @@ export const useSimulationStore = defineStore('simulation', {
                         if (config.handSize !== undefined) this.handSize = config.handSize;
                         if (config.simulations !== undefined) this.simulations = config.simulations;
                         if (config.deckContents !== undefined) this.deckContents = config.deckContents;
-                        if (config.rules !== undefined) this.rules = config.rules;
+                        if (config.rules !== undefined) {
+                            // Ensure backward compatibility: add default operator 'AND' if missing
+                            this.rules = config.rules.map((group: Requirement[]) =>
+                                group.map((req: Requirement) => ({
+                                    ...req,
+                                    operator: req.operator || 'AND'
+                                }))
+                            );
+                        }
 
                         resolve();
                     } catch (error) {

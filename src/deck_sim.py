@@ -68,21 +68,32 @@ class Rule:
 
     def __and__(self, other: Callable[[Counter], bool]) -> 'CompositeRule':
         """Allows syntax like: req('A') & req('B')"""
-        return CompositeRule(self, other)
+        return CompositeRule(self, other, operator='AND')
+    
+    def __or__(self, other: Callable[[Counter], bool]) -> 'CompositeRule':
+        """Allows syntax like: req('A') | req('B')"""
+        return CompositeRule(self, other, operator='OR')
 
     def __repr__(self):
         return f"req('{self.card_name}') >= {self.min_count}"
 
 class CompositeRule:
-    def __init__(self, left, right):
+    def __init__(self, left, right, operator='AND'):
         self.left = left
         self.right = right
+        self.operator = operator
 
     def __call__(self, hand: Counter) -> bool:
-        return self.left(hand) and self.right(hand)
+        if self.operator == 'OR':
+            return self.left(hand) or self.right(hand)
+        else:  # Default to AND
+            return self.left(hand) and self.right(hand)
     
     def __and__(self, other):
-        return CompositeRule(self, other)
+        return CompositeRule(self, other, operator='AND')
+    
+    def __or__(self, other):
+        return CompositeRule(self, other, operator='OR')
 
 def req(card_name: str) -> Rule:
     """Short helper to create a Rule."""

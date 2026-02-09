@@ -15,7 +15,7 @@ const emit = defineEmits<{
 const addGroup = () => {
     // Start with a default requirement if possible
     const firstCat = props.availableCategories[0] || "Starter";
-    const newRule: Requirement[] = [{ card_name: firstCat, min_count: 1 }];
+    const newRule: Requirement[] = [{ card_name: firstCat, min_count: 1, operator: 'AND' }];
     emit('update:rules', [...props.rules, newRule]);
 };
 
@@ -29,7 +29,7 @@ const addReq = (groupIndex: number) => {
     const newRules = [...props.rules];
     const firstCat = props.availableCategories[0] || "Starter";
     if (newRules[groupIndex]) {
-        newRules[groupIndex].push({ card_name: firstCat, min_count: 1 });
+        newRules[groupIndex].push({ card_name: firstCat, min_count: 1, operator: 'AND' });
         emit('update:rules', newRules);
     }
 };
@@ -82,7 +82,22 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
                     @input="updateReq(gIndex, rIndex, 'min_count', Number(($event.target as HTMLInputElement).value))"
                 >
                 <button class="danger small" @click="removeReq(gIndex, rIndex)">x</button>
-                <span v-if="rIndex < group.length - 1" class="and-label">AND</span>
+                
+                <!-- Operator toggle (only show if not the last requirement) -->
+                <div v-if="rIndex < group.length - 1" class="operator-toggle">
+                    <button 
+                        :class="['operator-btn', { active: req.operator === 'AND' || !req.operator }]"
+                        @click="updateReq(gIndex, rIndex, 'operator', 'AND')"
+                    >
+                        AND
+                    </button>
+                    <button 
+                        :class="['operator-btn', { active: req.operator === 'OR' }]"
+                        @click="updateReq(gIndex, rIndex, 'operator', 'OR')"
+                    >
+                        OR
+                    </button>
+                </div>
             </div>
 
             <button class="secondary small" @click="addReq(gIndex)">+ AND Requirement</button>
@@ -144,9 +159,31 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
     margin-top: 5px;
 }
 
-.and-label {
+.operator-toggle {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.operator-btn {
+    padding: 4px 10px;
+    font-size: 0.75rem;
     font-weight: bold;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-secondary);
-    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.operator-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.operator-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 </style>

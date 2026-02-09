@@ -54,17 +54,23 @@ def run_simulation(config: SimulationConfig):
         
         sim_conditions = []
         for condition_group in config.rules:
-            # logic: AND together all requirements in this group
+            # logic: Combine requirements based on their operator field
             if not condition_group:
                 continue
                 
             # Create first rule
             current_rule = req(condition_group[0].card_name) >= condition_group[0].min_count
             
-            # AND with rest
-            for r in condition_group[1:]:
+            # Combine with rest based on operator
+            for i, r in enumerate(condition_group[1:], start=0):
                 next_rule = req(r.card_name) >= r.min_count
-                current_rule = current_rule & next_rule
+                # Use the operator from the previous requirement (at index i)
+                operator = condition_group[i].operator if condition_group[i].operator else 'AND'
+                
+                if operator == 'OR':
+                    current_rule = current_rule | next_rule
+                else:  # Default to AND
+                    current_rule = current_rule & next_rule
             
             sim_conditions.append(current_rule)
             

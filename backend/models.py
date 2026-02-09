@@ -5,6 +5,7 @@ from typing import List, Dict
 class Requirement(BaseModel):
     card_name: str
     min_count: int
+    operator: str = 'AND'  # Operator to use after this requirement (AND/OR)
 
 # A SuccessCondition is a list of Requirements (AND logic)
 # E.g. [Req(A), Req(B)] means "A AND B"
