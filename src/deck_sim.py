@@ -111,7 +111,7 @@ class Simulator:
         Args:
             deck: The deck to simulate
             subcategory_map: Maps subcategory names to list of card names
-                            e.g., {"Lunarlight Monster": ["Lunarlight Gold Leo", "Lunarlight Tiger"]}
+                            e.g., {"Lunalight Monster": ["Lunalight Gold Leo", "Lunalight Tiger"]}
             card_effects: Maps card names to their effects
                          e.g., {"Pot of Greed": DrawEffect(count=2, once_per_turn=False)}
         """

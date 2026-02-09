@@ -16,7 +16,7 @@ class CardCategory(BaseModel):
     """Represents a card category with optional subcategories/tags"""
     name: str
     count: int
-    subcategories: List[str] = []  # Tags like "Lunarlight Monster", "Fusion Material"
+    subcategories: List[str] = []  # Tags like "Lunalight Monster", "Fusion Material"
 
 class CardEffectDefinition(BaseModel):
     """Defines an effect for a specific card. All cards are once-per-turn (OPT)."""
