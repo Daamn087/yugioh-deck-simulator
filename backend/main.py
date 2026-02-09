@@ -43,6 +43,40 @@ async def add_pna_headers(request, call_next):
     response.headers["Access-Control-Allow-Private-Network"] = "true"
     return response
 
+def build_rule(requirements):
+    """Recursively build a Rule object from a list of requirements."""
+    if not requirements:
+        return req(None) >= 0 # Always True (empty group)
+        
+    # Process the first requirement
+    first_req = requirements[0]
+    
+    if first_req.sub_requirements is not None:
+        # It's a group! Recursively build the inner rule
+        current_rule = build_rule(first_req.sub_requirements)
+    else:
+        # It's a standard card requirement
+        current_rule = req(first_req.card_name) >= first_req.min_count
+
+    # Combine with rest based on operator
+    for i, r in enumerate(requirements[1:], start=0):
+        if r.sub_requirements is not None:
+            next_rule = build_rule(r.sub_requirements)
+        else:
+            next_rule = req(r.card_name) >= r.min_count
+            
+        # Use the operator from the PREVIOUS requirement (at index i)
+        # Requirement[0] has operator that applies between [0] and [1]
+        operator = requirements[i].operator if requirements[i].operator else 'AND'
+        
+        if operator == 'OR':
+            current_rule = current_rule | next_rule
+        else:  # Default to AND
+            current_rule = current_rule & next_rule
+            
+    return current_rule
+
+
 @app.post("/simulate", response_model=SimulationResult)
 def run_simulation(config: SimulationConfig):
     try:
@@ -67,28 +101,9 @@ def run_simulation(config: SimulationConfig):
         # 2. Build Rules
         # config.rules is List[List[Requirement]] (OR logic of AND clauses)
         # [[A], [B, C]] -> (Rule(A)) OR (Rule(B) & Rule(C))
-        
         sim_conditions = []
         for condition_group in config.rules:
-            # logic: Combine requirements based on their operator field
-            if not condition_group:
-                continue
-                
-            # Create first rule
-            current_rule = req(condition_group[0].card_name) >= condition_group[0].min_count
-            
-            # Combine with rest based on operator
-            for i, r in enumerate(condition_group[1:], start=0):
-                next_rule = req(r.card_name) >= r.min_count
-                # Use the operator from the previous requirement (at index i)
-                operator = condition_group[i].operator if condition_group[i].operator else 'AND'
-                
-                if operator == 'OR':
-                    current_rule = current_rule | next_rule
-                else:  # Default to AND
-                    current_rule = current_rule & next_rule
-            
-            sim_conditions.append(current_rule)
+            sim_conditions.append(build_rule(condition_group))
             
         if not sim_conditions:
              # If no rules, assume everything is a success? Or failure? 

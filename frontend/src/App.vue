@@ -87,10 +87,10 @@ const handleFileUpload = async (event: Event) => {
         </label>
         <div class="config-buttons">
           <button @click="handleExport" class="config-btn export-btn" title="Download configuration">
-            📥 Export
+            ⬇️ Export
           </button>
           <button @click="handleImportClick" class="config-btn import-btn" title="Upload configuration">
-            📤 Import
+            ⬆️ Import
           </button>
           <button @click="store.resetToDefaults" class="config-btn reset-btn" title="Clear all settings">
             🔄 Reset

@@ -3,9 +3,10 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional, Any
 
 class Requirement(BaseModel):
-    card_name: str
-    min_count: int
-    operator: str = 'AND'  # Operator to use after this requirement (AND/OR)
+    card_name: Optional[str] = None # Optional now, for groups
+    min_count: int = 1
+    operator: str = 'AND'
+    sub_requirements: Optional[List['Requirement']] = None
 
 # A SuccessCondition is a list of Requirements (AND logic)
 # E.g. [Req(A), Req(B)] means "A AND B"
@@ -43,3 +44,6 @@ class SimulationResult(BaseModel):
     time_taken: float
     max_depth_reached_count: int = 0  # How many simulations hit max effect depth
     warnings: List[str] = []  # User-facing warnings
+
+# For Pydantic v1 compatibility with recursive models
+Requirement.update_forward_refs()
