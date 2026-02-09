@@ -42,6 +42,31 @@ const simulationsFormatted = computed({
     if (!isNaN(num)) simulations.value = num;
   }
 });
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const handleExport = () => {
+  store.exportConfig();
+};
+
+const handleImportClick = () => {
+  fileInput.value?.click();
+};
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    try {
+      await store.importConfig(file);
+      // Reset the input so the same file can be uploaded again
+      target.value = '';
+    } catch (e: any) {
+      error.value = e.message;
+    }
+  }
+};
+
 </script>
 
 <template>
@@ -57,6 +82,21 @@ const simulationsFormatted = computed({
             Simulations:
             <input type="text" v-model.lazy="simulationsFormatted">
         </label>
+        <div class="config-buttons">
+          <button @click="handleExport" class="config-btn export-btn" title="Download configuration">
+            📥 Export
+          </button>
+          <button @click="handleImportClick" class="config-btn import-btn" title="Upload configuration">
+            📤 Import
+          </button>
+          <input 
+            type="file" 
+            ref="fileInput" 
+            @change="handleFileUpload" 
+            accept=".json"
+            style="display: none"
+          />
+        </div>
       </div>
     </header>
 
@@ -164,4 +204,41 @@ h1 {
 .input-slim {
   width: 50px;
 }
+
+.config-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.config-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #3333ff;
+  border-radius: 6px;
+  background: transparent;
+  color: #3333ff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.config-btn:hover {
+  background: #3333ff;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(51, 51, 255, 0.3);
+}
+
+.export-btn:hover {
+  background: linear-gradient(135deg, #3333ff, #5555ff);
+}
+
+.import-btn:hover {
+  background: linear-gradient(135deg, #ff00cc, #ff33dd);
+  border-color: #ff00cc;
+}
+
 </style>
