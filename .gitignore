@@ -12,4 +12,4 @@ dist/
 .DS_Store
 
 # Other
-deck_configs/*
+deck_configs/
