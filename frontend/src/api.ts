@@ -11,6 +11,12 @@ export interface CardCategory {
     subcategories: string[];
 }
 
+export interface CardEffectDefinition {
+    card_name: string;
+    effect_type: 'draw' | 'conditional_discard' | string;
+    parameters: Record<string, any>;
+}
+
 export interface SimulationConfig {
     deck_size: number;
     deck_contents: Record<string, number>;  // Keep for backward compatibility
@@ -18,6 +24,7 @@ export interface SimulationConfig {
     hand_size: number;
     simulations: number;
     rules: Requirement[][];
+    card_effects?: CardEffectDefinition[];
 }
 
 export interface SimulationResult {
@@ -26,6 +33,8 @@ export interface SimulationResult {
     success_count: number;
     brick_count: number;
     time_taken: number;
+    max_depth_reached_count: number;
+    warnings: string[];
 }
 
 // Use environment variable for API URL or fallback to local

@@ -298,7 +298,7 @@ const clearAll = () => {
           <div class="add-tag-row">
             <input 
               v-model="newSubcategory" 
-              placeholder="e.g., Starter, Extender, Lunarlight Monster (Tab to autocomplete)" 
+              placeholder="e.g., Starter, Extender, Lunalight Monster (Tab to autocomplete)" 
               @keyup.enter="addSubcategory(category.name)"
               @keydown="handleSubcategoryKeydown($event)"
               class="tag-input"

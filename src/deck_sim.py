@@ -1,8 +1,9 @@
 
 import random
-from typing import List, Dict, Callable, Any
-from dataclasses import dataclass
+from typing import List, Dict, Callable, Any, Optional
+from dataclasses import dataclass, field
 from collections import Counter
+from card_effects import CardEffect, EffectContext, create_effect_from_definition
 
 @dataclass
 class SimulationResult:
@@ -11,6 +12,8 @@ class SimulationResult:
     brick_count: int
     success_rate: float
     brick_rate: float
+    max_depth_reached_count: int = 0  # How many simulations hit max effect depth
+    warnings: List[str] = field(default_factory=list)  # User-facing warnings
 
 class Deck:
     def __init__(self, deck_size: int, contents: Dict[str, int]):
@@ -100,52 +103,194 @@ def req(card_name: str) -> Rule:
     return Rule(card_name)
 
 class Simulator:
-    def __init__(self, deck: Deck, subcategory_map: Dict[str, List[str]] = None):
+    def __init__(self, deck: Deck, subcategory_map: Dict[str, List[str]] = None, 
+                 card_effects: Dict[str, CardEffect] = None):
         """
         Initialize the simulator.
         
         Args:
             deck: The deck to simulate
             subcategory_map: Maps subcategory names to list of card names
-                            e.g., {"Lunarlight Monster": ["Lunarlight Gold Leo", "Lunarlight Tiger"]}
+                            e.g., {"Lunalight Monster": ["Lunalight Gold Leo", "Lunalight Tiger"]}
+            card_effects: Maps card names to their effects
+                         e.g., {"Pot of Greed": DrawEffect(count=2, once_per_turn=False)}
         """
         self.deck = deck
         self.subcategory_map = subcategory_map or {}
+        self.card_effects = card_effects or {}
+        # Pre-calculate deck counts for performance
+        self.deck_counts = Counter(self.deck.cards)
 
-    def check_success(self, hand: List[str], conditions: List[Callable[[Counter], bool]]) -> bool:
+    def resolve_effects(self, hand: List[str], remaining_deck: List[str], 
+                       conditions: List[Callable[[Counter], bool]], max_depth: int = 10) -> tuple[List[str], bool]:
+        """
+        Resolve all card effects in the starting hand (single pass only).
+        Cards drawn by effects do NOT activate their effects.
+        All cards are treated as once-per-turn (OPT).
+        
+        Args:
+            hand: Initial hand drawn
+            remaining_deck: Cards still in deck (for drawing)
+            conditions: Success conditions (for context)
+            max_depth: Unused, kept for API compatibility
+        
+        Returns:
+            Tuple of (final_hand, depth_exceeded) - depth_exceeded is always False
+        """
+        current_hand = hand.copy()
+        current_deck = remaining_deck.copy()
+        
+        # Track which cards have already activated (OPT)
+        activated_cards = set()
+        
+        # Find all cards with effects in the STARTING hand only
+        cards_with_effects = [card for card in hand if card in self.card_effects]
+        
+        # PHASE 1: Apply all draw effects first (simultaneous resolution)
+        # This ensures all cards are drawn before any conditional effects check the hand
+        for card_name in set(cards_with_effects):
+            # Skip if already activated (OPT)
+            if card_name in activated_cards:
+                continue
+            
+            effect = self.card_effects[card_name]
+            
+            # Only process DrawEffect in this phase
+            from card_effects import DrawEffect
+            if not isinstance(effect, DrawEffect):
+                continue
+            
+            # Create effect context
+            context = EffectContext(
+                subcategory_map=self.subcategory_map,
+                success_conditions=conditions,
+                max_depth=max_depth,
+                current_depth=0
+            )
+            
+            # Check if effect can activate
+            if not effect.can_activate(current_hand, current_deck):
+                continue
+            
+            # Apply the draw effect
+            result = effect.apply(current_hand, current_deck, context)
+            current_hand = result.hand
+            current_deck = result.remaining_deck
+            activated_cards.add(card_name)
+        
+        # PHASE 2: Apply all conditional/discard effects on the final hand
+        # This ensures discards check the hand AFTER all draws are complete
+        for card_name in set(cards_with_effects):
+            # Skip if already activated (OPT)
+            if card_name in activated_cards:
+                continue
+            
+            effect = self.card_effects[card_name]
+            
+            # Only process non-DrawEffect in this phase
+            from card_effects import DrawEffect
+            if isinstance(effect, DrawEffect):
+                continue
+            
+            # Create effect context
+            context = EffectContext(
+                subcategory_map=self.subcategory_map,
+                success_conditions=conditions,
+                max_depth=max_depth,
+                current_depth=0
+            )
+            
+            # Check if effect can activate
+            if not effect.can_activate(current_hand, current_deck):
+                continue
+            
+            # Apply the conditional effect
+            result = effect.apply(current_hand, current_deck, context)
+            current_hand = result.hand
+            current_deck = result.remaining_deck
+            activated_cards.add(card_name)
+        
+        # Never exceed depth with single-pass resolution
+        return current_hand, False
+
+    def check_success(self, hand: List[str], conditions: List[Callable[[Counter], bool]], 
+                     remaining_deck: Optional[List[str]] = None) -> tuple[bool, bool]:
         """
         Checks if a hand meets ANY of the success conditions.
-        Enhanced to support subcategory matching.
+        Enhanced to support subcategory matching and card effects.
         
         Args:
             hand: The list of cards drawn.
             conditions: A list of functions. Each function takes a Counter of the hand 
                         and returns True if that specific condition is met.
+            remaining_deck: Cards still in deck (for effect resolution). If None, no effects are resolved.
+        
+        Returns:
+            Tuple of (success, depth_exceeded)
         """
-        hand_counts = Counter(hand)
+        # Resolve effects if we have a deck and effects are defined
+        depth_exceeded = False
+        final_hand = hand
+        
+        if remaining_deck is not None and self.card_effects:
+            final_hand, depth_exceeded = self.resolve_effects(hand, remaining_deck, conditions)
+        
+        # Count cards in final hand
+        hand_counts = Counter(final_hand)
         
         # Add subcategory counts
         # For each subcategory, count how many cards in hand belong to it
         for subcat, card_names in self.subcategory_map.items():
             hand_counts[subcat] = sum(hand_counts[card] for card in card_names)
         
+        # Check conditions
+        success = False
         for condition in conditions:
             if condition(hand_counts):
-                return True
-        return False
+                success = True
+                break
+        
+        return success, depth_exceeded
 
     def run(self, simulations: int, hand_size: int, conditions: List[Callable[[Counter], bool]]) -> SimulationResult:
         successes = 0
+        max_depth_count = 0
         
         for _ in range(simulations):
             hand = self.deck.draw_hand(hand_size)
-            if self.check_success(hand, conditions):
+            
+            # Only calculate remaining deck if we actually have effects to resolve
+            remaining_deck = None
+            if self.card_effects:
+                # Calculate remaining deck correctly by subtracting hand counts
+                hand_counts = Counter(hand)
+                remaining_deck = []
+                for card, count in self.deck_counts.items():
+                    rem = count - hand_counts.get(card, 0)
+                    if rem > 0:
+                        remaining_deck.extend([card] * rem)
+            
+            # Check success with effect resolution
+            success, depth_exceeded = self.check_success(hand, conditions, remaining_deck)
+            
+            if success:
                 successes += 1
+            
+            if depth_exceeded:
+                max_depth_count += 1
+        
+        # Build warnings
+        warnings = []
+        if max_depth_count > 0:
+            warnings.append(f"Max effect depth reached in {max_depth_count} simulation(s). "
+                          f"This may indicate infinite loops in your card effect definitions.")
         
         return SimulationResult(
             total_simulations=simulations,
             success_count=successes,
             brick_count=simulations - successes,
             success_rate=(successes / simulations) * 100.0,
-            brick_rate=((simulations - successes) / simulations) * 100.0
+            brick_rate=((simulations - successes) / simulations) * 100.0,
+            max_depth_reached_count=max_depth_count,
+            warnings=warnings
         )

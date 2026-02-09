@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import SimulationConfig, SimulationResult
+from models import SimulationConfig, SimulationResult, CardEffectDefinition
 from duelingbook_parser import parse_duelingbook_deck
 import sys
 import os
@@ -16,6 +16,7 @@ import time
 #     deck_sim.py
 sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
 from deck_sim import Deck, Simulator, req, Rule, CompositeRule
+from card_effects import create_effect_from_definition
 
 app = FastAPI()
 
@@ -95,8 +96,26 @@ def run_simulation(config: SimulationConfig):
              # But let's handle empty case gracefully
              pass 
 
-        # 3. Run Simulation with subcategory support
-        sim = Simulator(deck, subcategory_map)
+        # 3. Build Card Effects Registry
+        card_effects = {}
+        if config.card_effects:
+            for effect_def in config.card_effects:
+                try:
+                    # Convert CardEffectDefinition to dict for factory function
+                    effect_dict = {
+                        'effect_type': effect_def.effect_type,
+                        'parameters': effect_def.parameters
+                    }
+                    effect = create_effect_from_definition(effect_dict)
+                    card_effects[effect_def.card_name] = effect
+                except Exception as e:
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"Invalid effect definition for '{effect_def.card_name}': {str(e)}"
+                    )
+
+        # 4. Run Simulation with subcategory and effect support
+        sim = Simulator(deck, subcategory_map, card_effects)
         start_time = time.time()
         result = sim.run(config.simulations, config.hand_size, sim_conditions)
         elapsed = time.time() - start_time
@@ -106,7 +125,9 @@ def run_simulation(config: SimulationConfig):
             brick_rate=result.brick_rate,
             success_count=result.success_count,
             brick_count=result.brick_count,
-            time_taken=elapsed
+            time_taken=elapsed,
+            max_depth_reached_count=result.max_depth_reached_count,
+            warnings=result.warnings
         )
 
     except ValueError as e:
