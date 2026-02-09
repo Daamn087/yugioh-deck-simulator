@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 class Requirement(BaseModel):
     card_name: str
@@ -18,6 +18,12 @@ class CardCategory(BaseModel):
     count: int
     subcategories: List[str] = []  # Tags like "Lunarlight Monster", "Fusion Material"
 
+class CardEffectDefinition(BaseModel):
+    """Defines an effect for a specific card. All cards are once-per-turn (OPT)."""
+    card_name: str
+    effect_type: str  # "draw", "conditional_discard", etc.
+    parameters: Dict[str, Any]  # Effect-specific parameters
+
 class SimulationConfig(BaseModel):
     deck_size: int
     deck_contents: Dict[str, int]  # Keep for backward compatibility
@@ -26,7 +32,8 @@ class SimulationConfig(BaseModel):
     simulations: int
     # A list of conditions (OR logic). Ideally "SuccessCondition" objects.
     # [[A], [B, C]] means (A) OR (B AND C)
-    rules: List[List[Requirement]] 
+    rules: List[List[Requirement]]
+    card_effects: Optional[List[CardEffectDefinition]] = []  # Card effects definitions 
 
 class SimulationResult(BaseModel):
     success_rate: float
@@ -34,3 +41,5 @@ class SimulationResult(BaseModel):
     success_count: int
     brick_count: int
     time_taken: float
+    max_depth_reached_count: int = 0  # How many simulations hit max effect depth
+    warnings: List[str] = []  # User-facing warnings

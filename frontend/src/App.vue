@@ -4,6 +4,7 @@ import { ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import DeckBuilder from './components/DeckBuilder.vue';
 import RuleBuilder from './components/RuleBuilder.vue';
+import CardEffectsEditor from './components/CardEffectsEditor.vue';
 import Results from './components/Results.vue';
 import { runSimulation, type SimulationResult } from './api';
 import { useSimulationStore } from './store';
@@ -28,7 +29,8 @@ const run = async () => {
             card_categories: store.cardCategories,  // Send subcategory data
             hand_size: handSize.value,
             simulations: simulations.value,
-            rules: rules.value
+            rules: rules.value,
+            card_effects: store.cardEffects
         });
     } catch (e: any) {
         error.value = e.message;
@@ -90,6 +92,9 @@ const handleFileUpload = async (event: Event) => {
           <button @click="handleImportClick" class="config-btn import-btn" title="Upload configuration">
             📤 Import
           </button>
+          <button @click="store.resetToDefaults" class="config-btn reset-btn" title="Clear all settings">
+            🔄 Reset
+          </button>
           <input 
             type="file" 
             ref="fileInput" 
@@ -112,6 +117,7 @@ const handleFileUpload = async (event: Event) => {
             v-model:rules="rules"
             :availableCategories="availableCategories" 
         />
+        <CardEffectsEditor />
       </div>
       
       <div class="col results-col">
@@ -240,6 +246,16 @@ h1 {
 .import-btn:hover {
   background: linear-gradient(135deg, #ff00cc, #ff33dd);
   border-color: #ff00cc;
+}
+
+.reset-btn {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.reset-btn:hover {
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  border-color: #ff4444;
 }
 
 </style>

@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import type { SimulationResult } from '../api';
 
@@ -25,7 +24,7 @@ defineProps<{
       <div class="progress-bar-bg">
         <div 
             class="progress-bar-fill" 
-            :style="{ width: result.success_rate + '%' }"
+            :style="{ width: (result.success_rate || 0) + '%' }"
         ></div>
       </div>
 
@@ -41,6 +40,13 @@ defineProps<{
         <div class="detail-item">
             <span class="val">{{ result.time_taken.toFixed(3) }}s</span>
             <span class="lbl">Time Taken</span>
+        </div>
+      </div>
+
+      <!-- Warnings -->
+      <div v-if="result.warnings && result.warnings.length > 0" class="warnings-area">
+        <div v-for="(warning, idx) in result.warnings" :key="idx" class="warning-msg">
+          ⚠️ {{ warning }}
         </div>
       </div>
     </div>
@@ -74,6 +80,7 @@ defineProps<{
     background: linear-gradient(45deg, #00ff88, #00b8ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .progress-bar-bg {
@@ -93,7 +100,7 @@ defineProps<{
 .details {
     display: flex;
     justify-content: space-around;
-    padding-top: 1rem;
+    padding: 1rem 0;
     border-top: 1px solid var(--border-color);
 }
 
@@ -126,5 +133,24 @@ defineProps<{
     color: var(--text-secondary);
     font-style: italic;
     padding: 2rem;
+}
+
+.warnings-area {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.warning-msg {
+    background: rgba(255, 204, 0, 0.1);
+    color: #ffcc00;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: left;
+    border: 1px solid rgba(255, 204, 0, 0.2);
 }
 </style>

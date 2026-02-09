@@ -1,6 +1,6 @@
 
 import { defineStore } from 'pinia';
-import type { Requirement, CardCategory } from './api';
+import type { Requirement, CardCategory, CardEffectDefinition } from './api';
 import { importDeckFromDuelingBook } from './api';
 
 export const useSimulationStore = defineStore('simulation', {
@@ -13,7 +13,8 @@ export const useSimulationStore = defineStore('simulation', {
         cardCategories: [] as CardCategory[],  // New field with subcategory support
         rules: [
             [{ card_name: "Starter", min_count: 1, operator: 'AND' }]
-        ] as Requirement[][]
+        ] as Requirement[][],
+        cardEffects: [] as CardEffectDefinition[]
     }),
     persist: true,
     actions: {
@@ -69,7 +70,8 @@ export const useSimulationStore = defineStore('simulation', {
                 simulations: this.simulations,
                 deckContents: this.deckContents,  // Keep for backward compatibility
                 cardCategories: this.cardCategories,  // New field with subcategories
-                rules: this.rules
+                rules: this.rules,
+                cardEffects: this.cardEffects
             };
 
             const json = JSON.stringify(config, null, 2);
@@ -149,6 +151,12 @@ export const useSimulationStore = defineStore('simulation', {
                             );
                         }
 
+                        if (config.cardEffects !== undefined) {
+                            this.cardEffects = config.cardEffects;
+                        } else {
+                            this.cardEffects = [];
+                        }
+
                         resolve();
                     } catch (error) {
                         reject(new Error('Invalid configuration file'));
@@ -157,6 +165,15 @@ export const useSimulationStore = defineStore('simulation', {
                 reader.onerror = () => reject(new Error('Failed to read file'));
                 reader.readAsText(file);
             });
+        },
+        resetToDefaults() {
+            this.deckSize = 40;
+            this.handSize = 5;
+            this.simulations = 1000000;
+            this.deckContents = {};
+            this.cardCategories = [];
+            this.rules = [[{ card_name: "Starter", min_count: 1, operator: 'AND' }]];
+            this.cardEffects = [];
         }
     }
 });
