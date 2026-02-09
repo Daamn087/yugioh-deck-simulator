@@ -33,19 +33,20 @@ A powerful tool to simulate Yu-Gi-Oh! starting hands and calculate consistency p
 
 2.  **Backend Setup:**
     ```bash
-    cd yugioh_sim
+    cd yugioh-deck-simulator
     # Create virtual environment
     python3 -m venv venv
     source venv/bin/activate
     
     # Install dependencies
     pip install fastapi uvicorn
+    pip install selenium
     ```
 
 3.  **Frontend Setup:**
     ```bash
     # Open a new terminal in the project root
-    cd yugioh_sim/frontend
+    cd yugioh-deck-simulator/frontend
     npm install
     ```
 
@@ -53,14 +54,14 @@ A powerful tool to simulate Yu-Gi-Oh! starting hands and calculate consistency p
 
 1.  **Start the Backend:**
     ```bash
-    # From yugioh_sim/ directory with venv activated
+    # From yugioh-deck-simulator/ directory with venv activated
     python backend/main.py
     ```
     The API will run at `http://localhost:8000`.
 
 2.  **Start the Frontend:**
     ```bash
-    # From yugioh_sim/frontend/ directory
+    # From yugioh-deck-simulator/frontend/ directory
     npm run dev
     ```
     Open the link provided by Vite (usually `http://localhost:5173`) in your browser.
