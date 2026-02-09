@@ -151,7 +151,7 @@ header {
 
 h1 {
     font-size: 2rem;
-    background: linear-gradient(90deg, #ff00cc, #3333ff);
+    background: linear-gradient(90deg, #ff00cc, #9898ee);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -181,7 +181,7 @@ h1 {
 .run-btn {
     font-size: 1.5rem;
     padding: 1rem;
-    background: linear-gradient(90deg, #3333ff, #ff00cc);
+    background: linear-gradient(90deg, #9898ee, #ff00cc);
     color: white;
     border: none;
     border-radius: 8px;
@@ -219,10 +219,10 @@ h1 {
 
 .config-btn {
   padding: 0.5rem 1rem;
-  border: 2px solid #3333ff;
+  border: 2px solid #9898ee;
   border-radius: 6px;
   background: transparent;
-  color: #3333ff;
+  color: #9898ee;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
@@ -233,14 +233,14 @@ h1 {
 }
 
 .config-btn:hover {
-  background: #3333ff;
+  background: #9898ee;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(51, 51, 255, 0.3);
 }
 
 .export-btn:hover {
-  background: linear-gradient(135deg, #3333ff, #5555ff);
+  background: linear-gradient(135deg, #9898ee, #5555ff);
 }
 
 .import-btn:hover {

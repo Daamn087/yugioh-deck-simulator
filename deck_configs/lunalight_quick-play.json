@@ -1,0 +1,375 @@
+{
+  "deckSize": 43,
+  "handSize": 5,
+  "simulations": 1000000,
+  "deckContents": {
+    "Lunalight Gold Leo": 3,
+    "Lunalight Black Sheep": 2,
+    "Lunalight Kaleido Chick": 2,
+    "Lunalight Emerald Bird": 1,
+    "Lunalight Silver Hound": 2,
+    "Lunalight Yellow Marten": 1,
+    "Lunalight Tiger": 1,
+    "Lunalight Wolf": 1,
+    "Tri-Brigade Fraktall": 1,
+    "Lunalight Masquerade": 2,
+    "Lunalight Fusion": 1,
+    "Polymerization": 1,
+    "Fire Formation - Tenki": 2,
+    "Foolish Burial Goods": 3,
+    "Lunalight Serenade Dance": 1,
+    "Luna Light Perfume": 2,
+    "Foolish Burial": 1,
+    "Forbidden Droplet": 3,
+    "Heavy Polymerization": 3,
+    "The Fallen & The Virtuous": 3,
+    "Mystical Space Typhoon": 1,
+    "Radiant Typhoon Vision": 3,
+    "Mulcharmy Fuwalos": 3
+  },
+  "cardCategories": [
+    {
+      "name": "Lunalight Gold Leo",
+      "count": 3,
+      "subcategories": [
+        "luna monster",
+        "starter"
+      ]
+    },
+    {
+      "name": "Lunalight Black Sheep",
+      "count": 2,
+      "subcategories": [
+        "luna monster",
+        "poly"
+      ]
+    },
+    {
+      "name": "Lunalight Kaleido Chick",
+      "count": 2,
+      "subcategories": [
+        "luna monster"
+      ]
+    },
+    {
+      "name": "Lunalight Emerald Bird",
+      "count": 1,
+      "subcategories": [
+        "luna monster"
+      ]
+    },
+    {
+      "name": "Lunalight Silver Hound",
+      "count": 2,
+      "subcategories": [
+        "luna monster"
+      ]
+    },
+    {
+      "name": "Lunalight Yellow Marten",
+      "count": 1,
+      "subcategories": [
+        "luna monster"
+      ]
+    },
+    {
+      "name": "Lunalight Tiger",
+      "count": 1,
+      "subcategories": [
+        "luna monster"
+      ]
+    },
+    {
+      "name": "Lunalight Wolf",
+      "count": 1,
+      "subcategories": [
+        "luna monster"
+      ]
+    },
+    {
+      "name": "Tri-Brigade Fraktall",
+      "count": 1,
+      "subcategories": [
+        "starter"
+      ]
+    },
+    {
+      "name": "Lunalight Masquerade",
+      "count": 2,
+      "subcategories": [
+        "starter"
+      ]
+    },
+    {
+      "name": "Lunalight Fusion",
+      "count": 1,
+      "subcategories": [
+        "poly"
+      ]
+    },
+    {
+      "name": "Polymerization",
+      "count": 1,
+      "subcategories": [
+        "poly"
+      ]
+    },
+    {
+      "name": "Fire Formation - Tenki",
+      "count": 2,
+      "subcategories": [
+        "starter"
+      ]
+    },
+    {
+      "name": "Foolish Burial Goods",
+      "count": 3,
+      "subcategories": [
+        "starter"
+      ]
+    },
+    {
+      "name": "Lunalight Serenade Dance",
+      "count": 1,
+      "subcategories": []
+    },
+    {
+      "name": "Luna Light Perfume",
+      "count": 2,
+      "subcategories": []
+    },
+    {
+      "name": "Foolish Burial",
+      "count": 1,
+      "subcategories": [
+        "starter"
+      ]
+    },
+    {
+      "name": "Forbidden Droplet",
+      "count": 3,
+      "subcategories": [
+        "quick play"
+      ]
+    },
+    {
+      "name": "Heavy Polymerization",
+      "count": 3,
+      "subcategories": []
+    },
+    {
+      "name": "The Fallen & The Virtuous",
+      "count": 3,
+      "subcategories": [
+        "quick play"
+      ]
+    },
+    {
+      "name": "Mystical Space Typhoon",
+      "count": 1,
+      "subcategories": [
+        "mst",
+        "quick play"
+      ]
+    },
+    {
+      "name": "Radiant Typhoon Vision",
+      "count": 3,
+      "subcategories": [
+        "mst",
+        "quick play"
+      ]
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "count": 3,
+      "subcategories": []
+    }
+  ],
+  "rules": [
+    [
+      {
+        "card_name": "starter",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "poly",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "luna monster",
+        "min_count": 2,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "mst",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Luna Light Perfume",
+        "min_count": 1,
+        "operator": "OR"
+      }
+    ],
+    [
+      {
+        "card_name": "mst",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Serenade Dance",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Heavy Polymerization",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Kaleido Chick",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "luna monster",
+        "min_count": 2,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Black Sheep",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Luna Light Perfume",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Kaleido Chick",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Luna Light Perfume",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Emerald Bird",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Silver Hound",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Emerald Bird",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Yellow Marten",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Emerald Bird",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Serenade Dance",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "The Fallen & The Virtuous",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Silver Hound",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "The Fallen & The Virtuous",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Yellow Marten",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Kaleido Chick",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Lunalight Tiger",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ],
+    [
+      {
+        "card_name": "Lunalight Emerald Bird",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "luna monster",
+        "min_count": 1,
+        "operator": "AND"
+      },
+      {
+        "card_name": "Luna Light Perfume",
+        "min_count": 1,
+        "operator": "AND"
+      }
+    ]
+  ],
+  "cardEffects": [
+    {
+      "card_name": "Radiant Typhoon Vision",
+      "effect_type": "conditional_discard",
+      "parameters": {
+        "draw_count": 2,
+        "discard_filter": "quick play",
+        "discard_count": 1
+      }
+    }
+  ]
+}

@@ -1,8 +1,13 @@
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import type { Requirement } from '../api';
 import { useSimulationStore } from '../store';
+
+const isCollapsed = ref(false);
+const toggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value;
+};
 
 const props = defineProps<{
   rules: Requirement[][];
@@ -76,59 +81,67 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
 
 <template>
   <div class="rule-builder card">
-    <h2>Success Conditions</h2>
-    <p class="desc">The hand is successful if <strong>ANY</strong> of these groups are met.</p>
-
-    <div class="rules-container">
-        <div v-for="(group, gIndex) in rules" :key="gIndex" class="rule-group">
-            <div class="group-header">
-                <span>Option {{ gIndex + 1 }} (All must be true)</span>
-                <button class="danger small" @click="removeGroup(gIndex)">Remove Option</button>
-            </div>
-            
-            <div v-for="(req, rIndex) in group" :key="rIndex" class="req-row">
-                <select 
-                    :value="req.card_name"
-                    @change="updateReq(gIndex, rIndex, 'card_name', ($event.target as HTMLSelectElement).value)"
-                >
-                    <optgroup label="Card Names">
-                        <option v-for="cat in allOptions.categories" :key="cat" :value="cat">{{ cat }}</option>
-                    </optgroup>
-                    <optgroup v-if="allOptions.subcategories.length > 0" label="Tags (Subcategories)">
-                        <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
-                    </optgroup>
-                </select>
-                <span>>=</span>
-                <input 
-                    type="number" 
-                    :value="req.min_count"
-                    class="small-input"
-                    @input="updateReq(gIndex, rIndex, 'min_count', Number(($event.target as HTMLInputElement).value))"
-                >
-                <button class="danger small" @click="removeReq(gIndex, rIndex)">x</button>
-                
-                <!-- Operator toggle (only show if not the last requirement) -->
-                <div v-if="rIndex < group.length - 1" class="operator-toggle">
-                    <button 
-                        :class="['operator-btn', { active: req.operator === 'AND' || !req.operator }]"
-                        @click="updateReq(gIndex, rIndex, 'operator', 'AND')"
-                    >
-                        AND
-                    </button>
-                    <button 
-                        :class="['operator-btn', { active: req.operator === 'OR' }]"
-                        @click="updateReq(gIndex, rIndex, 'operator', 'OR')"
-                    >
-                        OR
-                    </button>
-                </div>
-            </div>
-
-            <button class="secondary small" @click="addReq(gIndex)">+ AND / OR Requirement</button>
-        </div>
+    <div class="section-header" @click="toggleCollapse">
+        <h2>Success Conditions</h2>
+        <span class="toggle-icon">{{ isCollapsed ? '▼' : '▲' }}</span>
     </div>
+    
+    <div v-show="!isCollapsed" class="section-content">
+        <p class="desc">The hand is successful if <strong>ANY</strong> of these groups are met.</p>
 
-    <button class="primary" @click="addGroup">+ Add Success Option (OR)</button>
+        <div class="rules-container">
+            <div v-for="(group, gIndex) in rules" :key="gIndex" class="rule-group">
+                <div class="group-header">
+                    <span>Option {{ gIndex + 1 }} (All must be true)</span>
+                    <button class="danger small" @click.stop="removeGroup(gIndex)">Remove Option</button>
+                </div>
+                
+                <div v-for="(req, rIndex) in group" :key="rIndex" class="req-row">
+                    <select 
+                        :value="req.card_name"
+                        @click.stop
+                        @change="updateReq(gIndex, rIndex, 'card_name', ($event.target as HTMLSelectElement).value)"
+                    >
+                        <optgroup label="Card Names">
+                            <option v-for="cat in allOptions.categories" :key="cat" :value="cat">{{ cat }}</option>
+                        </optgroup>
+                        <optgroup v-if="allOptions.subcategories.length > 0" label="Tags (Subcategories)">
+                            <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
+                        </optgroup>
+                    </select>
+                    <span>>=</span>
+                    <input 
+                        type="number" 
+                        :value="req.min_count"
+                        class="small-input"
+                        @click.stop
+                        @input="updateReq(gIndex, rIndex, 'min_count', Number(($event.target as HTMLInputElement).value))"
+                    >
+                    <button class="danger small" @click="removeReq(gIndex, rIndex)">x</button>
+                    
+                    <!-- Operator toggle (only show if not the last requirement) -->
+                    <div v-if="rIndex < group.length - 1" class="operator-toggle">
+                        <button 
+                            :class="['operator-btn', { active: req.operator === 'AND' || !req.operator }]"
+                            @click="updateReq(gIndex, rIndex, 'operator', 'AND')"
+                        >
+                            AND
+                        </button>
+                        <button 
+                            :class="['operator-btn', { active: req.operator === 'OR' }]"
+                            @click="updateReq(gIndex, rIndex, 'operator', 'OR')"
+                        >
+                            OR
+                        </button>
+                    </div>
+                </div>
+
+                <button class="secondary small" @click="addReq(gIndex)">+ AND / OR Requirement</button>
+            </div>
+        </div>
+
+        <button class="primary" @click="addGroup">+ Add Success Option (OR)</button>
+    </div>
   </div>
 </template>
 
@@ -138,6 +151,28 @@ const updateReq = (groupIndex: number, reqIndex: number, field: keyof Requiremen
   background: var(--surface-card);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.toggle-icon {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+.section-content {
+    margin-top: 1rem;
 }
 
 .desc {

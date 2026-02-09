@@ -392,7 +392,7 @@ const clearAll = () => {
 .name-edit-input {
   flex: 1;
   padding: 4px 8px;
-  border: 2px solid #3333ff;
+  border: 2px solid #9898ee;
   border-radius: 4px;
   background: var(--surface-base);
   color: var(--text-primary);
@@ -413,8 +413,8 @@ const clearAll = () => {
 
 .edit-btn:hover {
   background: rgba(136, 136, 136, 0.1);
-  border-color: #3333ff;
-  color: #3333ff;
+  border-color: #9898ee;
+  color: #9898ee;
 }
 
 .add-row {
@@ -485,7 +485,7 @@ const clearAll = () => {
 
 .import-btn {
   padding: 8px 20px;
-  background: linear-gradient(90deg, #3333ff, #ff00cc);
+  background: linear-gradient(90deg, #9898ee, #ff00cc);
   color: white;
   border: none;
   border-radius: 4px;
@@ -532,7 +532,7 @@ const clearAll = () => {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3333ff, #ff00cc);
+  background: linear-gradient(90deg, #9898ee, #ff00cc);
   transition: width 0.3s ease-out;
 }
 
@@ -543,8 +543,8 @@ const clearAll = () => {
 
 .tag-btn {
   background: transparent;
-  border: 1px solid #3333ff;
-  color: #3333ff;
+  border: 1px solid #9898ee;
+  color: #9898ee;
   padding: 2px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -566,7 +566,7 @@ const clearAll = () => {
 }
 
 .chip {
-  background: linear-gradient(135deg, #3333ff, #5555ff);
+  background: linear-gradient(135deg, #9898ee, #5555ff);
   color: white;
   padding: 3px 10px;
   border-radius: 12px;
@@ -660,7 +660,7 @@ const clearAll = () => {
 
 .add-tag-btn {
   padding: 6px 12px;
-  background: linear-gradient(90deg, #3333ff, #5555ff);
+  background: linear-gradient(90deg, #9898ee, #5555ff);
   color: white;
   border: none;
   border-radius: 4px;
