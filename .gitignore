@@ -10,3 +10,6 @@ venv/
 node_modules/
 dist/
 .DS_Store
+
+# Other
+deck_configs/*
