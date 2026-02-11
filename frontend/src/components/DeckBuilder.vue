@@ -18,7 +18,7 @@ const store = useSimulationStore();
 
 const newCardName = ref('');
 const newCardCount = ref(3);
-const importUrl = ref('');
+const selectedFile = ref<File | null>(null);
 const importing = ref(false);
 const importError = ref<string | null>(null);
 const editingSubcategories = ref<string | null>(null);
@@ -119,56 +119,32 @@ const handleSubcategoryKeydown = (event: KeyboardEvent) => {
   }
 };
 
-const importProgress = ref(0);
-const TIMEOUT_MS = 30000; // 30 seconds
-
 const importDeck = async () => {
-  if (!importUrl.value) return;
+  if (!selectedFile.value) return;
   
   importing.value = true;
   importError.value = null;
-  importProgress.value = 0;
-  
-  // Start fake progress
-  const interval = setInterval(() => {
-    // Increment progress but slow down as it gets higher, capping at 95% until done
-    if (importProgress.value < 40) {
-      importProgress.value += 2;
-    } else if (importProgress.value < 70) {
-      importProgress.value += 1;
-    } else if (importProgress.value < 95) {
-      importProgress.value += 0.5;
-    }
-  }, TIMEOUT_MS / 100); // Rough approximation to fill in ~30s
   
   try {
-    // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error(`Import timed out after ${TIMEOUT_MS/1000} seconds. The deck list might be too large or DuelingBook is unresponsive.`)), TIMEOUT_MS)
-    );
-
-    // Race the actual import against the timeout
-    await Promise.race([
-      store.importFromDuelingBook(importUrl.value),
-      timeoutPromise
-    ]);
-    
-    importProgress.value = 100;
-    importUrl.value = '';
+    // TypeScript null check: we already verified selectedFile.value is not null above
+    const file = selectedFile.value;
+    await store.importFromXML(file);
+    selectedFile.value = null;
+    // Reset the file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   } catch (e: any) {
     importError.value = e.message || 'Failed to import deck';
   } finally {
-    clearInterval(interval);
-    
-    // Keep the success state visible for a moment
-    if (!importError.value) {
-      setTimeout(() => {
-        importing.value = false;
-        setTimeout(() => { importProgress.value = 0; }, 300); // Clear bar after fade out
-      }, 1000);
-    } else {
-      importing.value = false;
-    }
+    importing.value = false;
+  }
+};
+
+const handleFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    selectedFile.value = target.files[0];
+    importError.value = null;
   }
 };
 const clearAll = () => {
@@ -186,29 +162,24 @@ const clearAll = () => {
     
     <!-- Import Section -->
     <div class="import-section">
-      <h3>Import from DuelingBook</h3>
+      <h3>Import Deck from XML</h3>
       <div class="import-group">
         <div class="import-row">
           <input 
-            v-model="importUrl" 
-            placeholder="https://www.duelingbook.com/deck?id=..."
-            class="import-input"
-            @keyup.enter="importDeck"
+            type="file"
+            accept=".xml"
+            @change="handleFileSelect"
+            class="file-input"
             :disabled="importing"
           />
           <button 
             @click="importDeck" 
-            :disabled="importing || !importUrl"
+            :disabled="importing || !selectedFile"
             class="import-btn"
           >
             <div v-if="importing" class="spinner"></div>
             <span v-else>Import</span>
           </button>
-        </div>
-        
-        <!-- Progress Bar -->
-        <div v-if="importing" class="progress-container">
-          <div class="progress-bar" :style="{ width: `${Math.min(importProgress, 100)}%` }"></div>
         </div>
       </div>
       <p v-if="importError" class="error">{{ importError }}</p>
@@ -468,7 +439,7 @@ const clearAll = () => {
   gap: 10px;
 }
 
-.import-input {
+.file-input {
   flex: 1;
   padding: 8px 12px;
   border: 1px solid var(--border-color);
@@ -476,11 +447,28 @@ const clearAll = () => {
   background: var(--surface-base);
   color: var(--text-primary);
   font-size: 0.9rem;
+  cursor: pointer;
 }
 
-.import-input:disabled {
+.file-input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.file-input::file-selector-button {
+  padding: 4px 12px;
+  margin-right: 12px;
+  background: linear-gradient(90deg, #9898ee, #5555ff);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.file-input::file-selector-button:hover {
+  filter: brightness(1.1);
 }
 
 .import-btn {
