@@ -1,8 +1,8 @@
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from models import SimulationConfig, SimulationResult, CardEffectDefinition
-from duelingbook_parser import parse_duelingbook_deck
+from xml_deck_parser import parse_xml_deck
 import sys
 import os
 import time
@@ -152,22 +152,26 @@ def run_simulation(config: SimulationConfig):
 
 
 @app.post("/api/import-deck")
-def import_deck(request: dict):
+async def import_deck(file: UploadFile = File(...)):
     """
-    Import a deck from DuelingBook URL.
+    Import a deck from an XML file.
     
     Args:
-        request: Dictionary with 'url' key containing DuelingBook deck URL
+        file: Uploaded XML deck file
         
     Returns:
         Dictionary mapping card names to counts for the main deck
     """
-    url = request.get("url")
-    if not url:
-        raise HTTPException(status_code=400, detail="URL is required")
+    if not file.filename or not file.filename.endswith('.xml'):
+        raise HTTPException(status_code=400, detail="File must be an XML file")
     
     try:
-        deck_contents = parse_duelingbook_deck(url)
+        # Read file contents
+        xml_content = await file.read()
+        
+        # Parse the XML deck
+        deck_contents = parse_xml_deck(xml_content)
+        
         return {
             "deck_contents": deck_contents,
             "deck_size": sum(deck_contents.values())

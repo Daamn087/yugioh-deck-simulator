@@ -7,7 +7,7 @@ A powerful, Monte Carlo-based tool to simulate Yu-Gi-Oh! starting hands and calc
 ### 🃏 Deck Building & Logic
 - **Smart Category Management**: Define custom tags like "Starter", "Extender", "Handtrap", or specific engines.
 - **Advanced Rule Engine**: Build complex success conditions using a visual builder (e.g., `"Starter" >= 1 AND ("Extender" >= 1 OR "Pot of Greed" >= 1)`).
-- **DuelingBook Import**: Directly import decks from DuelingBook using the URL.
+- **XML Deck Import**: Import decks from XML files exported from DuelingBook, YGOPro, or other deck builders.
 - **Config Management**: Export and Import your entire simulation setup (deck, rules, effects) to JSON/File.
 
 ### ✨ Card Effects System (New!)
@@ -50,7 +50,7 @@ Simulate the actual gameplay impact of draw power and consistency cards.
     source venv/bin/activate
     
     # Install dependencies
-    pip install fastapi uvicorn selenium webdriver-manager
+    pip install fastapi uvicorn python-multipart
     ```
 
 3.  **Frontend Setup:**
@@ -74,6 +74,25 @@ Simulate the actual gameplay impact of draw power and consistency cards.
     npm run dev
     ```
     Open `http://localhost:5173` in your browser.
+
+## 📥 Importing Decks
+
+You can import decks from XML files exported from DuelingBook, YGOPro, or other deck builders.
+
+### Exporting from DuelingBook
+1. Open your deck on DuelingBook
+2. Click "Export Deck" → "Download Link"
+3. Open the download link
+4. Click "Downlaod" => "XML File"
+5. Save the file to your computer
+
+### Importing into the Simulator
+1. Click "Choose File" in the "Import Deck from XML" section
+2. Select your XML deck file
+3. Click "Import"
+4. The deck will be automatically loaded with all card counts
+
+An example XML deck file is available at [`docs/example_deck.xml`](docs/example_deck.xml).
 
 ## 🧪 Testing
 

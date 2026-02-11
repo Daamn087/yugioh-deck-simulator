@@ -61,13 +61,13 @@ export async function runSimulation(config: SimulationConfig): Promise<Simulatio
     return response.json();
 }
 
-export async function importDeckFromDuelingBook(url: string): Promise<{ deck_contents: Record<string, number>, deck_size: number }> {
+export async function importDeckFromXML(file: File): Promise<{ deck_contents: Record<string, number>, deck_size: number }> {
+    const formData = new FormData();
+    formData.append("file", file);
+
     const response = await fetch(`${API_URL}/api/import-deck`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url }),
+        body: formData,
     });
 
     if (!response.ok) {
