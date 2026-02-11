@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<deck name="Lunalight [BRPO] v2">
+ <main>
+  <card id="16582" passcode="08379983">Lunalight Gold Leo</card>
+  <card id="16582" passcode="08379983">Lunalight Gold Leo</card>
+  <card id="16582" passcode="08379983">Lunalight Gold Leo</card>
+  <card id="7863" passcode="11317977">Lunalight Black Sheep</card>
+  <card id="7863" passcode="11317977">Lunalight Black Sheep</card>
+  <card id="8439" passcode="35618217">Lunalight Kaleido Chick</card>
+  <card id="8439" passcode="35618217">Lunalight Kaleido Chick</card>
+  <card id="9748" passcode="14152693">Lunalight Emerald Bird</card>
+  <card id="16583" passcode="35763582">Lunalight Silver Hound</card>
+  <card id="16583" passcode="35763582">Lunalight Silver Hound</card>
+  <card id="9749" passcode="50546208">Lunalight Yellow Marten</card>
+  <card id="7865" passcode="83190280">Lunalight Tiger</card>
+  <card id="7864" passcode="47705572">Lunalight Wolf</card>
+  <card id="11052" passcode="87209160">Tri-Brigade Fraktall</card>
+  <card id="16630" passcode="02344618">Lunalight Masquerade</card>
+  <card id="16630" passcode="02344618">Lunalight Masquerade</card>
+  <card id="9750" passcode="87931906">Lunalight Fusion</card>
+  <card id="3336" passcode="24094653">Polymerization</card>
+  <card id="5671" passcode="57103969">Fire Formation - Tenki</card>
+  <card id="5671" passcode="57103969">Fire Formation - Tenki</card>
+  <card id="8381" passcode="35726888">Foolish Burial Goods</card>
+  <card id="8381" passcode="35726888">Foolish Burial Goods</card>
+  <card id="8381" passcode="35726888">Foolish Burial Goods</card>
+  <card id="9751" passcode="13935001">Lunalight Serenade Dance</card>
+  <card id="8018" passcode="48444114">Luna Light Perfume</card>
+  <card id="8018" passcode="48444114">Luna Light Perfume</card>
+  <card id="1647" passcode="81439173">Foolish Burial</card>
+  <card id="10868" passcode="24299458">Forbidden Droplet</card>
+  <card id="10868" passcode="24299458">Forbidden Droplet</card>
+  <card id="10868" passcode="24299458">Forbidden Droplet</card>
+  <card id="15908" passcode="58570206">Heavy Polymerization</card>
+  <card id="15908" passcode="58570206">Heavy Polymerization</card>
+  <card id="15908" passcode="58570206">Heavy Polymerization</card>
+  <card id="17149" passcode="30271097">The Fallen &amp; The Virtuous</card>
+  <card id="17149" passcode="30271097">The Fallen &amp; The Virtuous</card>
+  <card id="17149" passcode="30271097">The Fallen &amp; The Virtuous</card>
+  <card id="3043" passcode="05318639">Mystical Space Typhoon</card>
+  <card id="16904" passcode="20508881">Radiant Typhoon Vision</card>
+  <card id="16904" passcode="20508881">Radiant Typhoon Vision</card>
+  <card id="16904" passcode="20508881">Radiant Typhoon Vision</card>
+  <card id="15722" passcode="42141493">Mulcharmy Fuwalos</card>
+  <card id="15722" passcode="42141493">Mulcharmy Fuwalos</card>
+  <card id="15722" passcode="42141493">Mulcharmy Fuwalos</card>
+ </main>
+ <side>
+  <card id="1233" passcode="75652080">Double Cyclone</card>
+  <card id="1233" passcode="75652080">Double Cyclone</card>
+  <card id="1233" passcode="75652080">Double Cyclone</card>
+  <card id="15464" passcode="84192580">Mulcharmy Purulia</card>
+  <card id="15464" passcode="84192580">Mulcharmy Purulia</card>
+  <card id="15464" passcode="84192580">Mulcharmy Purulia</card>
+  <card id="13656" passcode="35269904">Triple Tactics Thrust</card>
+  <card id="13656" passcode="35269904">Triple Tactics Thrust</card>
+  <card id="13656" passcode="35269904">Triple Tactics Thrust</card>
+  <card id="14806" passcode="49299410">The Black Goat Laughs</card>
+  <card id="10865" passcode="25311006">Triple Tactics Talent</card>
+  <card id="9189" passcode="24224830">Called by the Grave</card>
+  <card id="8504" passcode="14558127">Ash Blossom &amp; Joyous Spring</card>
+  <card id="8504" passcode="14558127">Ash Blossom &amp; Joyous Spring</card>
+  <card id="8504" passcode="14558127">Ash Blossom &amp; Joyous Spring</card>
+ </side>
+ <extra>
+  <card id="16608" passcode="81196066">Lunalight Perfume Dancer</card>
+  <card id="16608" passcode="81196066">Lunalight Perfume Dancer</card>
+  <card id="16607" passcode="54701958">Lunalight Liger Dancer</card>
+  <card id="16607" passcode="54701958">Lunalight Liger Dancer</card>
+  <card id="7900" passcode="24550676">Lunalight Leo Dancer</card>
+  <card id="7900" passcode="24550676">Lunalight Leo Dancer</card>
+  <card id="9747" passcode="88753594">Lunalight Sabre Dancer</card>
+  <card id="12416" passcode="11321089">Guardian Chimera</card>
+  <card id="14451" passcode="29301450">S:P Little Knight</card>
+  <card id="10424" passcode="50277355">Cross-Sheep</card>
+  <card id="5667" passcode="96381979">Brotherhood of the Fire Fist - Tiger King</card>
+  <card id="16154" passcode="90590303">Number 41: Bagooska the Terribly Tired Tapir</card>
+  <card id="10133" passcode="66011101">Number 60: Dugares the Timeless</card>
+  <card id="17193" passcode="78397661">Ecclesia and the Dark Dragon</card>
+  <card id="11543" passcode="87746184">Albion the Branded Dragon</card>
+ </extra>
+</deck>
