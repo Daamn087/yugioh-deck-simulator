@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useSimulationStore } from '../store';
 import type { CardEffectDefinition } from '../api';
+import { getTagBadgeColors } from '../utils/tagColors';
 
 const store = useSimulationStore();
 
@@ -85,7 +86,14 @@ const removeEffect = (index: number) => {
                 <div v-else-if="effect.effect_type === 'conditional_discard'" class="effect-summary">
                     Draw <strong>{{ effect.parameters.draw_count }}</strong> cards, then discard 
                     <strong>{{ effect.parameters.discard_count }}</strong> card(s) tagged 
-                    <span class="tag-badge">{{ effect.parameters.discard_filter }}</span> 
+                    <span 
+                      class="tag-badge"
+                      :style="{ 
+                        background: getTagBadgeColors(effect.parameters.discard_filter).background,
+                        color: getTagBadgeColors(effect.parameters.discard_filter).color,
+                        borderColor: getTagBadgeColors(effect.parameters.discard_filter).border
+                      }"
+                    >{{ effect.parameters.discard_filter }}</span> 
                     from the final hand.
                 </div>
                 </div>
@@ -230,13 +238,12 @@ const removeEffect = (index: number) => {
 }
 
 .tag-badge {
-  background: rgba(51, 51, 255, 0.2);
-  color: #8888ff;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 1px solid rgba(51, 51, 255, 0.3);
+  border: 1px solid;
+  transition: all 0.2s;
 }
 
 .empty-state {

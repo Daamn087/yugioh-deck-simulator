@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useSimulationStore } from '../store';
+import { getTagColor } from '../utils/tagColors';
 
 const props = defineProps<{
   deckSize: number;
@@ -247,7 +248,12 @@ const clearAll = () => {
         
         <!-- Subcategory tags display -->
         <div v-if="category.subcategories.length > 0" class="subcategory-chips">
-          <span v-for="subcat in category.subcategories" :key="subcat" class="chip">
+          <span 
+            v-for="subcat in [...category.subcategories].sort()" 
+            :key="subcat" 
+            class="chip"
+            :style="{ background: getTagColor(subcat) }"
+          >
             {{ subcat }}
           </span>
         </div>
@@ -258,7 +264,7 @@ const clearAll = () => {
             <h4>Manage Tags for {{ category.name }}</h4>
           </div>
           <div class="tag-list">
-            <div v-for="subcat in category.subcategories" :key="subcat" class="tag-item">
+            <div v-for="subcat in [...category.subcategories].sort()" :key="subcat" class="tag-item">
               <span>{{ subcat }}</span>
               <button class="remove-tag" @click="removeSubcategory(category.name, subcat)">×</button>
             </div>
@@ -554,12 +560,12 @@ const clearAll = () => {
 }
 
 .chip {
-  background: linear-gradient(135deg, #9898ee, #5555ff);
   color: white;
   padding: 3px 10px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  transition: all 0.2s;
 }
 
 .subcategory-editor {
