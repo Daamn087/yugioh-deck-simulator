@@ -24,8 +24,8 @@ Simulate the actual gameplay impact of draw power and consistency cards.
 
 ## 🛠️ Tech Stack
 
-- **Backend**: FastAPI (Python 3.13+)
-- **Frontend**: Vue.js 3 + TypeScript + Vite + Pinia
+- **Backend**: FastAPI (Python 3.13+) - Hosted on **Railway**
+- **Frontend**: Vue.js 3 + TypeScript + Vite + Pinia - Hosted on **Netlify**
 - **Simulation**: Python standard library (optimized with `collections.Counter`)
 - **Testing**: `unittest` with comprehensive regression suites
 
@@ -74,6 +74,19 @@ Simulate the actual gameplay impact of draw power and consistency cards.
     npm run dev
     ```
     Open `http://localhost:5173` in your browser.
+
+## 🌐 Cloud Deployment
+
+The application is architected for modern cloud hosting:
+
+### Backend (Railway)
+The Python backend is deployed via **Railway**. It uses a `Procfile` and `runtime.txt` for automatic detection and deployment.
+- **Port Handling**: Uses dynamic `$PORT` environment variable.
+- **CORS**: Configured to safely allow requests from your Netlify domain.
+
+### Frontend (Netlify)
+The Vue.js frontend is deployed on **Netlify**.
+- **Environment Variables**: Uses `VITE_API_URL` to connect to the Railway backend.
 
 ## 📥 Importing Decks
 
