@@ -1,8 +1,12 @@
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from .models import SimulationConfig, SimulationResult, CardEffectDefinition
-from .xml_deck_parser import parse_xml_deck
+try:
+    from .models import SimulationConfig, SimulationResult, CardEffectDefinition
+    from .xml_deck_parser import parse_xml_deck
+except (ImportError, ValueError):
+    from models import SimulationConfig, SimulationResult, CardEffectDefinition
+    from xml_deck_parser import parse_xml_deck
 import sys
 import os
 import time
