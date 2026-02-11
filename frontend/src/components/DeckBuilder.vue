@@ -143,9 +143,13 @@ const importDeck = async () => {
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    selectedFile.value = target.files[0];
-    importError.value = null;
+  const files = target.files;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file) {
+      selectedFile.value = file;
+      importError.value = null;
+    }
   }
 };
 const clearAll = () => {
