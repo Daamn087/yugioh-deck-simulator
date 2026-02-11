@@ -1,8 +1,8 @@
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from models import SimulationConfig, SimulationResult, CardEffectDefinition
-from xml_deck_parser import parse_xml_deck
+from .models import SimulationConfig, SimulationResult, CardEffectDefinition
+from .xml_deck_parser import parse_xml_deck
 import sys
 import os
 import time
@@ -28,6 +28,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://yugioh-deck-simulator.netlify.app",
         "*"
     ],
     allow_credentials=True,
@@ -184,4 +185,5 @@ async def import_deck(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
