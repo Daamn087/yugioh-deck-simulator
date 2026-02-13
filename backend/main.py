@@ -18,11 +18,30 @@ import time
 #     main.py
 #   src/
 #     deck_sim.py
-sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
-from deck_sim import Deck, Simulator, req, Rule, CompositeRule
-from card_effects import create_effect_from_definition
+import sys
+import os
+import time
+
+# Use absolute path for robustness in different environments (like Railway)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_path = os.path.join(current_dir, '../src')
+sys.path.append(src_path)
+
+try:
+    from deck_sim import Deck, Simulator, req, Rule, CompositeRule
+    from card_effects import create_effect_from_definition
+except ImportError as e:
+    # Print error but let it fail if imports are critical
+    print(f"Error importing modules from {src_path}: {e}")
+    # Fallback or re-raise
+    raise
 
 app = FastAPI()
+
+@app.get("/")
+def health_check():
+    """Health check endpoint to verify backend is running."""
+    return {"status": "ok", "message": "Yu-Gi-Oh! Deck Simulator Backend is running"}
 
 app.add_middleware(
     CORSMiddleware,
