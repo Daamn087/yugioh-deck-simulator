@@ -7,11 +7,11 @@ const error = ref<string | null>(null);
 </script>
 
 <template>
-  <div class="min-h-screen bg-bg-dark text-white/90 p-4 sm:p-8 flex flex-col items-center">
+  <div class="min-h-screen bg-bg-dark text-white/90 p-4 sm:p-8 flex flex-col items-center pb-32 lg:pb-8">
     <div class="w-full max-w-7xl">
       <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-border-primary pb-6">
         <router-link to="/" class="group">
-          <h1 class="text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
+          <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity text-center md:text-left">
             Yu-Gi-Oh! Deck Simulator
           </h1>
         </router-link>
@@ -39,6 +39,7 @@ const error = ref<string | null>(null);
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .fade-enter-active,
