@@ -73,190 +73,72 @@ const handleFileUpload = async (event: Event) => {
 </script>
 
 <template>
-  <div class="app-container">
-    <header>
-      <h1>Yu-Gi-Oh! Deck Simulator</h1>
-      <div class="global-opts">
-        <label>
-            Hand Size:
-            <input type="number" class="input-slim" v-model="handSize">
-        </label>
-        <label>
-            Simulations:
-            <input type="text" v-model.lazy="simulationsFormatted">
-        </label>
-        <div class="config-buttons">
-          <button @click="handleExport" class="config-btn export-btn" title="Download configuration">
-            ⬇️ Export
-          </button>
-          <button @click="handleImportClick" class="config-btn import-btn" title="Upload configuration">
-            ⬆️ Import
-          </button>
-          <button @click="store.resetToDefaults" class="config-btn reset-btn" title="Clear all settings">
-            🔄 Reset
-          </button>
-          <input 
-            type="file" 
-            ref="fileInput" 
-            @change="handleFileUpload" 
-            accept=".json"
-            style="display: none"
-          />
-        </div>
-      </div>
-    </header>
-
-    <main class="grid">
-      <div class="col">
-        <DeckBuilder 
-            v-model:contents="deckContents"
-            v-model:deckSize="deckSize"
-            @delete-category="store.deleteCategory"
-        />
-        <RuleBuilder
-            v-model:rules="rules"
-            :availableCategories="availableCategories" 
-        />
-        <CardEffectsEditor />
-      </div>
-      
-      <div class="col results-col">
-          <Results :result="result" :loading="loading" />
-          
-          <button class="run-btn" @click="run" :disabled="loading">
-            RUN SIMULATION
-          </button>
-          
-          <div v-if="error" class="error-msg">
-            Error: {{ error }}
+  <div class="min-h-screen bg-bg-dark text-white/90 p-4 sm:p-8 flex flex-col items-center">
+    <div class="w-full max-w-7xl">
+      <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-border-primary pb-6">
+        <h1 class="text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+          Yu-Gi-Oh! Deck Simulator
+        </h1>
+        <div class="flex flex-wrap items-center gap-6 bg-surface-card p-3 rounded-lg border border-border-primary shadow-inner">
+          <label class="flex items-center gap-2 text-sm font-medium text-text-secondary whitespace-nowrap">
+              Simulations:
+              <input type="text" v-model.lazy="simulationsFormatted" class="w-32 bg-[#2a2a2a] border border-[#444] rounded px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+          </label>
+          <div class="flex items-center gap-2">
+            <button @click="handleExport" class="bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2" title="Download configuration">
+              <span>⬇️</span> Export
+            </button>
+            <button @click="handleImportClick" class="bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2" title="Upload configuration">
+              <span>⬆️</span> Import
+            </button>
+            <button @click="store.resetToDefaults" class="bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 px-4 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2" title="Clear all settings">
+              <span>🔄</span> Reset
+            </button>
+            <input 
+              type="file" 
+              ref="fileInput" 
+              @change="handleFileUpload" 
+              accept=".json"
+              class="hidden"
+            />
           </div>
-      </div>
-    </main>
+        </div>
+      </header>
+
+      <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2 flex flex-col gap-6">
+          <DeckBuilder 
+              v-model:contents="deckContents"
+              v-model:deckSize="deckSize"
+              v-model:handSize="handSize"
+              @delete-category="store.deleteCategory"
+          />
+          <RuleBuilder
+              v-model:rules="rules"
+              :availableCategories="availableCategories" 
+          />
+          <CardEffectsEditor />
+        </div>
+        
+        <div class="lg:col-span-1 flex flex-col gap-6 sticky top-8">
+            <Results :result="result" :loading="loading" />
+            
+            <button 
+              class="w-full py-5 text-xl font-black rounded-xl shadow-[0_0_30px_rgba(0,184,255,0.3)] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest bg-gradient-to-r from-primary to-blue-600 text-white"
+              @click="run" 
+              :disabled="loading"
+            >
+              {{ loading ? 'Processing...' : 'Run Simulation' }}
+            </button>
+            
+            <div v-if="error" class="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-lg text-sm font-medium animate-pulse">
+              Error: {{ error }}
+            </div>
+        </div>
+      </main>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.app-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-h1 {
-    font-size: 2rem;
-    background: linear-gradient(90deg, #ff00cc, #9898ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.global-opts {
-    display: flex;
-    gap: 1rem;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 2rem;
-}
-
-.col {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.results-col {
-    position: sticky;
-    top: 2rem;
-}
-
-.run-btn {
-    font-size: 1.5rem;
-    padding: 1rem;
-    background: linear-gradient(90deg, #9898ee, #ff00cc);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.1s;
-    width: 100%;
-    margin-top: 1rem;
-}
-
-.run-btn:hover {
-    filter: brightness(1.1);
-    transform: scale(1.02);
-}
-
-.run-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.error-msg {
-    color: red;
-    margin-top: 1rem;
-    text-align: center;
-}
-
-.input-slim {
-  width: 50px;
-}
-
-.config-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.config-btn {
-  padding: 0.5rem 1rem;
-  border: 2px solid #9898ee;
-  border-radius: 6px;
-  background: transparent;
-  color: #9898ee;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.config-btn:hover {
-  background: #9898ee;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(51, 51, 255, 0.3);
-}
-
-.export-btn:hover {
-  background: linear-gradient(135deg, #9898ee, #5555ff);
-}
-
-.import-btn:hover {
-  background: linear-gradient(135deg, #ff00cc, #ff33dd);
-  border-color: #ff00cc;
-}
-
-.reset-btn {
-  border-color: #ff4444;
-  color: #ff4444;
-}
-
-.reset-btn:hover {
-  background: linear-gradient(135deg, #ff4444, #ff6666);
-  border-color: #ff4444;
-}
-
 </style>

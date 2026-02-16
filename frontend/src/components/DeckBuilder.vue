@@ -6,11 +6,13 @@ import { getTagColor } from '../utils/tagColors';
 
 const props = defineProps<{
   deckSize: number;
+  handSize: number;
   contents: Record<string, number>;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:deckSize', size: number): void;
+  (e: 'update:handSize', size: number): void;
   (e: 'update:contents', contents: Record<string, number>): void;
   (e: 'delete-category', name: string): void;
 }>();
@@ -162,62 +164,79 @@ const clearAll = () => {
 </script>
 
 <template>
-  <div class="deck-builder card">
-    <h2>Deck Configuration</h2>
+  <div class="card">
+    <h2 class="text-xl font-bold mb-6 text-primary flex items-center gap-2">
+      <span>🎴</span> Deck Configuration
+    </h2>
     
     <!-- Import Section -->
-    <div class="import-section">
-      <h3>Import Deck from XML</h3>
-      <div class="import-group">
-        <div class="import-row">
+    <div class="mb-8 pb-8 border-b-2 border-border-primary">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-text-secondary mb-4 flex items-center gap-2">
+        <span>📂</span> Import Deck from XML
+      </h3>
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-3">
           <input 
             type="file"
             accept=".xml"
             @change="handleFileSelect"
-            class="file-input"
+            class="flex-1 bg-[#2a2a2a] border border-border-primary rounded-lg px-4 py-2 text-sm text-text-secondary cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-primary file:to-blue-600 file:text-white hover:file:brightness-110 disabled:opacity-50 transition-all"
             :disabled="importing"
           />
           <button 
             @click="importDeck" 
             :disabled="importing || !selectedFile"
-            class="import-btn"
+            class="min-w-[100px] flex items-center justify-center bg-gradient-to-r from-primary to-pink-500 hover:brightness-110 text-white font-bold py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
           >
-            <div v-if="importing" class="spinner"></div>
+            <div v-if="importing" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             <span v-else>Import</span>
           </button>
         </div>
       </div>
-      <p v-if="importError" class="error">{{ importError }}</p>
+      <p v-if="importError" class="mt-3 text-red-500 text-xs font-bold bg-red-500/10 p-2 rounded border border-red-500/20">{{ importError }}</p>
     </div>
     
-    <div class="form-group">
-      <label>Total Deck Size </label>
-      <input 
-        type="number" 
-        :value="deckSize" 
-        class="input-slim"
-        @input="emit('update:deckSize', Number(($event.target as HTMLInputElement).value))"
-      >
+    <div class="flex flex-wrap gap-8 mb-8">
+      <div class="flex items-center gap-4 pr-8 border-r border-border-primary">
+        <label class="text-sm font-medium text-text-secondary whitespace-nowrap">Total Deck Size </label>
+        <input 
+          type="number" 
+          :value="deckSize" 
+          class="w-16 bg-[#2a2a2a] border border-[#444] rounded p-1 text-center text-white focus:ring-2 focus:ring-primary outline-none"
+          @input="emit('update:deckSize', Number(($event.target as HTMLInputElement).value))"
+        >
+      </div>
+      <div class="flex items-center gap-4">
+        <label class="text-sm font-medium text-text-secondary whitespace-nowrap">Hand Size </label>
+        <input 
+          type="number" 
+          :value="handSize" 
+          class="w-16 bg-[#2a2a2a] border border-[#444] rounded p-1 text-center text-white focus:ring-2 focus:ring-primary outline-none"
+          @input="emit('update:handSize', Number(($event.target as HTMLInputElement).value))"
+        >
+      </div>
     </div>
 
-    <div class="contents-list">
-      <div class="header-row">
-        <h3>Card Names</h3>
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>📝</span> Card Names
+        </h3>
         <button 
           v-if="store.cardCategories.length > 0" 
-          class="clear-btn" 
+          class="text-xs font-bold text-red-400 hover:text-red-300 border border-red-900/50 hover:bg-red-900/20 bg-transparent px-3 py-1 rounded-md transition-all active:scale-95" 
           @click="clearAll"
         >
           Clear All
         </button>
       </div>
       
-      <div v-for="category in store.cardCategories" :key="category.name" class="category-container">
-        <div class="category-row">
+      <div v-for="category in store.cardCategories" :key="category.name" class="group flex flex-col gap-2 bg-white/5 hover:bg-white/[0.07] border border-border-primary p-3 rounded-lg transition-all">
+        <div class="flex items-center gap-3">
           <input 
             v-if="editingCardName === category.name"
             v-model="editedCardName"
-            class="name-edit-input"
+            class="flex-1 bg-[#2a2a2a] border-2 border-primary rounded px-2 py-1 text-white font-medium outline-none focus:ring-2 focus:ring-primary/50"
             @keyup.enter="saveCardName(category.name)"
             @keyup.esc="cancelEditCardName"
             @blur="saveCardName(category.name)"
@@ -225,15 +244,15 @@ const clearAll = () => {
           />
           <span 
             v-else
-            class="name editable" 
-            @dblclick="startEditingCardName(category.name)"
-            :title="'Double-click to edit'"
+            class="flex-1 font-medium truncate cursor-pointer hover:bg-primary/10 px-2 py-1 rounded transition-colors" 
+            @click="startEditingCardName(category.name)"
+            :title="'Click to edit'"
           >
             {{ category.name }}
           </span>
           <button 
             v-if="editingCardName !== category.name"
-            class="edit-btn" 
+            class="text-xs grayscale hover:grayscale-0 opacity-40 hover:opacity-100 transition-all p-1" 
             @click="startEditingCardName(category.name)"
             title="Edit card name"
           >
@@ -242,434 +261,97 @@ const clearAll = () => {
           <input 
             type="number" 
             :value="category.count"
+            class="w-12 bg-[#2a2a2a] border border-border-primary rounded px-2 py-1 text-center text-sm"
             @input="updateCount(category.name, Number(($event.target as HTMLInputElement).value))"
           >
-          <button class="tag-btn" @click="toggleSubcategoryEditor(category.name)" title="Manage tags">
+          <button 
+            class="bg-transparent border border-primary/40 hover:border-primary text-primary/80 hover:text-primary text-xs px-2 py-1 rounded transition-all active:scale-90 flex items-center gap-1" 
+            @click="toggleSubcategoryEditor(category.name)" 
+            title="Manage tags"
+          >
             🏷️ {{ category.subcategories.length }}
           </button>
-          <button class="danger" @click="removeCategory(category.name)">X</button>
+          <button class="bg-red-500 hover:bg-red-600 text-white font-bold p-1 rounded min-w-[28px] text-xs transition-colors shadow-lg active:scale-90" @click="removeCategory(category.name)">X</button>
         </div>
         
         <!-- Subcategory tags display -->
-        <div v-if="category.subcategories.length > 0" class="subcategory-chips">
+        <div v-if="category.subcategories.length > 0" class="flex flex-wrap gap-2">
           <span 
             v-for="subcat in [...category.subcategories].sort()" 
             :key="subcat" 
-            class="chip"
-            :style="{ background: getTagColor(subcat) }"
+            class="text-[0.65rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-sm"
+            :style="{ 
+              background: getTagColor(subcat),
+              borderColor: 'rgba(255,255,255,0.1)'
+            }"
           >
             {{ subcat }}
           </span>
         </div>
         
         <!-- Subcategory editor -->
-        <div v-if="editingSubcategories === category.name" class="subcategory-editor">
-          <div class="editor-header">
-            <h4>Manage Tags for {{ category.name }}</h4>
+        <div v-if="editingSubcategories === category.name" class="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg animate-in slide-in-from-top-2 duration-200">
+          <div class="flex items-center gap-2 mb-4">
+            <h4 class="text-sm font-bold text-primary italic">Manage Tags for {{ category.name }}</h4>
           </div>
-          <div class="tag-list">
-            <div v-for="subcat in [...category.subcategories].sort()" :key="subcat" class="tag-item">
-              <span>{{ subcat }}</span>
-              <button class="remove-tag" @click="removeSubcategory(category.name, subcat)">×</button>
+          <div class="flex flex-col gap-2 mb-4">
+            <div v-for="subcat in [...category.subcategories].sort()" :key="subcat" class="flex justify-between items-center bg-white/5 px-3 py-1.5 rounded border border-white/5 hover:border-white/10 transition-all">
+              <span class="text-sm shadow-sm">{{ subcat }}</span>
+              <button class="text-red-500 hover:text-red-400 font-bold text-lg hover:scale-125 transition-transform px-2 leading-none" @click="removeSubcategory(category.name, subcat)">×</button>
             </div>
-            <div v-if="category.subcategories.length === 0" class="no-tags">
+            <div v-if="category.subcategories.length === 0" class="text-center py-4 text-xs italic text-text-secondary border border-dashed border-white/10 rounded">
               No tags yet. Add tags to group cards for success conditions.
             </div>
           </div>
-          <div class="add-tag-row">
+          <div class="flex gap-2">
             <input 
               v-model="newSubcategory" 
               placeholder="e.g., Starter, Extender, Lunalight Monster (Tab to autocomplete)" 
               @keyup.enter="addSubcategory(category.name)"
               @keydown="handleSubcategoryKeydown($event)"
-              class="tag-input"
+              class="flex-1 bg-[#2a2a2a] border border-border-primary rounded px-3 py-1.5 text-xs text-white focus:ring-1 focus:ring-primary outline-none"
               list="subcategory-suggestions"
             />
             <datalist id="subcategory-suggestions">
               <option v-for="subcat in allExistingSubcategories" :key="subcat" :value="subcat" />
             </datalist>
-            <button @click="addSubcategory(category.name)" class="add-tag-btn">Add Tag</button>
+            <button @click="addSubcategory(category.name)" class="whitespace-nowrap bg-gradient-to-r from-primary to-blue-600 hover:brightness-110 px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 text-white">Add Tag</button>
           </div>
         </div>
       </div>
 
-      <div class="add-row">
+      <div class="flex gap-3 mt-6 pt-6 border-t border-border-primary">
         <input 
             v-model="newCardName" 
             placeholder="Card name (e.g., Ash Blossom, Polymerization)" 
+            class="flex-1 bg-[#2a2a2a] border border-border-primary rounded-lg px-4 py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none"
             @keyup.enter="addCategory"
         />
         <input 
             v-model.number="newCardCount" 
             type="number" 
-            style="width: 60px" 
+            class="w-20 bg-[#2a2a2a] border border-border-primary rounded-lg px-2 py-2 text-center text-sm text-white focus:ring-2 focus:ring-primary outline-none"
             @keyup.enter="addCategory"
         />
-        <button @click="addCategory">Add</button>
+        <button @click="addCategory" class="bg-primary hover:bg-blue-500 px-6 py-2 rounded-lg font-bold transition-all active:scale-95 shadow-lg shadow-primary/20 text-white">Add</button>
       </div>
     </div>
 
-    <div class="stats">
-      <p>Cards defined: {{ currentCount }} / {{ deckSize }}</p>
-      <p v-if="currentCount < deckSize" class="hint">Remaining {{ deckSize - currentCount }} cards will be empty.</p>
-      <p v-if="currentCount > deckSize" class="error">Error: Defined cards exceed deck size!</p>
+    <div class="mt-8 pt-4 border-t border-white/5 flex flex-col gap-1">
+      <p class="text-sm font-medium text-text-secondary flex justify-between">
+        <span>Cards defined:</span>
+        <span :class="currentCount > deckSize ? 'text-red-500' : 'text-primary'">{{ currentCount }} / {{ deckSize }}</span>
+      </p>
+      <p v-if="currentCount < deckSize" class="text-xs italic text-text-secondary/60">
+        💡 Remaining {{ deckSize - currentCount }} cards will be empty slots.
+      </p>
+      <p v-if="currentCount > deckSize" class="text-xs font-bold text-red-500 mt-2 bg-red-500/10 p-2 rounded">
+        ❌ Error: Defined cards exceed deck size!
+      </p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.deck-builder {
-  padding: 1.5rem;
-  background: var(--surface-card);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.clear-btn {
-  background: transparent;
-  color: #ff4444;
-  border: 1px solid #ff4444;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-}
-
-.clear-btn:hover {
-  background: rgba(255, 68, 68, 0.1);
-}
-
-.category-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.name {
-  flex: 1;
-  font-weight: 500;
-}
-
-.name.editable {
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.name.editable:hover {
-  background: rgba(51, 51, 255, 0.1);
-}
-
-.name-edit-input {
-  flex: 1;
-  padding: 4px 8px;
-  border: 2px solid #9898ee;
-  border-radius: 4px;
-  background: var(--surface-base);
-  color: var(--text-primary);
-  font-weight: 500;
-  font-size: 1rem;
-}
-
-.edit-btn {
-  background: transparent;
-  border: 1px solid #888;
-  color: #888;
-  padding: 2px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-}
-
-.edit-btn:hover {
-  background: rgba(136, 136, 136, 0.1);
-  border-color: #9898ee;
-  color: #9898ee;
-}
-
-.add-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.danger {
-  background: #ff4444;
-  color: white;
-  border: none;
-  padding: 2px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.error {
-  color: #ff4444;
-  font-weight: bold;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.input-slim {
-  width: 50px;
-}
-
-.import-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.import-section {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.import-section h3 {
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.import-row {
-  display: flex;
-  gap: 10px;
-}
-
-.file-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--surface-base);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.file-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.file-input::file-selector-button {
-  padding: 4px 12px;
-  margin-right: 12px;
-  background: linear-gradient(90deg, #9898ee, #5555ff);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.file-input::file-selector-button:hover {
-  filter: brightness(1.1);
-}
-
-.import-btn {
-  padding: 8px 20px;
-  background: linear-gradient(90deg, #9898ee, #ff00cc);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  min-width: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.import-btn:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
-.import-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.progress-container {
-  height: 4px;
-  background-color: var(--surface-base);
-  border-radius: 2px;
-  overflow: hidden;
-  width: 100%;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #9898ee, #ff00cc);
-  transition: width 0.3s ease-out;
-}
-
-/* Subcategory styles */
-.category-container {
-  margin-bottom: 1rem;
-}
-
-.tag-btn {
-  background: transparent;
-  border: 1px solid #9898ee;
-  color: #9898ee;
-  padding: 2px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-}
-
-.tag-btn:hover {
-  background: rgba(51, 51, 255, 0.1);
-}
-
-.subcategory-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-  margin-left: 0;
-  padding-left: 0;
-}
-
-.chip {
-  color: white;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.subcategory-editor {
-  background: rgba(51, 51, 255, 0.05);
-  border: 1px solid rgba(51, 51, 255, 0.2);
-  border-radius: 6px;
-  padding: 1rem;
-  margin-top: 8px;
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.editor-header h4 {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.9rem;
-  color: var(--primary-color);
-}
-
-.tag-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 0.75rem;
-}
-
-.tag-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 6px 10px;
-  border-radius: 4px;
-}
-
-.tag-item span {
-  font-size: 0.85rem;
-}
-
-.remove-tag {
-  background: transparent;
-  border: none;
-  color: #ff4444;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 6px;
-  transition: all 0.2s;
-}
-
-.remove-tag:hover {
-  color: #ff6666;
-  transform: scale(1.2);
-}
-
-.no-tags {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-style: italic;
-  padding: 1rem;
-  text-align: center;
-}
-
-.add-tag-row {
-  display: flex;
-  gap: 8px;
-}
-
-.tag-input {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--surface-base);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-}
-
-.add-tag-btn {
-  padding: 6px 12px;
-  background: linear-gradient(90deg, #9898ee, #5555ff);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.add-tag-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
+/* Scoped styles removed in favor of Tailwind CSS */
 </style>
