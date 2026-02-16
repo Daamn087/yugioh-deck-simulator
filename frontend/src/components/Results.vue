@@ -8,149 +8,61 @@ defineProps<{
 </script>
 
 <template>
-  <div class="results-panel card">
-    <h2>Simulation Results</h2>
+  <div class="card p-6 text-center">
+    <h2 class="text-xl font-bold text-white mb-6">Simulation Results</h2>
     
-    <div v-if="loading" class="loading">
-      Simulating...
+    <div v-if="loading" class="py-12 flex flex-col items-center gap-4">
+      <div class="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+      <span class="text-text-secondary font-medium italic animate-pulse">Simulating...</span>
     </div>
     
-    <div v-else-if="result" class="result-content">
-      <div class="main-stat">
-        <div class="percentage success">{{ result.success_rate.toFixed(2) }}%</div>
-        <div class="label">Success Rate</div>
+    <div v-else-if="result" class="animate-in fade-in zoom-in duration-500">
+      <div class="mb-6">
+        <div class="text-6xl font-black bg-gradient-to-br from-[#00ff88] to-primary bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,255,136,0.3)]">
+          {{ result.success_rate.toFixed(2) }}%
+        </div>
+        <div class="text-xs font-bold text-text-secondary uppercase tracking-[0.3em] mt-2">Success Rate</div>
       </div>
       
-      <div class="progress-bar-bg">
+      <div class="w-full bg-white/10 h-3 rounded-full overflow-hidden mb-8 p-0.5 shadow-inner">
         <div 
-            class="progress-bar-fill" 
+            class="h-full bg-gradient-to-r from-[#00ff88] to-primary rounded-full shadow-[0_0_12px_rgba(0,255,136,0.6)] transition-all duration-1000 ease-out" 
             :style="{ width: (result.success_rate || 0) + '%' }"
         ></div>
       </div>
 
-      <div class="details">
-        <div class="detail-item">
-          <span class="val">{{ result.success_count.toLocaleString() }}</span>
-          <span class="lbl">Successes</span>
+      <div class="grid grid-cols-3 gap-4 py-6 border-t border-border-primary">
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-white">{{ result.success_count.toLocaleString() }}</span>
+          <span class="text-[10px] uppercase font-black tracking-widest text-text-secondary">Successes</span>
         </div>
-        <div class="detail-item">
-            <span class="val brick">{{ result.brick_rate.toFixed(2) }}%</span>
-            <span class="lbl">Brick Rate</span>
+        <div class="flex flex-col">
+            <span class="text-lg font-bold text-red-500">{{ result.brick_rate.toFixed(2) }}%</span>
+            <span class="text-[10px] uppercase font-black tracking-widest text-text-secondary">Brick Rate</span>
         </div>
-        <div class="detail-item">
-            <span class="val">{{ result.time_taken.toFixed(3) }}s</span>
-            <span class="lbl">Time Taken</span>
+        <div class="flex flex-col">
+            <span class="text-lg font-bold text-blue-400">{{ result.time_taken.toFixed(3) }}s</span>
+            <span class="text-[10px] uppercase font-black tracking-widest text-text-secondary">Time Taken</span>
         </div>
       </div>
 
       <!-- Warnings -->
-      <div v-if="result.warnings && result.warnings.length > 0" class="warnings-area">
-        <div v-for="(warning, idx) in result.warnings" :key="idx" class="warning-msg">
-          ⚠️ {{ warning }}
+      <div v-if="result.warnings && result.warnings.length > 0" class="mt-6 pt-6 border-t border-border-primary flex flex-col gap-2">
+        <div v-for="(warning, idx) in result.warnings" :key="idx" class="bg-yellow-500/10 text-yellow-500 p-3 rounded-lg text-xs font-semibold text-left border border-yellow-500/20 shadow-inner flex items-start gap-2">
+          <span>⚠️</span>
+          <span>{{ warning }}</span>
         </div>
       </div>
     </div>
     
-    <div v-else class="placeholder">
-      Run simulation to see results.
+    <div v-else class="py-12 border-2 border-dashed border-white/5 rounded-xl">
+      <p class="text-text-secondary/50 italic font-medium">
+        Run simulation to see results.
+      </p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.results-panel {
-    padding: 1.5rem;
-    background: var(--surface-card);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    text-align: center;
-}
-
-.main-stat {
-    margin: 1rem 0;
-}
-
-.percentage {
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.percentage.success {
-    background: linear-gradient(45deg, #00ff88, #00b8ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.progress-bar-bg {
-    background: rgba(255, 255, 255, 0.1);
-    height: 10px;
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 1.5rem 0;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #00ff88, #00b8ff);
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-}
-
-.details {
-    display: flex;
-    justify-content: space-around;
-    padding: 1rem 0;
-    border-top: 1px solid var(--border-color);
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.val {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.val.brick {
-    color: #ff4444;
-}
-
-.lbl {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-.loading {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    padding: 2rem;
-}
-
-.placeholder {
-    color: var(--text-secondary);
-    font-style: italic;
-    padding: 2rem;
-}
-
-.warnings-area {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.warning-msg {
-    background: rgba(255, 204, 0, 0.1);
-    color: #ffcc00;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    text-align: left;
-    border: 1px solid rgba(255, 204, 0, 0.2);
-}
+/* Scoped styles removed in favor of Tailwind CSS */
 </style>

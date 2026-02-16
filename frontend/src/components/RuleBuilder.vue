@@ -57,20 +57,37 @@ const updateGroup = (index: number, newGroup: Requirement[]) => {
 </script>
 
 <template>
-  <div class="rule-builder card">
-    <div class="section-header" @click="toggleCollapse">
-        <h2>Success Conditions</h2>
-        <span class="toggle-icon">{{ isCollapsed ? '▼' : '▲' }}</span>
+  <div class="card overflow-hidden">
+    <div 
+        class="flex justify-between items-center cursor-pointer select-none p-6 hover:bg-white/5 transition-colors" 
+        @click="toggleCollapse"
+    >
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span>🏆</span> Success Conditions
+        </h2>
+        <span class="text-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': isCollapsed }">
+          ▲
+        </span>
     </div>
     
-    <div v-show="!isCollapsed" class="section-content">
-        <p class="desc">The hand is successful if <strong>ANY</strong> of these groups are met.</p>
+    <div v-show="!isCollapsed" class="p-6 pt-0 animate-in slide-in-from-top-4 duration-300">
+        <p class="text-text-secondary text-sm mb-6 pb-4 border-b border-border-primary">
+          The hand is successful if <strong class="text-primary uppercase tracking-wider">ANY</strong> of these groups are met (OR logic between groups).
+        </p>
 
-        <div class="rules-container">
-            <div v-for="(group, gIndex) in rules" :key="gIndex" class="rule-group">
-                <div class="group-header">
-                    <span>Option {{ gIndex + 1 }} (All must be true)</span>
-                    <button class="danger small" @click.stop="removeGroup(gIndex)">Remove Option</button>
+        <div class="flex flex-col gap-6">
+            <div v-for="(group, gIndex) in rules" :key="gIndex" class="bg-surface-card border-l-4 border-primary rounded-r-lg p-5 shadow-inner relative group/item">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                      <span class="w-6 h-6 flex items-center justify-center bg-primary text-white rounded-full text-[10px]">{{ gIndex + 1 }}</span>
+                      Option {{ gIndex + 1 }} (All requirements must be true)
+                    </span>
+                    <button 
+                      class="text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 border border-red-500/30 px-3 py-1 rounded transition-all active:scale-95" 
+                      @click.stop="removeGroup(gIndex)"
+                    >
+                      Remove
+                    </button>
                 </div>
                 
                 <RuleGroup 
@@ -81,109 +98,16 @@ const updateGroup = (index: number, newGroup: Requirement[]) => {
             </div>
         </div>
 
-        <button class="primary" @click="addGroup">+ Add Success Option (OR)</button>
+        <button 
+          class="w-full mt-8 py-3 bg-gradient-to-r from-primary/20 to-blue-600/20 border border-primary/30 hover:border-primary text-primary font-bold rounded-xl transition-all active:scale-[0.98] uppercase tracking-widest text-sm flex items-center justify-center gap-2" 
+          @click="addGroup"
+        >
+          <span>➕</span> Add Success Option (OR)
+        </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.rule-builder {
-  padding: 1.5rem;
-  background: var(--surface-card);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-}
-
-.section-header h2 {
-    margin: 0;
-}
-
-.toggle-icon {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-}
-
-.section-content {
-    margin-top: 1rem;
-}
-
-.desc {
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.rule-group {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    border-left: 3px solid var(--primary-color);
-}
-
-.group-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.req-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.small-input {
-    width: 50px;
-}
-
-.danger.small {
-    padding: 2px 6px;
-    font-size: 0.8rem;
-}
-
-.secondary.small {
-    font-size: 0.8rem;
-    margin-top: 5px;
-}
-
-.operator-toggle {
-    display: flex;
-    gap: 4px;
-    margin-left: 8px;
-}
-
-.operator-btn {
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    border: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.operator-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.operator-btn.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
+/* Scoped styles removed in favor of Tailwind CSS */
 </style>
