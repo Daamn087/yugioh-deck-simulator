@@ -48,7 +48,7 @@ const addCategory = () => {
   if (!newCardName.value) return;
   store.cardCategories.push({
     name: newCardName.value,
-    count: newCardCount.value,
+    count: Math.max(0, newCardCount.value),
     subcategories: []
   });
   store.syncDeckContents();
@@ -62,7 +62,7 @@ const removeCategory = (name: string) => {
 const updateCount = (categoryName: string, count: number) => {
   const category = store.cardCategories.find(c => c.name === categoryName);
   if (category) {
-    category.count = count;
+    category.count = Math.max(0, count);
     store.syncDeckContents();
   }
 };
@@ -216,8 +216,9 @@ const clearAll = () => {
         <input 
           type="number" 
           :value="deckSize" 
+          min="0"
           class="w-16 bg-[#2a2a2a] border border-[#444] rounded p-1 text-center text-white focus:ring-2 focus:ring-primary outline-none"
-          @input="emit('update:deckSize', Number(($event.target as HTMLInputElement).value))"
+          @input="emit('update:deckSize', Math.max(0, Number(($event.target as HTMLInputElement).value)))"
         >
       </div>
       <div class="flex items-center gap-4">
@@ -225,8 +226,9 @@ const clearAll = () => {
         <input 
           type="number" 
           :value="handSize" 
+          min="0"
           class="w-16 bg-[#2a2a2a] border border-[#444] rounded p-1 text-center text-white focus:ring-2 focus:ring-primary outline-none"
-          @input="emit('update:handSize', Number(($event.target as HTMLInputElement).value))"
+          @input="emit('update:handSize', Math.max(0, Number(($event.target as HTMLInputElement).value)))"
         >
       </div>
     </div>
@@ -275,6 +277,7 @@ const clearAll = () => {
           <input 
             type="number" 
             :value="category.count"
+            min="0"
             class="w-12 bg-[#2a2a2a] border border-border-primary rounded px-2 py-1 text-center text-sm"
             @input="updateCount(category.name, Number(($event.target as HTMLInputElement).value))"
           >
@@ -345,6 +348,7 @@ const clearAll = () => {
         <input 
             v-model.number="newCardCount" 
             type="number" 
+            min="0"
             class="w-20 bg-[#2a2a2a] border border-border-primary rounded-lg px-2 py-2 text-center text-sm text-white focus:ring-2 focus:ring-primary outline-none"
             @keyup.enter="addCategory"
         />

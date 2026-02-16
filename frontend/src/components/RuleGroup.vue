@@ -46,7 +46,11 @@ const updateReq = (index: number, field: keyof Requirement, value: any) => {
         return;
     }
     const newRules = [...props.modelValue];
-    const req = { ...newRules[index], [field]: value } as Requirement;
+    let finalValue = value;
+    if (field === 'min_count' && typeof value === 'number') {
+        finalValue = Math.max(0, value);
+    }
+    const req = { ...newRules[index], [field]: finalValue } as Requirement;
     newRules[index] = req;
     emit('update:modelValue', newRules);
 };
@@ -101,6 +105,7 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                     <input 
                         type="number" 
                         :value="req.min_count"
+                        min="0"
                         class="w-14 bg-[#2a2a2a] border border-border-primary rounded px-2 py-1.5 text-center text-sm font-bold text-primary"
                         @input="updateReq(index, 'min_count', Number(($event.target as HTMLInputElement).value))"
                     >

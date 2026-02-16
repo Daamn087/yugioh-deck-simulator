@@ -22,7 +22,7 @@ const simulationsFormatted = computed({
   get: () => simulations.value.toLocaleString('de-DE'),
   set: (val: string) => {
     const num = parseInt(val.replace(/\./g, ''), 10);
-    if (!isNaN(num)) simulations.value = num;
+    if (!isNaN(num)) simulations.value = Math.max(1, num);
   }
 });
 
