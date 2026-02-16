@@ -3,10 +3,12 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 try:
     from .models import SimulationConfig, SimulationResult, CardEffectDefinition
-    from .xml_deck_parser import parse_xml_deck
+    from .ydk_deck_parser import parse_ydk_deck
+    from .card_resolver import resolve_card_names, count_cards
 except (ImportError, ValueError):
     from models import SimulationConfig, SimulationResult, CardEffectDefinition
-    from xml_deck_parser import parse_xml_deck
+    from ydk_deck_parser import parse_ydk_deck
+    from card_resolver import resolve_card_names, count_cards
 import sys
 import os
 import time
@@ -184,23 +186,29 @@ def run_simulation(config: SimulationConfig):
 @app.post("/api/import-deck")
 async def import_deck(file: UploadFile = File(...)):
     """
-    Import a deck from an XML file.
+    Import a deck from a YDK file.
     
     Args:
-        file: Uploaded XML deck file
+        file: Uploaded YDK deck file
         
     Returns:
         Dictionary mapping card names to counts for the main deck
     """
-    if not file.filename or not file.filename.endswith('.xml'):
-        raise HTTPException(status_code=400, detail="File must be an XML file")
+    if not file.filename or not file.filename.endswith('.ydk'):
+        raise HTTPException(status_code=400, detail="File must be a YDK file (.ydk)")
     
     try:
         # Read file contents
-        xml_content = await file.read()
+        ydk_content = await file.read()
         
-        # Parse the XML deck
-        deck_contents = parse_xml_deck(xml_content)
+        # Parse the YDK file to get passcodes
+        passcodes = parse_ydk_deck(ydk_content)
+        
+        # Resolve passcodes to card names using YGOProDeck API
+        card_names = await resolve_card_names(passcodes)
+        
+        # Count occurrences
+        deck_contents = count_cards(card_names)
         
         return {
             "deck_contents": deck_contents,
