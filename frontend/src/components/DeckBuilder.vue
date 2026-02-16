@@ -180,7 +180,11 @@ const clearAll = () => {
 <template>
   <div class="card">
     <h2 class="text-xl font-bold mb-6 text-primary flex items-center gap-2">
-      <span>🎴</span> Deck Configuration
+      <img
+        src="../assets/icons/yugioh_card_background.png"
+        alt="yugioh_card_background"
+        class="w-5"
+      /> Deck Configuration
     </h2>
     
     <!-- Import Section -->
