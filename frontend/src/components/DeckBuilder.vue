@@ -282,7 +282,7 @@ const clearAll = () => {
             type="number" 
             :value="category.count"
             min="0"
-            class="w-12 bg-[#2a2a2a] border border-border-primary rounded px-2 py-1 text-center text-sm"
+            class="w-13 bg-[#2a2a2a] border border-border-primary rounded px-2 py-1 text-center text-sm"
             @input="updateCount(category.name, Number(($event.target as HTMLInputElement).value))"
           >
           <button 
