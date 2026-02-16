@@ -14,6 +14,6 @@ defineEmits<{
     @click="$emit('click')" 
     title="Manage tags"
   >
-    标签 <span class="hidden sm:inline">Tags</span> {{ count }}
+    <span class="mt-[1px]">🏷️</span> {{ count }}
   </button>
 </template>

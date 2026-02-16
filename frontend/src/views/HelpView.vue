@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const activeSection = ref('introduction');
 
 const sections = [
@@ -19,6 +21,27 @@ const scrollTo = (id: string) => {
     el.scrollIntoView({ behavior: 'smooth' });
   }
 };
+
+// Handle hash navigation on mount
+onMounted(() => {
+  if (route.hash) {
+    const targetId = route.hash.substring(1); // Remove the '#'
+    setTimeout(() => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        // Scroll the element into view within its scrollable container
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Update active section if it's a main section
+        const section = sections.find(s => s.id === targetId);
+        if (section) {
+          activeSection.value = targetId;
+        } else if (targetId.startsWith('faq-')) {
+          activeSection.value = 'faq';
+        }
+      }
+    }, 100); // Small delay to ensure DOM is ready
+  }
+});
 </script>
 
 <template>
@@ -157,7 +180,7 @@ const scrollTo = (id: string) => {
               <span class="text-primary">05.</span> FAQ
             </h3>
             <div class="space-y-4">
-              <div v-for="(q, i) in faqs" :key="i" class="bg-bg-dark/30 rounded-xl p-5 border border-border-primary hover:border-primary/30 transition-colors">
+              <div v-for="(q, i) in faqs" :key="i" :id="`faq-${i}`" class="bg-bg-dark/30 rounded-xl p-5 border border-border-primary hover:border-primary/30 transition-colors scroll-mt-8">
                 <h4 class="text-white font-semibold mb-2">Q: {{ q.question }}</h4>
                 <p class="text-text-secondary text-sm">A: {{ q.answer }}</p>
               </div>

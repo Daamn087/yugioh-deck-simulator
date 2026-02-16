@@ -163,20 +163,20 @@ const clearAll = () => {
     <div class="mt-8 pt-4 border-t border-white/5 flex flex-col gap-2">
       <div class="flex justify-between items-center">
         <p class="text-sm font-medium text-text-secondary">Cards defined:</p>
-        <p class="text-sm font-black" :class="currentCount > deckSize ? 'text-red-500' : 'text-primary'">{{ currentCount }} / {{ deckSize }}</p>
+        <p class="text-sm font-black" :class="currentCount > deckSize ? 'text-yellow-500' : 'text-primary'">{{ currentCount }} / {{ deckSize }}</p>
       </div>
       <div class="w-full bg-[#1a1a1a] h-1.5 rounded-full overflow-hidden">
         <div 
           class="h-full transition-all duration-500"
-          :class="currentCount > deckSize ? 'bg-red-500' : 'bg-primary'"
+          :class="currentCount > deckSize ? 'bg-yellow-500' : 'bg-primary'"
           :style="{ width: Math.min(100, (currentCount / deckSize) * 100) + '%' }"
         ></div>
       </div>
       <p v-if="currentCount < deckSize" class="text-[10px] sm:text-xs italic text-text-secondary/60">
         💡 Remaining {{ deckSize - currentCount }} cards will be empty slots.
       </p>
-      <p v-if="currentCount > deckSize" class="text-[10px] sm:text-xs font-bold text-red-500 mt-2 bg-red-500/10 p-2 rounded border border-red-500/20 text-center">
-        ❌ Error: Defined cards exceed deck size!
+      <p v-if="currentCount > deckSize" class="text-[10px] sm:text-xs font-bold text-yellow-500 mt-2 bg-yellow-500/10 p-2 rounded border border-yellow-500/20 text-center">
+        ⚠️ Warning: Defined cards exceed deck size. Calculation will use all defined cards.
       </p>
     </div>
   </div>
