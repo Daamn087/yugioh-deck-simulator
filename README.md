@@ -6,7 +6,7 @@ A powerful, Monte Carlo-based tool to simulate Yu-Gi-Oh! starting hands and calc
 
 ### 🃏 Deck Building & Logic
 - **Smart Category Management**: Define custom tags like "Starter", "Extender", "Handtrap", or specific engines.
-- **Advanced Rule Engine**: Build complex success conditions using a visual builder (e.g., `"Starter" >= 1 AND ("Extender" >= 1 OR "Pot of Greed" >= 1)`).
+- **Advanced Rule Engine**: Build complex success conditions using a visual builder (e.g., `"Starter" >= 1 AND ("Extender" >= 1 OR "Pot of Greed" >= 1)`). *Note: Top-level requirements within an option are ANDed; use Parentheses Groups for OR logic.*
 - **XML Deck Import**: Import decks from XML files exported from DuelingBook, YGOPro, or other deck builders.
 - **Config Management**: Export and Import your entire simulation setup (deck, rules, effects) to JSON/File.
 

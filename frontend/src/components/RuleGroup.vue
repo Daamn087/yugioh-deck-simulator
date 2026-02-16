@@ -41,8 +41,16 @@ const removeReq = (index: number) => {
 };
 
 const updateReq = (index: number, field: keyof Requirement, value: any) => {
+    // If we're at top level (depth 0), don't allow changing operator to OR
+    if (field === 'operator' && value === 'OR' && currentDepth.value === 0) {
+        return;
+    }
     const newRules = [...props.modelValue];
-    const req = { ...newRules[index], [field]: value } as Requirement;
+    let finalValue = value;
+    if (field === 'min_count' && typeof value === 'number') {
+        finalValue = Math.max(0, value);
+    }
+    const req = { ...newRules[index], [field]: finalValue } as Requirement;
     newRules[index] = req;
     emit('update:modelValue', newRules);
 };
@@ -93,12 +101,12 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                             <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
                         </optgroup>
                     </select>
-                    
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-black text-text-secondary">≥</span>
                         <input 
                             type="number" 
                             :value="req.min_count"
+                            min="0"
                             class="flex-1 sm:w-14 bg-[#2a2a2a] border border-border-primary rounded px-2 py-2 sm:py-1.5 text-center text-sm font-bold text-primary"
                             @input="updateReq(index, 'min_count', Number(($event.target as HTMLInputElement).value))"
                         >
@@ -118,6 +126,7 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                         AND
                     </button>
                     <button 
+                        v-if="currentDepth > 0"
                         class="px-3 py-1 text-[10px] font-black rounded transition-all uppercase tracking-tighter"
                         :class="req.operator === 'OR' ? 'bg-pink-600 text-white shadow-lg' : 'text-text-secondary hover:text-white'"
                         @click="updateReq(index, 'operator', 'OR')"

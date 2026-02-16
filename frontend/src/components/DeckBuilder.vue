@@ -1,6 +1,5 @@
-
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { useSimulationStore } from '../store';
 import { getTagColor } from '../utils/tagColors';
 
@@ -28,6 +27,8 @@ const editingSubcategories = ref<string | null>(null);
 const newSubcategory = ref('');
 const editingCardName = ref<string | null>(null);
 const editedCardName = ref('');
+const nameEditInput = ref<HTMLInputElement | null>(null);
+const isProcessingSave = ref(false);
 
 const currentCount = computed(() => {
   return store.cardCategories.reduce((sum, cat) => sum + cat.count, 0);
@@ -49,7 +50,7 @@ const addCategory = () => {
   if (!newCardName.value) return;
   store.cardCategories.push({
     name: newCardName.value,
-    count: newCardCount.value,
+    count: Math.max(0, newCardCount.value),
     subcategories: []
   });
   store.syncDeckContents();
@@ -62,7 +63,7 @@ const removeCategory = (name: string) => {
 const updateCount = (categoryName: string, count: number) => {
   const category = store.cardCategories.find(c => c.name === categoryName);
   if (category) {
-    category.count = count;
+    category.count = Math.max(0, count);
     store.syncDeckContents();
   }
 };
@@ -91,24 +92,36 @@ const toggleSubcategoryEditor = (categoryName: string) => {
 const startEditingCardName = (categoryName: string) => {
   editingCardName.value = categoryName;
   editedCardName.value = categoryName;
+  nextTick(() => {
+    nameEditInput.value?.focus();
+    nameEditInput.value?.select();
+  });
 };
 
-const saveCardName = (oldName: string) => {
+const saveCardName = async (oldName: string) => {
+  if (isProcessingSave.value) return;
+  
   if (!editedCardName.value.trim() || editedCardName.value === oldName) {
     editingCardName.value = null;
     return;
   }
   
+  isProcessingSave.value = true;
   const category = store.cardCategories.find(c => c.name === oldName);
   if (category) {
     category.name = editedCardName.value.trim();
     store.syncDeckContents();
   }
   editingCardName.value = null;
+  isProcessingSave.value = false;
 };
 
 const cancelEditCardName = () => {
+  isProcessingSave.value = true; // Prevent blur from saving
   editingCardName.value = null;
+  nextTick(() => {
+    isProcessingSave.value = false;
+  });
 };
 
 const handleSubcategoryKeydown = (event: KeyboardEvent) => {
@@ -167,7 +180,11 @@ const clearAll = () => {
 <template>
   <div class="card overflow-hidden">
     <h2 class="text-xl font-bold mb-6 text-primary flex items-center gap-2">
-      <span>🎴</span> Deck Configuration
+      <img
+        src="../assets/icons/yugioh_card_background.png"
+        alt="yugioh_card_background"
+        class="w-5"
+      /> Deck Configuration
     </h2>
     
     <!-- Import Section -->
@@ -197,14 +214,16 @@ const clearAll = () => {
       <p v-if="importError" class="mt-3 text-red-500 text-xs font-bold bg-red-500/10 p-2 rounded border border-red-500/20">{{ importError }}</p>
     </div>
     
+    <!-- Global Stats -->
     <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-8 mb-8">
       <div class="flex items-center justify-between sm:justify-start gap-4 sm:pr-8 sm:border-r border-border-primary">
         <label class="text-sm font-medium text-text-secondary whitespace-nowrap">Total Deck Size </label>
         <input 
           type="number" 
           :value="deckSize" 
+          min="0"
           class="w-16 sm:w-16 bg-[#2a2a2a] border border-[#444] rounded p-2 sm:p-1 text-center text-white focus:ring-2 focus:ring-primary outline-none"
-          @input="emit('update:deckSize', Number(($event.target as HTMLInputElement).value))"
+          @input="emit('update:deckSize', Math.max(0, Number(($event.target as HTMLInputElement).value)))"
         >
       </div>
       <div class="flex items-center justify-between sm:justify-start gap-4">
@@ -212,12 +231,14 @@ const clearAll = () => {
         <input 
           type="number" 
           :value="handSize" 
+          min="0"
           class="w-16 sm:w-16 bg-[#2a2a2a] border border-[#444] rounded p-2 sm:p-1 text-center text-white focus:ring-2 focus:ring-primary outline-none"
-          @input="emit('update:handSize', Number(($event.target as HTMLInputElement).value))"
+          @input="emit('update:handSize', Math.max(0, Number(($event.target as HTMLInputElement).value)))"
         >
       </div>
     </div>
 
+    <!-- Card List -->
     <div class="flex flex-col gap-4">
       <div 
         class="flex justify-between items-center mb-2 cursor-pointer select-none"
@@ -250,7 +271,7 @@ const clearAll = () => {
                 v-model="editedCardName"
                 class="flex-1 bg-[#2a2a2a] border-2 border-primary rounded px-2 py-1 text-white font-medium outline-none focus:ring-2 focus:ring-primary/50"
                 @keyup.enter="saveCardName(category.name)"
-                @keyup.esc="cancelEditCardName"
+                @keydown.esc.stop="cancelEditCardName"
                 @blur="saveCardName(category.name)"
                 ref="nameEditInput"
               />
@@ -276,6 +297,7 @@ const clearAll = () => {
               <input 
                 type="number" 
                 :value="category.count"
+                min="0"
                 class="w-14 sm:w-12 bg-[#2a2a2a] border border-border-primary rounded px-2 py-2 sm:py-1 text-center text-sm font-bold"
                 @input="updateCount(category.name, Number(($event.target as HTMLInputElement).value))"
               >
@@ -308,7 +330,7 @@ const clearAll = () => {
           </div>
           
           <!-- Subcategory editor -->
-          <div v-if="editingSubcategories === category.name" class="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+          <div v-if="editingSubcategories === category.name" class="p-4 bg-primary/5 border border-primary/20 rounded-xl animate-in slide-in-from-top-2 duration-200">
             <div class="flex items-center gap-2 mb-4">
               <h4 class="text-sm font-bold text-primary italic">Manage Tags for {{ category.name }}</h4>
             </div>
@@ -326,19 +348,24 @@ const clearAll = () => {
                 v-model="newSubcategory" 
                 placeholder="Tag name... (Tab to autocomplete)" 
                 @keyup.enter="addSubcategory(category.name)"
+                @keydown.esc.stop="toggleSubcategoryEditor(category.name)"
                 @keydown="handleSubcategoryKeydown($event)"
                 class="flex-1 bg-[#2a2a2a] border border-border-primary rounded-lg px-3 py-3 sm:py-1.5 text-xs text-white focus:ring-1 focus:ring-primary outline-none"
                 list="subcategory-suggestions"
               />
+              <datalist id="subcategory-suggestions">
+                <option v-for="subcat in allExistingSubcategories" :key="subcat" :value="subcat" />
+              </datalist>
               <button @click="addSubcategory(category.name)" class="w-full sm:w-auto bg-gradient-to-r from-primary to-blue-600 hover:brightness-110 px-4 py-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 text-white">Add Tag</button>
             </div>
           </div>
         </div>
 
+        <!-- Add Category Section -->
         <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-border-primary">
           <input 
               v-model="newCardName" 
-              placeholder="Card name (e.g., Ash Blossom)" 
+              placeholder="Card name (e.g., Ash Blossom, Polymerization)" 
               class="w-full sm:flex-1 bg-[#2a2a2a] border border-border-primary rounded-xl px-4 py-4 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none"
               @keyup.enter="addCategory"
           />
@@ -346,6 +373,7 @@ const clearAll = () => {
             <input 
                 v-model.number="newCardCount" 
                 type="number" 
+                min="0"
                 class="flex-1 sm:w-20 bg-[#2a2a2a] border border-border-primary rounded-xl px-2 py-4 sm:py-2 text-center text-sm text-white focus:ring-2 focus:ring-primary outline-none"
                 @keyup.enter="addCategory"
             />
@@ -355,6 +383,7 @@ const clearAll = () => {
       </div>
     </div>
 
+    <!-- Stats Summary -->
     <div class="mt-8 pt-4 border-t border-white/5 flex flex-col gap-2">
       <div class="flex justify-between items-center">
         <p class="text-sm font-medium text-text-secondary">Cards defined:</p>
@@ -370,7 +399,7 @@ const clearAll = () => {
       <p v-if="currentCount < deckSize" class="text-[10px] sm:text-xs italic text-text-secondary/60">
         💡 Remaining {{ deckSize - currentCount }} cards will be empty slots.
       </p>
-      <p v-if="currentCount > deckSize" class="text-[10px] sm:text-xs font-bold text-red-500 mt-2 bg-red-500/10 p-2 rounded text-center">
+      <p v-if="currentCount > deckSize" class="text-[10px] sm:text-xs font-bold text-red-500 mt-2 bg-red-500/10 p-2 rounded border border-red-500/20 text-center">
         ❌ Error: Defined cards exceed deck size!
       </p>
     </div>

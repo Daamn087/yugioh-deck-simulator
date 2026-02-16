@@ -33,12 +33,23 @@ const allSubcategories = computed(() => {
 const addEffect = () => {
   if (!newEffect.value.card_name) return;
   
-  // Clone the effect to avoid reactivity issues with the form
+  // Clone the effect and validate numbers
   const effectToAdd = {
     card_name: newEffect.value.card_name,
     effect_type: newEffect.value.effect_type,
     parameters: { ...newEffect.value.parameters }
   };
+
+  // Validate parameters
+  if (effectToAdd.parameters.count !== undefined) {
+    effectToAdd.parameters.count = Math.max(1, effectToAdd.parameters.count);
+  }
+  if (effectToAdd.parameters.draw_count !== undefined) {
+    effectToAdd.parameters.draw_count = Math.max(1, effectToAdd.parameters.draw_count);
+  }
+  if (effectToAdd.parameters.discard_count !== undefined) {
+    effectToAdd.parameters.discard_count = Math.max(1, effectToAdd.parameters.discard_count);
+  }
   
   store.cardEffects.push(effectToAdd);
   
