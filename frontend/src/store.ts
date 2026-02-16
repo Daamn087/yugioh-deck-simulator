@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { Requirement, CardCategory, CardEffectDefinition } from './api';
-import { importDeckFromXML } from './api';
+import { importDeckFromYDK } from './api';
 
 export const useSimulationStore = defineStore('simulation', {
     state: () => ({
@@ -51,8 +51,8 @@ export const useSimulationStore = defineStore('simulation', {
                 ).filter(group => group.length > 0);
             }
         },
-        async importFromXML(file: File) {
-            const result = await importDeckFromXML(file);
+        async importFromYDK(file: File) {
+            const result = await importDeckFromYDK(file);
             // Convert to cardCategories format
             this.cardCategories = Object.entries(result.deck_contents).map(([name, count]) => ({
                 name,

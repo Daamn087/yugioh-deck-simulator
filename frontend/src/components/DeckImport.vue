@@ -15,7 +15,7 @@ const importDeck = async () => {
   
   try {
     const file = selectedFile.value;
-    await store.importFromXML(file);
+    await store.importFromYDK(file);
     selectedFile.value = null;
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
@@ -43,19 +43,19 @@ const handleFileSelect = (event: Event) => {
   <div class="mb-8 pb-8 border-b-2 border-border-primary">
     <h3 class="text-sm font-semibold uppercase tracking-wider text-text-secondary mb-4 flex items-center gap-2">
       <span>📂</span>
-      Import Deck from XML
+      Import Deck from YDK
       <RouterLink
         to="/docs-faq#faq-2"
         class="text-xs normal-case text-primary hover:text-blue-400 underline transition-colors border-0 bg-transparent p-0 mb-1"
       >
-        [How to get an XML file]
+        [How to get a YDK file]
       </RouterLink>
     </h3>
     <div class="flex flex-col gap-3">
       <div class="flex flex-col sm:flex-row gap-3">
         <input 
           type="file"
-          accept=".xml"
+          accept=".ydk"
           @change="handleFileSelect"
           class="w-full sm:flex-1 bg-[#2a2a2a] border border-border-primary rounded-lg px-4 py-2 text-sm text-text-secondary cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-primary file:to-blue-600 file:text-white hover:file:brightness-110 disabled:opacity-50 transition-all"
           :disabled="importing"

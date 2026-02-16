@@ -106,7 +106,7 @@ onMounted(() => {
             </h3>
             <div class="prose prose-invert max-w-none text-text-secondary leading-relaxed">
               <ol class="list-decimal list-inside space-y-3">
-                <li><span class="text-white font-medium">Build your Deck:</span> Enter card names or tags (e.g., "Starter") and their counts. You can also import XML files from DuelingBook. (See FAQ section for details)</li>
+                <li><span class="text-white font-medium">Build your Deck:</span> Enter card names or tags (e.g., "Starter") and their counts. You can also import YDK files from DuelingBook. (See FAQ section for details)</li>
                 <li><span class="text-white font-medium">Define Rules:</span> Set up what counts as a "Success". For example: <code>Starter >= 1</code>.</li>
                 <li><span class="text-white font-medium">Add Effects:</span> (Optional) Add cards that draw or discard during the simulation.</li>
                 <li><span class="text-white font-medium">Simulate:</span> Choose the number of simulations (default is 1 million, but can be manually adjusted) and click Run!</li>
@@ -247,7 +247,7 @@ const faqs = [
   },
   {
     question: "How do I import my deck from DuelingBook?",
-    answer: "On DuelingBook, click 'Export Deck', then 'Download Link'. Open that link and click 'Download XML File'. You can then upload that file here."
+    answer: "On DuelingBook, go to your deck and click 'Export Deck', then select 'YDK File'. This will download a .ydk file to your computer. You can then upload that file using the Import button in the Deck Builder."
   },
   {
     question: "Can I simulate multiple different kinds of draw effects?",
