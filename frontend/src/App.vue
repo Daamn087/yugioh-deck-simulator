@@ -10,8 +10,8 @@ const error = ref<string | null>(null);
   <div class="min-h-screen bg-bg-dark text-white/90 p-4 sm:p-8 flex flex-col items-center pb-32 lg:pb-8">
     <div class="w-full max-w-7xl">
       <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-border-primary pb-6">
-        <router-link to="/" class="group">
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-transparent group-hover:opacity-80 transition-opacity text-center md:text-left">
+        <router-link to="/" class="group bg-transparent border-none">
+          <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity text-center md:text-left">
             Yu-Gi-Oh! Deck Simulator
           </h1>
         </router-link>
@@ -20,7 +20,7 @@ const error = ref<string | null>(null);
           <router-link 
             to="/docs-faq" 
             class="px-4 py-2 rounded-lg text-sm font-bold transition-all border"
-            :class="route.path === '/docs-faq' ? 'bg-primary border-primary text-white shadow-[0_0_15px_rgba(0,184,255,0.3)]' : 'bg-gray-800 border-border-primary text-text-secondary hover:text-white hover:bg-gray-700'"
+            :class="route.path === '/docs-faq' ? 'bg-primary border-primary text-white' : 'bg-gray-700 border-border-primary text-text-secondary text-white hover:text-white hover:bg-gray-600'"
           >
             Docs & FAQ
           </router-link>

@@ -88,7 +88,7 @@ const run = async () => {
           <button @click="handleImportClick" class="flex-1 sm:flex-none bg-gray-700 hover:bg-gray-600 px-4 py-2 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Upload configuration">
             <span>⬆️</span> Import
           </button>
-          <button @click="store.resetToDefaults" class="bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 p-2 sm:px-4 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Clear all settings">
+          <button @click="store.resetToDefaults" class="bg-red-900/40 hover:bg-red-900/80 border border-red-800/50 p-2 sm:px-4 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Clear all settings">
             <span class="sm:hidden">🔄</span>
             <span class="hidden sm:inline">🔄 Reset</span>
           </button>
