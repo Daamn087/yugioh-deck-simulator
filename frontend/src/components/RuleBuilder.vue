@@ -3,7 +3,7 @@
 import { ref, computed } from 'vue';
 import type { Requirement } from '../api';
 import { useSimulationStore } from '../store';
-import RuleGroup from './RuleGroup.vue';
+import RuleOption from './RuleOption.vue';
 
 const isCollapsed = ref(false);
 const toggleCollapse = () => {
@@ -76,26 +76,15 @@ const updateGroup = (index: number, newGroup: Requirement[]) => {
         </p>
 
         <div class="flex flex-col gap-4 sm:gap-6">
-            <div v-for="(group, gIndex) in rules" :key="gIndex" class="bg-surface-card border-l-4 border-primary rounded-r-lg p-3 sm:p-5 shadow-inner relative group/item">
-                <div class="flex justify-between items-center mb-4 gap-2">
-                    <span class="text-[10px] sm:text-sm font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                      <span class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-primary text-white rounded-full text-[10px]">#{{ gIndex + 1 }}</span>
-                      Option {{ gIndex + 1 }}
-                    </span>
-                    <button 
-                      class="text-[10px] sm:text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 border border-red-500/30 px-2 sm:px-3 py-1 rounded transition-all active:scale-95" 
-                      @click.stop="removeGroup(gIndex)"
-                    >
-                      Remove
-                    </button>
-                </div>
-                
-                <RuleGroup 
-                    :model-value="group"
-                    :all-options="allOptions"
-                    @update:model-value="updateGroup(gIndex, $event)"
-                />
-            </div>
+            <RuleOption 
+                v-for="(group, gIndex) in rules" 
+                :key="gIndex"
+                :group="group"
+                :index="gIndex"
+                :all-options="allOptions"
+                @update:group="updateGroup(gIndex, $event)"
+                @remove="removeGroup(gIndex)"
+            />
         </div>
 
         <button 

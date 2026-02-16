@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue';
 import { useSimulationStore } from '../store';
 import type { CardEffectDefinition } from '../api';
-import { getTagBadgeColors } from '../utils/tagColors';
+import EffectEntry from './EffectEntry.vue';
+import EffectForm from './EffectForm.vue';
 
 const store = useSimulationStore();
 
@@ -10,17 +11,6 @@ const isCollapsed = ref(false);
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value;
 };
-
-const newEffect = ref<CardEffectDefinition>({
-  card_name: '',
-  effect_type: 'draw',
-  parameters: { count: 2 }
-});
-
-const effectTypes = [
-  { value: 'draw', label: 'Draw Cards' },
-  { value: 'conditional_discard', label: 'Draw & Conditional Discard' }
-];
 
 const allSubcategories = computed(() => {
   const subcats = new Set<string>();
@@ -30,43 +20,12 @@ const allSubcategories = computed(() => {
   return Array.from(subcats).sort();
 });
 
-const addEffect = () => {
-  if (!newEffect.value.card_name) return;
-  
-  // Clone the effect and validate numbers
-  const effectToAdd = {
-    card_name: newEffect.value.card_name,
-    effect_type: newEffect.value.effect_type,
-    parameters: { ...newEffect.value.parameters }
-  };
+const availableCategories = computed(() => {
+    return store.cardCategories.map(cat => cat.name);
+});
 
-  // Validate parameters
-  if (effectToAdd.parameters.count !== undefined) {
-    effectToAdd.parameters.count = Math.max(1, effectToAdd.parameters.count);
-  }
-  if (effectToAdd.parameters.draw_count !== undefined) {
-    effectToAdd.parameters.draw_count = Math.max(1, effectToAdd.parameters.draw_count);
-  }
-  if (effectToAdd.parameters.discard_count !== undefined) {
-    effectToAdd.parameters.discard_count = Math.max(1, effectToAdd.parameters.discard_count);
-  }
-  
-  store.cardEffects.push(effectToAdd);
-  
-  // Reset card name for next add
-  newEffect.value.card_name = '';
-};
-
-const updateEffectType = () => {
-  if (newEffect.value.effect_type === 'draw') {
-    newEffect.value.parameters = { count: 2 };
-  } else if (newEffect.value.effect_type === 'conditional_discard') {
-    newEffect.value.parameters = { 
-      draw_count: 2, 
-      discard_filter: allSubcategories.value[0] || '', 
-      discard_count: 1 
-    };
-  }
+const addEffect = (effect: CardEffectDefinition) => {
+  store.cardEffects.push(effect);
 };
 
 const removeEffect = (index: number) => {
@@ -113,129 +72,24 @@ const removeEffect = (index: number) => {
         </div>
 
         <div class="flex flex-col gap-3 mb-8">
-            <div v-for="(effect, index) in store.cardEffects" :key="index" class="bg-white/5 border border-border-primary rounded-lg overflow-hidden transition-all hover:border-white/20">
-                <div class="flex justify-between items-center px-4 py-2 bg-white/5 border-b border-white/5">
-                <span class="text-[10px] font-black text-primary uppercase tracking-widest">{{ effect.card_name }}</span>
-                <button class="text-[10px] font-bold text-red-500 hover:text-white hover:bg-red-500 px-2 py-0.5 rounded transition-all active:scale-95" @click="removeEffect(index)">Remove</button>
-                </div>
-                <div class="p-3 sm:p-4 text-xs sm:text-sm">
-                <div v-if="effect.effect_type === 'draw'" class="flex items-center gap-2">
-                    <span>Draw</span>
-                    <strong class="text-primary text-base sm:text-lg">{{ effect.parameters.count }}</strong>
-                    <span>cards.</span>
-                </div>
-                <div v-else-if="effect.effect_type === 'conditional_discard'" class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span>Draw</span>
-                    <strong class="text-primary text-base sm:text-lg">{{ effect.parameters.draw_count }}</strong>
-                    <span>cards, then discard</span>
-                    <strong class="text-pink-500 text-base sm:text-lg">{{ effect.parameters.discard_count }}</strong>
-                    <span>card(s) tagged</span>
-                    <span 
-                      class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-sm"
-                      :style="{ 
-                        background: getTagBadgeColors(effect.parameters.discard_filter).background,
-                        color: getTagBadgeColors(effect.parameters.discard_filter).color,
-                        borderColor: getTagBadgeColors(effect.parameters.discard_filter).border
-                      }"
-                    >{{ effect.parameters.discard_filter }}</span> 
-                    <span>from the final hand.</span>
-                </div>
-                </div>
-            </div>
+            <EffectEntry 
+                v-for="(effect, index) in store.cardEffects" 
+                :key="index"
+                :effect="effect"
+                :index="index"
+                @remove="removeEffect(index)"
+            />
 
             <div v-if="store.cardEffects.length === 0" class="text-center py-10 text-text-secondary/50 italic text-sm border-2 border-dashed border-white/5 rounded-xl">
                 No card effects defined yet.
             </div>
         </div>
 
-        <div class="pt-6 sm:pt-8 border-t-2 border-border-primary">
-            <h3 class="text-base sm:text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <span>➕</span> Add New Effect
-            </h3>
-            <div class="flex flex-col gap-4 sm:gap-6 bg-black/20 p-4 sm:p-6 rounded-xl border border-white/5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <div class="flex flex-col gap-2">
-                    <label class="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">Card Name</label>
-                    <select 
-                      v-model="newEffect.card_name"
-                      class="bg-[#2a2a2a] border border-border-primary rounded-lg px-3 py-3 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none"
-                    >
-                      <option value="" disabled>Select a card from deck</option>
-                      <option v-for="cat in store.cardCategories" :key="cat.name" :value="cat.name">
-                          {{ cat.name }}
-                      </option>
-                    </select>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label class="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">Effect Type</label>
-                    <select 
-                      v-model="newEffect.effect_type" 
-                      @change="updateEffectType"
-                      class="bg-[#2a2a2a] border border-border-primary rounded-lg px-3 py-3 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none"
-                    >
-                      <option v-for="type in effectTypes" :key="type.value" :value="type.value">
-                          {{ type.label }}
-                      </option>
-                    </select>
-                </div>
-                </div>
-
-                <div class="p-4 sm:p-6 bg-white/5 border border-white/5 rounded-lg shadow-inner">
-                <!-- Draw Effect Params -->
-                <div v-if="newEffect.effect_type === 'draw'" class="flex flex-col gap-2 max-w-[200px]">
-                    <label class="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">Cards to Draw</label>
-                    <input 
-                      type="number" 
-                      v-model.number="newEffect.parameters.count" 
-                      min="1" max="40"
-                      class="bg-[#2a2a2a] border border-border-primary rounded-lg px-4 py-3 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none text-center font-bold"
-                    >
-                </div>
-
-                <!-- Conditional Discard Params -->
-                <div v-if="newEffect.effect_type === 'conditional_discard'" class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    <div class="flex flex-col gap-2">
-                      <label class="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">Cards to Draw</label>
-                      <input 
-                        type="number" 
-                        v-model.number="newEffect.parameters.draw_count" 
-                        min="1" max="40"
-                        class="bg-[#2a2a2a] border border-border-primary rounded-lg px-4 py-3 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none text-center font-bold"
-                      >
-                    </div>
-                    <div class="flex flex-col gap-2">
-                      <label class="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">Discard Filter (Tag)</label>
-                      <select 
-                        v-model="newEffect.parameters.discard_filter"
-                        class="bg-[#2a2a2a] border border-border-primary rounded-lg px-3 py-3 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none"
-                      >
-                          <option value="" disabled>Tag</option>
-                          <option v-for="subcat in allSubcategories" :key="subcat" :value="subcat">
-                          {{ subcat }}
-                          </option>
-                      </select>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                      <label class="text-[10px] font-bold text-text-secondary uppercase tracking-widest pl-1">Discard Count</label>
-                      <input 
-                        type="number" 
-                        v-model.number="newEffect.parameters.discard_count" 
-                        min="1" max="10"
-                        class="bg-[#2a2a2a] border border-border-primary rounded-lg px-4 py-3 sm:py-2 text-sm text-white focus:ring-2 focus:ring-primary outline-none text-center font-bold"
-                      >
-                    </div>
-                </div>
-                </div>
-
-                <button 
-                  class="w-full py-4 bg-gradient-to-r from-primary to-blue-600 hover:brightness-110 text-white font-black rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.99] disabled:opacity-50 disabled:grayscale uppercase tracking-widest text-xs sm:text-sm" 
-                  @click="addEffect" 
-                  :disabled="!newEffect.card_name"
-                >
-                  Add Effect to Simulation
-                </button>
-            </div>
-        </div>
+        <EffectForm 
+            :available-categories="availableCategories"
+            :all-subcategories="allSubcategories"
+            @add="addEffect"
+        />
     </div>
   </div>
 </template>

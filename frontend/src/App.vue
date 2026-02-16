@@ -11,7 +11,7 @@ const error = ref<string | null>(null);
     <div class="w-full max-w-7xl">
       <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-border-primary pb-6">
         <router-link to="/" class="group">
-          <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity text-center md:text-left">
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-transparent group-hover:opacity-80 transition-opacity text-center md:text-left">
             Yu-Gi-Oh! Deck Simulator
           </h1>
         </router-link>
