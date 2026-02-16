@@ -204,7 +204,7 @@ const clearAll = () => {
           <button 
             @click="importDeck" 
             :disabled="importing || !selectedFile"
-            class="w-full sm:min-w-[100px] flex items-center justify-center bg-gradient-to-r from-primary to-pink-500 hover:brightness-110 text-white font-bold py-3 sm:py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+            class="w-full sm:min-w-[100px] flex flex-0 items-center justify-center bg-gradient-to-r from-primary to-pink-500 hover:brightness-110 text-white font-bold py-3 sm:py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
           >
             <div v-if="importing" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             <span v-else>Import</span>
