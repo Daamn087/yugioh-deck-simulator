@@ -41,6 +41,10 @@ const removeReq = (index: number) => {
 };
 
 const updateReq = (index: number, field: keyof Requirement, value: any) => {
+    // If we're at top level (depth 0), don't allow changing operator to OR
+    if (field === 'operator' && value === 'OR' && currentDepth.value === 0) {
+        return;
+    }
     const newRules = [...props.modelValue];
     const req = { ...newRules[index], [field]: value } as Requirement;
     newRules[index] = req;
@@ -115,6 +119,7 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                         AND
                     </button>
                     <button 
+                        v-if="currentDepth > 0"
                         class="px-3 py-1 text-[10px] font-black rounded transition-all uppercase tracking-tighter"
                         :class="req.operator === 'OR' ? 'bg-pink-600 text-white shadow-lg' : 'text-text-secondary hover:text-white'"
                         @click="updateReq(index, 'operator', 'OR')"

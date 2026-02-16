@@ -100,6 +100,12 @@ const scrollTo = (id: string) => {
               <p>
                 Success conditions determine if a hand is "good". You can use <strong>AND</strong> and <strong>OR</strong> logic to create complex requirements.
               </p>
+              <div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6">
+                <p class="text-sm font-semibold text-blue-400 mb-1 italic">Logic Restriction:</p>
+                <p class="text-sm text-text-secondary leading-tight">
+                  Top-level requirements within a Success Option are always connected with <strong>AND</strong>. To use <strong>OR</strong>, you must place your requirements inside a <strong>Parentheses Group</strong>.
+                </p>
+              </div>
               <h4 class="text-white font-semibold flex items-center gap-2 mt-6">
                 <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Nesting Logic:
               </h4>

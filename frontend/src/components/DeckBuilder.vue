@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { useSimulationStore } from '../store';
 import { getTagColor } from '../utils/tagColors';
 
@@ -28,6 +28,8 @@ const editingSubcategories = ref<string | null>(null);
 const newSubcategory = ref('');
 const editingCardName = ref<string | null>(null);
 const editedCardName = ref('');
+const nameEditInput = ref<HTMLInputElement | null>(null);
+const isProcessingSave = ref(false);
 
 const currentCount = computed(() => {
   return store.cardCategories.reduce((sum, cat) => sum + cat.count, 0);
@@ -89,24 +91,36 @@ const toggleSubcategoryEditor = (categoryName: string) => {
 const startEditingCardName = (categoryName: string) => {
   editingCardName.value = categoryName;
   editedCardName.value = categoryName;
+  nextTick(() => {
+    nameEditInput.value?.focus();
+    nameEditInput.value?.select();
+  });
 };
 
-const saveCardName = (oldName: string) => {
+const saveCardName = async (oldName: string) => {
+  if (isProcessingSave.value) return;
+  
   if (!editedCardName.value.trim() || editedCardName.value === oldName) {
     editingCardName.value = null;
     return;
   }
   
+  isProcessingSave.value = true;
   const category = store.cardCategories.find(c => c.name === oldName);
   if (category) {
     category.name = editedCardName.value.trim();
     store.syncDeckContents();
   }
   editingCardName.value = null;
+  isProcessingSave.value = false;
 };
 
 const cancelEditCardName = () => {
+  isProcessingSave.value = true; // Prevent blur from saving
   editingCardName.value = null;
+  nextTick(() => {
+    isProcessingSave.value = false;
+  });
 };
 
 const handleSubcategoryKeydown = (event: KeyboardEvent) => {
@@ -238,7 +252,7 @@ const clearAll = () => {
             v-model="editedCardName"
             class="flex-1 bg-[#2a2a2a] border-2 border-primary rounded px-2 py-1 text-white font-medium outline-none focus:ring-2 focus:ring-primary/50"
             @keyup.enter="saveCardName(category.name)"
-            @keyup.esc="cancelEditCardName"
+            @keydown.esc.stop="cancelEditCardName"
             @blur="saveCardName(category.name)"
             ref="nameEditInput"
           />
@@ -308,6 +322,7 @@ const clearAll = () => {
               v-model="newSubcategory" 
               placeholder="e.g., Starter, Extender, Lunalight Monster (Tab to autocomplete)" 
               @keyup.enter="addSubcategory(category.name)"
+              @keydown.esc.stop="toggleSubcategoryEditor(category.name)"
               @keydown="handleSubcategoryKeydown($event)"
               class="flex-1 bg-[#2a2a2a] border border-border-primary rounded px-3 py-1.5 text-xs text-white focus:ring-1 focus:ring-primary outline-none"
               list="subcategory-suggestions"
