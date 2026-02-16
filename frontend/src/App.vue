@@ -16,6 +16,7 @@ const { deckSize, handSize, simulations, deckContents, rules } = storeToRefs(sto
 const result = ref<SimulationResult | null>(null);
 const loading = ref(false);
 const error = ref<string | null>(null);
+const activeTab = ref<'deck' | 'rules' | 'effects'>('deck');
 
 const availableCategories = computed(() => Object.keys(deckContents.value));
 
@@ -73,26 +74,27 @@ const handleFileUpload = async (event: Event) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-bg-dark text-white/90 p-4 sm:p-8 flex flex-col items-center">
+  <div class="min-h-screen bg-bg-dark text-white/90 p-4 sm:p-8 flex flex-col items-center pb-32 lg:pb-8">
     <div class="w-full max-w-7xl">
-      <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-border-primary pb-6">
-        <h1 class="text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+      <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 border-b border-border-primary pb-6">
+        <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent text-center md:text-left">
           Yu-Gi-Oh! Deck Simulator
         </h1>
-        <div class="flex flex-wrap items-center gap-6 bg-surface-card p-3 rounded-lg border border-border-primary shadow-inner">
-          <label class="flex items-center gap-2 text-sm font-medium text-text-secondary whitespace-nowrap">
-              Simulations:
-              <input type="text" v-model.lazy="simulationsFormatted" class="w-32 bg-[#2a2a2a] border border-[#444] rounded px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+        <div class="flex flex-col sm:flex-row items-center gap-4 bg-surface-card p-3 rounded-xl border border-border-primary shadow-inner w-full md:w-auto">
+          <label class="flex items-center justify-between sm:justify-start gap-3 text-sm font-medium text-text-secondary w-full sm:w-auto px-2 sm:px-0">
+              <span class="whitespace-nowrap">Simulations:</span>
+              <input type="text" v-model.lazy="simulationsFormatted" class="w-full sm:w-32 bg-[#2a2a2a] border border-[#444] rounded px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all">
           </label>
-          <div class="flex items-center gap-2">
-            <button @click="handleExport" class="bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2" title="Download configuration">
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button @click="handleExport" class="flex-1 sm:flex-none bg-gray-700 hover:bg-gray-600 px-4 py-2 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Download configuration">
               <span>⬇️</span> Export
             </button>
-            <button @click="handleImportClick" class="bg-gray-700 hover:bg-gray-600 px-4 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2" title="Upload configuration">
+            <button @click="handleImportClick" class="flex-1 sm:flex-none bg-gray-700 hover:bg-gray-600 px-4 py-2 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Upload configuration">
               <span>⬆️</span> Import
             </button>
-            <button @click="store.resetToDefaults" class="bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 px-4 py-1 rounded text-sm font-semibold transition-colors flex items-center gap-2" title="Clear all settings">
-              <span>🔄</span> Reset
+            <button @click="store.resetToDefaults" class="bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 p-2 sm:px-4 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Clear all settings">
+              <span class="sm:hidden">🔄</span>
+              <span class="hidden sm:inline">🔄 Reset</span>
             </button>
             <input 
               type="file" 
@@ -105,22 +107,60 @@ const handleFileUpload = async (event: Event) => {
         </div>
       </header>
 
+      <!-- Mobile Navigation Tabs -->
+      <nav class="lg:hidden flex mb-6 p-1 bg-surface-card rounded-xl border border-border-primary">
+        <button 
+          @click="activeTab = 'deck'"
+          class="flex-1 py-3 px-2 rounded-lg text-sm font-bold transition-all flex flex-col items-center gap-1"
+          :class="activeTab === 'deck' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-text-secondary hover:text-white'"
+        >
+          <span class="text-xl">🎴</span>
+          <span>Deck</span>
+        </button>
+        <button 
+          @click="activeTab = 'rules'"
+          class="flex-1 py-3 px-2 rounded-lg text-sm font-bold transition-all flex flex-col items-center gap-1"
+          :class="activeTab === 'rules' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-text-secondary hover:text-white'"
+        >
+          <span class="text-xl">⚖️</span>
+          <span>Rules</span>
+        </button>
+        <button 
+          @click="activeTab = 'effects'"
+          class="flex-1 py-3 px-2 rounded-lg text-sm font-bold transition-all flex flex-col items-center gap-1"
+          :class="activeTab === 'effects' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-text-secondary hover:text-white'"
+        >
+          <span class="text-xl">⚡</span>
+          <span>Effects</span>
+        </button>
+      </nav>
+
       <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <!-- Content Area -->
         <div class="lg:col-span-2 flex flex-col gap-6">
-          <DeckBuilder 
-              v-model:contents="deckContents"
-              v-model:deckSize="deckSize"
-              v-model:handSize="handSize"
-              @delete-category="store.deleteCategory"
-          />
-          <RuleBuilder
-              v-model:rules="rules"
-              :availableCategories="availableCategories" 
-          />
-          <CardEffectsEditor />
+          <div :class="{'hidden lg:block': activeTab !== 'deck'}">
+            <DeckBuilder 
+                v-model:contents="deckContents"
+                v-model:deckSize="deckSize"
+                v-model:handSize="handSize"
+                @delete-category="store.deleteCategory"
+            />
+          </div>
+          
+          <div :class="{'hidden lg:block': activeTab !== 'rules'}">
+            <RuleBuilder
+                v-model:rules="rules"
+                :availableCategories="availableCategories" 
+            />
+          </div>
+          
+          <div :class="{'hidden lg:block': activeTab !== 'effects'}">
+            <CardEffectsEditor />
+          </div>
         </div>
         
-        <div class="lg:col-span-1 flex flex-col gap-6 sticky top-8">
+        <!-- Desktop Sidebar -->
+        <div class="hidden lg:flex lg:col-span-1 flex-col gap-6 sticky top-8">
             <Results :result="result" :loading="loading" />
             
             <button 
@@ -137,8 +177,38 @@ const handleFileUpload = async (event: Event) => {
         </div>
       </main>
     </div>
+
+    <!-- Mobile Sticky Footer -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg-dark/80 backdrop-blur-md border-t border-border-primary z-50">
+      <div class="max-w-7xl mx-auto flex items-center gap-4">
+        <div class="flex-1 bg-surface-card p-3 rounded-xl border border-border-primary flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-[10px] uppercase tracking-wider text-text-secondary font-bold">Success Rate</span>
+            <span class="text-xl font-black text-primary">{{ result ? result.success_rate.toFixed(2) + '%' : '0.00%' }}</span>
+          </div>
+          <div class="w-20 bg-[#1a1a1a] h-2 rounded-full overflow-hidden border border-white/5">
+            <div 
+              class="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-500"
+              :style="{ width: result ? result.success_rate + '%' : '0%' }"
+            ></div>
+          </div>
+        </div>
+        <button 
+          @click="run"
+          :disabled="loading"
+          class="bg-gradient-to-r from-primary to-blue-600 text-white font-black px-6 py-4 rounded-xl shadow-lg shadow-primary/30 active:scale-95 disabled:opacity-50 disabled:grayscale transition-all"
+        >
+          {{ loading ? '...' : 'RUN' }}
+        </button>
+      </div>
+      <!-- Error toast on mobile -->
+      <div v-if="error" class="absolute bottom-full left-4 right-4 mb-2 bg-red-500 text-white text-[10px] font-bold py-1 px-3 rounded shadow-lg animate-bounce">
+        Error: {{ error }}
+      </div>
+    </div>
   </div>
 </template>
+
 
 <style scoped>
 </style>

@@ -57,7 +57,7 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-3" :class="{ 'ml-6 p-4 border-l-2 border-border-primary bg-black/10 rounded-lg': currentDepth > 0 }">
+    <div class="flex flex-col gap-3" :class="{ 'ml-3 sm:ml-6 p-2 sm:p-4 border-l-2 border-border-primary bg-black/10 rounded-lg': currentDepth > 0 }">
         <div v-for="(req, index) in modelValue" :key="index" class="flex flex-col">
             
             <div class="flex flex-col">
@@ -80,10 +80,10 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                 </div>
 
                 <!-- Otherwise it's a single requirement -->
-                <div v-else class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-2 rounded-lg border border-transparent hover:border-white/5 transition-all">
+                <div v-else class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 bg-white/5 hover:bg-white/10 p-3 sm:p-2 rounded-lg border border-transparent hover:border-white/5 transition-all">
                      <select 
                         :value="req.card_name"
-                        class="flex-1 bg-[#2a2a2a] border border-border-primary rounded px-3 py-1.5 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
+                        class="flex-1 bg-[#2a2a2a] border border-border-primary rounded px-3 py-2 sm:py-1.5 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
                         @change="updateReq(index, 'card_name', ($event.target as HTMLSelectElement).value)"
                     >
                         <optgroup label="Card Names" class="bg-[#1a1a1a]">
@@ -93,14 +93,17 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                             <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
                         </optgroup>
                     </select>
-                    <span class="text-xs font-black text-text-secondary">≥</span>
-                    <input 
-                        type="number" 
-                        :value="req.min_count"
-                        class="w-14 bg-[#2a2a2a] border border-border-primary rounded px-2 py-1.5 text-center text-sm font-bold text-primary"
-                        @input="updateReq(index, 'min_count', Number(($event.target as HTMLInputElement).value))"
-                    >
-                    <button class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 w-7 h-7 flex items-center justify-center rounded transition-all active:scale-90" @click="removeReq(index)">×</button>
+                    
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-black text-text-secondary">≥</span>
+                        <input 
+                            type="number" 
+                            :value="req.min_count"
+                            class="flex-1 sm:w-14 bg-[#2a2a2a] border border-border-primary rounded px-2 py-2 sm:py-1.5 text-center text-sm font-bold text-primary"
+                            @input="updateReq(index, 'min_count', Number(($event.target as HTMLInputElement).value))"
+                        >
+                        <button class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 w-10 h-10 sm:w-7 sm:h-7 flex items-center justify-center rounded transition-all active:scale-90" @click="removeReq(index)">×</button>
+                    </div>
                 </div>
             </div>
 
@@ -127,15 +130,15 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
 
         </div>
 
-        <div class="flex gap-2 mt-2">
+        <div class="flex flex-col sm:flex-row gap-2 mt-2">
             <button 
-              class="text-[10px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-md transition-all active:scale-95 text-text-secondary hover:text-white" 
+              class="flex-1 text-[10px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-3 sm:py-2 rounded-md transition-all active:scale-95 text-text-secondary hover:text-white" 
               @click="addReq"
             >
               + Requirement
             </button>
             <button 
-              class="text-[10px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-md transition-all active:scale-95 text-text-secondary hover:text-white" 
+              class="flex-1 text-[10px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-3 sm:py-2 rounded-md transition-all active:scale-95 text-text-secondary hover:text-white" 
               @click="addSubGroup"
             >
               + ( Group )
