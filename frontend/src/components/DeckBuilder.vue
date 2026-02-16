@@ -363,13 +363,13 @@ const clearAll = () => {
     <div class="mt-8 pt-4 border-t border-white/5 flex flex-col gap-1">
       <p class="text-sm font-medium text-text-secondary flex justify-between">
         <span>Cards defined:</span>
-        <span :class="currentCount > deckSize ? 'text-red-500' : 'text-primary'">{{ currentCount }} / {{ deckSize }}</span>
+        <span :class="currentCount > deckSize ? 'text-yellow-500' : 'text-primary'">{{ currentCount }} / {{ deckSize }}</span>
       </p>
       <p v-if="currentCount < deckSize" class="text-xs italic text-text-secondary/60">
         💡 Remaining {{ deckSize - currentCount }} cards will be empty slots.
       </p>
-      <p v-if="currentCount > deckSize" class="text-xs font-bold text-red-500 mt-2 bg-red-500/10 p-2 rounded">
-        ❌ Error: Defined cards exceed deck size!
+      <p v-if="currentCount > deckSize" class="text-xs font-bold text-yellow-500 mt-2 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
+        ⚠️ Warning: Defined cards exceed total deck size.
       </p>
     </div>
   </div>
