@@ -42,7 +42,14 @@ const handleFileSelect = (event: Event) => {
 <template>
   <div class="mb-8 pb-8 border-b-2 border-border-primary">
     <h3 class="text-sm font-semibold uppercase tracking-wider text-text-secondary mb-4 flex items-center gap-2">
-      <span>📂</span> Import Deck from XML
+      <span>📂</span>
+      Import Deck from XML
+      <RouterLink
+        to="/docs-faq#faq-2"
+        class="text-xs normal-case text-primary hover:text-blue-400 underline transition-colors border-0 bg-transparent p-0 mb-1"
+      >
+        [How to get an XML file]
+      </RouterLink>
     </h3>
     <div class="flex flex-col gap-3">
       <div class="flex flex-col sm:flex-row gap-3">

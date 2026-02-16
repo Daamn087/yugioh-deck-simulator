@@ -21,9 +21,12 @@ class TestDeckSimulator(unittest.TestCase):
         self.assertEqual(deck.cards.count("_Generic_"), 5)
 
     def test_deck_too_many_cards(self):
+        # Verify that when cards exceed deck size, the deck size is adjusted
         contents = {"Starter": 41}
-        with self.assertRaises(ValueError):
-            Deck(40, contents)
+        deck = Deck(40, contents)
+        # Deck size should be adjusted to 41
+        self.assertEqual(deck.deck_size, 41)
+        self.assertEqual(len(deck.cards), 41)
 
     def test_draw_hand_size(self):
         deck = Deck(40, {"Starter": 40})

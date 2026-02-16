@@ -159,6 +159,12 @@ def run_simulation(config: SimulationConfig):
         result = sim.run(config.simulations, config.hand_size, sim_conditions)
         elapsed = time.time() - start_time
         
+        # Add warning if card counts exceed nominal deck size
+        warnings = list(result.warnings)
+        total_cards_defined = sum(cat.count for cat in config.card_categories) if config.card_categories else sum(config.deck_contents.values())
+        if total_cards_defined > config.deck_size:
+            warnings.insert(0, f"Defined cards ({total_cards_defined}) exceed deck size ({config.deck_size}). Simulation used {total_cards_defined} cards.")
+        
         return SimulationResult(
             success_rate=result.success_rate,
             brick_rate=result.brick_rate,
@@ -166,7 +172,7 @@ def run_simulation(config: SimulationConfig):
             brick_count=result.brick_count,
             time_taken=elapsed,
             max_depth_reached_count=result.max_depth_reached_count,
-            warnings=result.warnings
+            warnings=warnings
         )
 
     except ValueError as e:

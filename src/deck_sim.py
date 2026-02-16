@@ -25,21 +25,22 @@ class Deck:
             contents: Dictionary mapping card category names to their counts.
                       Example: {"Starter": 5, "Extender": 3}
         """
-        self.deck_size = deck_size
         self.contents = contents
         self.cards = self._build_deck()
         
         if len(self.cards) != deck_size:
-            # We fill the rest with "blank" cards if the counts don't add up to deck_size
-            # Or raise error if they exceed.
+            # If card counts exceed deck_size, use actual count as deck_size
             if len(self.cards) > deck_size:
-                raise ValueError(f"Card counts ({len(self.cards)}) exceed deck size ({deck_size})")
-            
-            # Fill remainder with "Empty" or similar if needed, or assume 'Other'
-            # For this sim, typically we care about named categories. 
-            # Anything not named is just "Other".
-            remaining = deck_size - len(self.cards)
-            self.cards.extend(["_Generic_"] * remaining)
+                self.deck_size = len(self.cards)
+            else:
+                # Fill remainder with "Empty" or similar if needed, or assume 'Other'
+                # For this sim, typically we care about named categories. 
+                # Anything not named is just "Other".
+                remaining = deck_size - len(self.cards)
+                self.cards.extend(["_Generic_"] * remaining)
+                self.deck_size = deck_size
+        else:
+            self.deck_size = deck_size
 
     def _build_deck(self) -> List[str]:
         deck = []
