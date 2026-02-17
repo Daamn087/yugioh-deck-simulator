@@ -3,6 +3,7 @@ export interface Requirement {
     card_name?: string;
     min_count?: number;
     operator?: 'AND' | 'OR';  // Operator to use after this requirement
+    comparison_operator?: '>=' | '=';  // '>=' (at least) or '=' (exactly)
     sub_requirements?: Requirement[];
 }
 

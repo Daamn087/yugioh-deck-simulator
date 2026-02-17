@@ -18,7 +18,7 @@ const currentDepth = computed(() => props.depth || 0);
 const addReq = () => {
     const newRules = [...props.modelValue];
     const firstCat = props.allOptions.categories[0] || "Starter";
-    newRules.push({ card_name: firstCat, min_count: 1, operator: 'AND' });
+    newRules.push({ card_name: firstCat, min_count: 1, operator: 'AND', comparison_operator: '>=' });
     emit('update:modelValue', newRules);
 };
 
@@ -29,7 +29,7 @@ const addSubGroup = () => {
     // Initialize with one default requirement inside
     newRules.push({ 
         operator: 'AND',
-        sub_requirements: [{ card_name: firstCat, min_count: 1, operator: 'AND' }]
+        sub_requirements: [{ card_name: firstCat, min_count: 1, operator: 'AND', comparison_operator: '>=' }]
     });
     emit('update:modelValue', newRules);
 };
@@ -101,8 +101,26 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                             <option v-for="subcat in allOptions.subcategories" :key="subcat" :value="subcat">🏷️ {{ subcat }}</option>
                         </optgroup>
                     </select>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-black text-text-secondary">≥</span>
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <!-- Comparison operator toggle -->
+                        <div class="flex gap-0.5 bg-black/30 p-0.5 rounded border border-white/10">
+                            <button 
+                                class="px-2 py-1 text-xs font-black rounded transition-all"
+                                :class="(req.comparison_operator === '>=' || !req.comparison_operator) ? 'bg-primary text-white' : 'text-text-secondary hover:text-white'"
+                                @click="updateReq(index, 'comparison_operator', '>=')"
+                                title="At least"
+                            >
+                                ≥
+                            </button>
+                            <button 
+                                class="px-2 py-1 text-xs font-black rounded transition-all"
+                                :class="req.comparison_operator === '=' ? 'bg-pink-600 text-white' : 'text-text-secondary hover:text-white'"
+                                @click="updateReq(index, 'comparison_operator', '=')"
+                                title="Exactly"
+                            >
+                                =
+                            </button>
+                        </div>
                         <input 
                             type="number" 
                             :value="req.min_count"
