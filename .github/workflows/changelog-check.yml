@@ -1,0 +1,40 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches-ignore: [ main ]
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify CHANGELOG.md update
+        run: |
+          echo "Determining base branch for comparison..."
+          
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+          else
+            # Default to origin/main for simple push checks
+            BASE_REF="origin/main"
+          fi
+          
+          echo "Comparing HEAD against $BASE_REF for CHANGELOG.md..."
+          
+          # Check if CHANGELOG.md has changed between the base branch and current HEAD
+          if git diff --quiet "$BASE_REF" HEAD -- CHANGELOG.md; then
+            echo "Error: No changes detected in CHANGELOG.md since $BASE_REF."
+            echo "Please add a new entry to CHANGELOG.md detailing your changes."
+            echo ""
+            echo "💡 Tip: You can use 'python3 scripts/update_changelog.py' locally to help generate the entry!"
+            exit 1
+          else
+            echo "✅ CHANGELOG.md has been updated. Pipeline passed!"
+          fi
