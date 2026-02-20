@@ -1,3 +1,8 @@
+## [0.3.0] - 2026-02-20
+
+### Changed
+- Updated frontend, other: frontend/src/assets/icons/equal.svg, frontend/src/assets/icons/greater_equal.svg, frontend/src/components/icons/IconEqual.vue...
+
 ## [0.2.0] - 2026-02-17
 
 ### Added
