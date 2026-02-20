@@ -125,7 +125,7 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                             type="number" 
                             :value="req.min_count"
                             min="0"
-                            class="flex-1 sm:w-14 bg-[#2a2a2a] border border-border-primary rounded px-2 py-2 sm:py-1.5 text-center text-sm font-bold text-primary"
+                            class="flex-1 sm:w-14 bg-[#2a2a2a] border border-border-primary rounded px-2 py-2 sm:py-1.5 text-center text-sm font-bold text-primary text-white"
                             @input="updateReq(index, 'min_count', Number(($event.target as HTMLInputElement).value))"
                         >
                         <button class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 w-10 h-10 sm:w-7 sm:h-7 flex items-center justify-center rounded transition-all active:scale-90" @click="removeReq(index)">×</button>

@@ -39,8 +39,7 @@
 
   input,
   select,
-  button,
-  a {
+  button {
     font-family: inherit;
     font-size: 1rem;
     padding: 0.5em;
