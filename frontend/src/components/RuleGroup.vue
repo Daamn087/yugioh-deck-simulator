@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Requirement } from '../api';
+import IconGreaterEqual from './icons/IconGreaterEqual.vue';
+import IconEqual from './icons/IconEqual.vue';
 
 const props = defineProps<{
     modelValue: Requirement[];
@@ -110,7 +112,8 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                                 @click="updateReq(index, 'comparison_operator', '>=')"
                                 title="At least"
                             >
-                                ≥
+
+                                <IconGreaterEqual class="w-3 text-white"/>
                             </button>
                             <button 
                                 class="px-2 py-1 text-xs font-black rounded transition-all"
@@ -118,7 +121,7 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                                 @click="updateReq(index, 'comparison_operator', '=')"
                                 title="Exactly"
                             >
-                                =
+                                <IconEqual class="w-3 text-white"/>
                             </button>
                         </div>
                         <input 
