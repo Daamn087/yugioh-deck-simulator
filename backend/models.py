@@ -6,6 +6,7 @@ class Requirement(BaseModel):
     card_name: Optional[str] = None # Optional now, for groups
     min_count: int = 1
     operator: str = 'AND'
+    comparison_operator: str = '>='  # '>=' (at least) or '=' (exactly)
     sub_requirements: Optional[List['Requirement']] = None
 
 # A SuccessCondition is a list of Requirements (AND logic)

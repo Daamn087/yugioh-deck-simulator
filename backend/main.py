@@ -82,14 +82,26 @@ def build_rule(requirements):
         current_rule = build_rule(first_req.sub_requirements)
     else:
         # It's a standard card requirement
-        current_rule = req(first_req.card_name) >= first_req.min_count
+        # Use comparison_operator field (defaults to '>=' for backward compatibility)
+        comparison_op = getattr(first_req, 'comparison_operator', '>=')
+        # Convert '=' from frontend to '==' for backend
+        if comparison_op == '=':
+            comparison_op = '=='
+        # Create Rule directly with the comparison operator
+        current_rule = Rule(first_req.card_name, first_req.min_count, comparison_op)
 
     # Combine with rest based on operator
     for i, r in enumerate(requirements[1:], start=0):
         if r.sub_requirements is not None:
             next_rule = build_rule(r.sub_requirements)
         else:
-            next_rule = req(r.card_name) >= r.min_count
+            # Use comparison_operator field (defaults to '>=' for backward compatibility)
+            comparison_op = getattr(r, 'comparison_operator', '>=')
+            # Convert '=' from frontend to '==' for backend
+            if comparison_op == '=':
+                comparison_op = '=='
+            # Create Rule directly with the comparison operator
+            next_rule = Rule(r.card_name, r.min_count, comparison_op)
             
         # Use the operator from the PREVIOUS requirement (at index i)
         # Requirement[0] has operator that applies between [0] and [1]

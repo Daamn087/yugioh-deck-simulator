@@ -57,18 +57,23 @@ class Rule:
     A helper class to define success conditions naturally.
     Usage:
         req("Starter") >= 1
+        Rule("Starter", 0, '==')  # Exactly 0 (anti-combo) - created by build_rule
         req("Starter") & req("Extender")
     """
-    def __init__(self, card_name: str, min_count: int = 1):
+    def __init__(self, card_name: str, min_count: int = 1, comparison: str = '>='):
         self.card_name = card_name
         self.min_count = min_count
+        self.comparison = comparison
 
     def __ge__(self, count: int) -> 'Rule':
         """Allows syntax like: req('Starter') >= 2"""
-        return Rule(self.card_name, count)
+        return Rule(self.card_name, count, '>=')
 
     def __call__(self, hand: Counter) -> bool:
-        return hand[self.card_name] >= self.min_count
+        if self.comparison == '==':
+            return hand[self.card_name] == self.min_count
+        else:  # Default to '>='
+            return hand[self.card_name] >= self.min_count
 
     def __and__(self, other: Callable[[Counter], bool]) -> 'CompositeRule':
         """Allows syntax like: req('A') & req('B')"""
@@ -79,7 +84,11 @@ class Rule:
         return CompositeRule(self, other, operator='OR')
 
     def __repr__(self):
-        return f"req('{self.card_name}') >= {self.min_count}"
+        return f"req('{self.card_name}') {self.comparison} {self.min_count}"
+    
+    def __hash__(self):
+        """Make Rule hashable to avoid equality comparison issues"""
+        return hash((self.card_name, self.min_count, self.comparison))
 
 class CompositeRule:
     def __init__(self, left, right, operator='AND'):

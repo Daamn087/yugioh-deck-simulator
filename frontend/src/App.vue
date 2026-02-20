@@ -18,6 +18,13 @@ const error = ref<string | null>(null);
         
         <div class="flex items-center gap-4">
           <router-link 
+            to="/changelog" 
+            class="px-4 py-2 rounded-lg text-sm font-bold transition-all border"
+            :class="route.path === '/changelog' ? 'bg-primary border-primary text-white' : 'bg-gray-700 border-border-primary text-text-secondary text-white hover:text-white hover:bg-gray-600'"
+          >
+            Changelog
+          </router-link>
+          <router-link 
             to="/docs-faq" 
             class="px-4 py-2 rounded-lg text-sm font-bold transition-all border"
             :class="route.path === '/docs-faq' ? 'bg-primary border-primary text-white' : 'bg-gray-700 border-border-primary text-text-secondary text-white hover:text-white hover:bg-gray-600'"

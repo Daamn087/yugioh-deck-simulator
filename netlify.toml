@@ -2,8 +2,8 @@
   # Directory where the build command should run
   base = "frontend"
   
-  # Build command to run
-  command = "npm run build"
+  # Build command to run (copy CHANGELOG.md first, then build)
+  command = "cp ../CHANGELOG.md public/CHANGELOG.md && npm run build"
   
   # Directory to publish (relative to base)
   publish = "dist"
