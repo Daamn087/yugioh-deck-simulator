@@ -46,8 +46,8 @@ Simulate the actual gameplay impact of draw power and consistency cards.
 2.  **Backend Setup:**
     ```bash
     # Create virtual environment
-    python3 -m venv venv
-    source venv/bin/activate
+    python3 -m venv ~/venvs/yugioh-deck-simulator
+    source ~/venvs/yugioh-deck-simulator/bin/activate
     
     # Install dependencies
     pip install fastapi uvicorn python-multipart httpx
