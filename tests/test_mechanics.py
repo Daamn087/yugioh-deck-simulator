@@ -56,11 +56,11 @@ class TestDeckSimulator(unittest.TestCase):
         condition = lambda h: h["Starter"] >= 1 and h["Extender"] >= 1
         
         hand_success = ["Starter", "Extender", "Brick", "Brick", "Brick"]
-        success, _ = sim.check_success(hand_success, [condition])
+        success, _, _ = sim.check_success(hand_success, [condition])
         self.assertTrue(success)
         
         hand_fail = ["Starter", "Starter", "Brick", "Brick", "Brick"]
-        success, _ = sim.check_success(hand_fail, [condition])
+        success, _, _ = sim.check_success(hand_fail, [condition])
         self.assertFalse(success)
 
     def test_dsl_syntax(self):
@@ -70,22 +70,22 @@ class TestDeckSimulator(unittest.TestCase):
         
         # 1. Simple Requirement: req("Starter")
         rule1 = req("Starter")
-        success, _ = sim.check_success(["Starter"], [rule1])
+        success, _, _ = sim.check_success(["Starter"], [rule1])
         self.assertTrue(success)
-        success, _ = sim.check_success(["Other"], [rule1])
+        success, _, _ = sim.check_success(["Other"], [rule1])
         self.assertFalse(success)
         
         # 2. Count Requirement: req("Starter") >= 2
         rule2 = req("Starter") >= 2
-        success, _ = sim.check_success(["Starter", "Starter"], [rule2])
+        success, _, _ = sim.check_success(["Starter", "Starter"], [rule2])
         self.assertTrue(success)
-        success, _ = sim.check_success(["Starter"], [rule2])
+        success, _, _ = sim.check_success(["Starter"], [rule2])
         self.assertFalse(success)
 
         rule3 = req("A") & req("B")
-        success, _ = sim.check_success(["A", "B"], [rule3])
+        success, _, _ = sim.check_success(["A", "B"], [rule3])
         self.assertTrue(success)
-        success, _ = sim.check_success(["A"], [rule3])
+        success, _, _ = sim.check_success(["A"], [rule3])
         self.assertFalse(success)
 
     def test_3_of_probability(self):

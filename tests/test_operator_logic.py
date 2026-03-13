@@ -23,15 +23,15 @@ class TestOperatorLogic(unittest.TestCase):
         rule = (req("Starter") >= 1) & (req("Extender") >= 1)
         
         # Should succeed with both
-        success, _ = self.sim.check_success(["Starter", "Extender", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Extender", "Other"], [rule])
         self.assertTrue(success)
         
         # Should fail with only Starter
-        success, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
         self.assertFalse(success)
         
         # Should fail with only Extender
-        success, _ = self.sim.check_success(["Extender", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Extender", "Other", "Other"], [rule])
         self.assertFalse(success)
 
     def test_or_operator_basic(self):
@@ -39,19 +39,19 @@ class TestOperatorLogic(unittest.TestCase):
         rule = (req("Starter") >= 1) | (req("Extender") >= 1)
         
         # Should succeed with both
-        success, _ = self.sim.check_success(["Starter", "Extender", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Extender", "Other"], [rule])
         self.assertTrue(success)
         
         # Should succeed with only Starter
-        success, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
         self.assertTrue(success)
         
         # Should succeed with only Extender
-        success, _ = self.sim.check_success(["Extender", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Extender", "Other", "Other"], [rule])
         self.assertTrue(success)
         
         # Should fail with neither
-        success, _ = self.sim.check_success(["Other", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Other", "Other", "Other"], [rule])
         self.assertFalse(success)
 
     def test_mixed_and_or_operators(self):
@@ -60,23 +60,23 @@ class TestOperatorLogic(unittest.TestCase):
         rule = (req("Starter") >= 1) & ((req("Extender") >= 1) | (req("Handtrap") >= 1))
         
         # Should succeed with Starter + Extender
-        success, _ = self.sim.check_success(["Starter", "Extender", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Extender", "Other"], [rule])
         self.assertTrue(success)
         
         # Should succeed with Starter + Handtrap
-        success, _ = self.sim.check_success(["Starter", "Handtrap", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Handtrap", "Other"], [rule])
         self.assertTrue(success)
         
         # Should succeed with all three
-        success, _ = self.sim.check_success(["Starter", "Extender", "Handtrap"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Extender", "Handtrap"], [rule])
         self.assertTrue(success)
         
         # Should fail with only Starter
-        success, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
         self.assertFalse(success)
         
         # Should fail with only Extender and Handtrap (no Starter)
-        success, _ = self.sim.check_success(["Extender", "Handtrap", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Extender", "Handtrap", "Other"], [rule])
         self.assertFalse(success)
 
     def test_complex_or_chain(self):
@@ -84,15 +84,15 @@ class TestOperatorLogic(unittest.TestCase):
         rule = (req("Starter") >= 1) | (req("Extender") >= 1) | (req("Handtrap") >= 1)
         
         # Should succeed with any one
-        success, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Starter", "Other", "Other"], [rule])
         self.assertTrue(success)
-        success, _ = self.sim.check_success(["Extender", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Extender", "Other", "Other"], [rule])
         self.assertTrue(success)
-        success, _ = self.sim.check_success(["Handtrap", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Handtrap", "Other", "Other"], [rule])
         self.assertTrue(success)
         
         # Should fail with none
-        success, _ = self.sim.check_success(["Other", "Other", "Other"], [rule])
+        success, _, _ = self.sim.check_success(["Other", "Other", "Other"], [rule])
         self.assertFalse(success)
 
     def test_backend_requirement_model(self):
