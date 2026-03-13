@@ -53,7 +53,7 @@ async def resolve_card_names(passcodes: List[str]) -> List[str]:
     # Build passcode -> name mapping
     passcode_to_name = {}
     for card in data["data"]:
-        card_id = str(card.get("id", ""))
+        card_id = str(card.get("id", "")).zfill(8)
         card_name = card.get("name", "")
         if card_id and card_name:
             passcode_to_name[card_id] = card_name
