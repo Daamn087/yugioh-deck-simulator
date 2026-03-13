@@ -35,7 +35,7 @@ Simulate the actual gameplay impact of draw power and consistency cards.
 - Python 3.10 or higher
 - Node.js 18 or higher
 
-### Installation
+### Installation & Setup
 
 1.  **Clone the repository:**
     ```bash
@@ -43,38 +43,24 @@ Simulate the actual gameplay impact of draw power and consistency cards.
     cd yugioh-deck-simulator
     ```
 
-2.  **Backend Setup:**
+2.  **Run the setup:**
     ```bash
-    # Create virtual environment
-    python3 -m venv venv
-    source venv/bin/activate
-
-    # Install dependencies
-    pip install -r requirements.txt
-    ```
-
-3.  **Frontend Setup:**
-    ```bash
-    cd frontend
     npm install
     ```
+    This will automatically create the Python virtual environment, install backend dependencies, and install frontend dependencies.
 
 ### Running the Application
 
-1.  **Start the Backend:**
-    ```bash
-    # From project root
-    source venv/bin/activate
-    python backend/main.py
-    ```
-    The API runs at `http://localhost:8000`.
+From the project root, run both the backend and frontend concurrently:
+```bash
+npm run dev
+```
+- Backend: `http://localhost:8000`
+- Frontend: `http://localhost:5173`
 
-2.  **Start the Frontend:**
-    ```bash
-    # From project root
-    cd frontend && npm run dev
-    ```
-    Open `http://localhost:5173` in your browser.
+### Other Commands
+- **Test**: `npm test` (Runs Python unit tests)
+- **Setup**: `npm run setup` (Manually trigger the setup script)
 
 ## 🌐 Cloud Deployment
 

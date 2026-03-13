@@ -1,0 +1,16 @@
+{
+  "name": "yugioh-deck-simulator",
+  "version": "1.0.0",
+  "description": "Orchestrates setup and startup for Yu-Gi-Oh! Deck Consistency Simulator",
+  "scripts": {
+    "setup": "./setup.sh",
+    "dev:backend": "source venv/bin/activate && python backend/main.py",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "test": "source venv/bin/activate && python -m unittest discover tests -v",
+    "postinstall": "npm run setup"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
