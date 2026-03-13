@@ -23,8 +23,11 @@ async def resolve_card_names(passcodes: List[str]) -> List[str]:
     if not passcodes:
         return []
     
+    # Normalize passcodes to 8-digit strings (zero-padded)
+    normalized_passcodes = [str(p).zfill(8) for p in passcodes]
+    
     # Get unique passcodes for API call
-    unique_passcodes = list(set(passcodes))
+    unique_passcodes = list(set(normalized_passcodes))
     
     # Build batch API request (comma-separated IDs)
     passcode_param = ",".join(unique_passcodes)
@@ -46,23 +49,34 @@ async def resolve_card_names(passcodes: List[str]) -> List[str]:
     except Exception as e:
         raise ValueError(f"Unexpected error resolving card names: {e}")
     
-    # Parse response - API returns {"data": [{"id": ..., "name": ...}, ...]}
+    # Parse response - API returns {"data": [{"id": ..., "name": ..., "card_images": [...]}, ...]}
     if "data" not in data:
         raise ValueError("Invalid response from YGOProDeck API")
     
     # Build passcode -> name mapping
+    # We map NOT ONLY the primary ID, but also every alternative artwork ID found in the response.
+    # This ensures that if a user requests an alternative ID, it resolves to the base card name.
     passcode_to_name = {}
     for card in data["data"]:
-        card_id = str(card.get("id", "")).zfill(8)
         card_name = card.get("name", "")
-        if card_id and card_name:
-            passcode_to_name[card_id] = card_name
+        if not card_name:
+            continue
+            
+        # Map the primary ID
+        primary_id = str(card.get("id", "")).zfill(8)
+        passcode_to_name[primary_id] = card_name
+        
+        # Map all associated image IDs (alternative artworks/passcodes)
+        for img in card.get("card_images", []):
+            img_id = str(img.get("id", "")).zfill(8)
+            if img_id:
+                passcode_to_name[img_id] = card_name
     
-    # Map passcodes to names, preserving order and duplicates
+    # Map normalized passcodes to names, preserving order and duplicates
     card_names = []
     unresolved = []
     
-    for passcode in passcodes:
+    for passcode in normalized_passcodes:
         if passcode in passcode_to_name:
             card_names.append(passcode_to_name[passcode])
         else:
@@ -71,7 +85,7 @@ async def resolve_card_names(passcodes: List[str]) -> List[str]:
     # Report unresolved passcodes
     if unresolved:
         raise ValueError(
-            f"Could not resolve the following passcodes: {', '.join(set(unresolved))}"
+            f"Could not resolve the following passcodes: {', '.join(sorted(set(unresolved)))}"
         )
     
     return card_names
