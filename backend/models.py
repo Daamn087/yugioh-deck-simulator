@@ -35,7 +35,14 @@ class SimulationConfig(BaseModel):
     # A list of conditions (OR logic). Ideally "SuccessCondition" objects.
     # [[A], [B, C]] means (A) OR (B AND C)
     rules: List[List[Requirement]]
-    card_effects: Optional[List[CardEffectDefinition]] = []  # Card effects definitions 
+    card_effects: Optional[List[CardEffectDefinition]] = []  # Card effects definitions
+    record_hands: bool = False  # Opt-in: store individual hand records (capped at 10 000)
+
+class HandRecord(BaseModel):
+    """Record of a single simulated hand - returned when record_hands=True."""
+    initial_hand: List[str]  # Cards as originally drawn
+    final_hand: List[str]    # Cards after effect resolution
+    success: bool            # Whether the hand met any success condition
 
 class SimulationResult(BaseModel):
     success_rate: float
@@ -45,6 +52,7 @@ class SimulationResult(BaseModel):
     time_taken: float
     max_depth_reached_count: int = 0  # How many simulations hit max effect depth
     warnings: List[str] = []  # User-facing warnings
+    hand_records: List[HandRecord] = []  # Individual hand records (only when record_hands=True)
 
 # For Pydantic v1 compatibility with recursive models
 Requirement.update_forward_refs()

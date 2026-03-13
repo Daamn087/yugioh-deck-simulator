@@ -28,12 +28,12 @@ class TestSubcategories(unittest.TestCase):
         # Test: Hand with 2 Lunalight monsters should match requirement for "Lunalight Monster >= 2"
         hand = ["Lunalight Gold Leo", "Lunalight Tiger", "Other", "Other", "Other"]
         rule = req("Lunalight Monster") >= 2
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
         
         # Test: Hand with only 1 Lunalight monster should not match
         hand = ["Lunalight Gold Leo", "Other", "Other", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertFalse(success)
 
     def test_multiple_subcategories_per_card(self):
@@ -54,9 +54,9 @@ class TestSubcategories(unittest.TestCase):
         starter_rule = req("Starter") >= 1
         lunalight_rule = req("Lunalight Monster") >= 1
         
-        success1, _ = sim.check_success(hand, [starter_rule])
+        success1, _, _ = sim.check_success(hand, [starter_rule])
         self.assertTrue(success1)
-        success2, _ = sim.check_success(hand, [lunalight_rule])
+        success2, _, _ = sim.check_success(hand, [lunalight_rule])
         self.assertTrue(success2)
 
     def test_subcategory_count_aggregation(self):
@@ -76,7 +76,7 @@ class TestSubcategories(unittest.TestCase):
         # Test: 3 different Lunalight cards should count as 3 for the subcategory
         hand = ["Lunalight Gold Leo", "Lunalight Tiger", "Lunalight Wolf", "Other", "Other"]
         rule = req("Lunalight Monster") >= 3
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
 
     def test_mixed_category_and_subcategory_conditions(self):
@@ -98,17 +98,17 @@ class TestSubcategories(unittest.TestCase):
         
         # Should succeed with Poly + 2 Lunalight cards
         hand = ["Polymerization", "Lunalight Gold Leo", "Lunalight Tiger", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
         
         # Should fail with only Poly
         hand = ["Polymerization", "Other", "Other", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertFalse(success)
         
         # Should fail with only Lunalight cards
         hand = ["Lunalight Gold Leo", "Lunalight Tiger", "Other", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertFalse(success)
 
     def test_subcategory_with_or_operator(self):
@@ -130,17 +130,17 @@ class TestSubcategories(unittest.TestCase):
         
         # Should succeed with Lunalight
         hand = ["Lunalight Gold Leo", "Other", "Other", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
         
         # Should succeed with Handtrap
         hand = ["Handtrap", "Other", "Other", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
         
         # Should succeed with both
         hand = ["Lunalight Gold Leo", "Handtrap", "Other", "Other", "Other"]
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
 
     def test_empty_subcategory_map(self):
@@ -151,7 +151,7 @@ class TestSubcategories(unittest.TestCase):
         # Regular category matching should still work
         hand = ["Starter", "Extender", "Other", "Other", "Other"]
         rule = (req("Starter") >= 1) & (req("Extender") >= 1)
-        success, _ = sim.check_success(hand, [rule])
+        success, _, _ = sim.check_success(hand, [rule])
         self.assertTrue(success)
 
     def test_subcategory_simulation_probability(self):
