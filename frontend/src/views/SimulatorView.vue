@@ -5,6 +5,7 @@ import DeckBuilder from '../components/DeckBuilder.vue';
 import RuleBuilder from '../components/RuleBuilder.vue';
 import CardEffectsEditor from '../components/CardEffectsEditor.vue';
 import Results from '../components/Results.vue';
+import HandInspector from '../components/HandInspector.vue';
 import { runSimulation, type SimulationResult } from '../api';
 import { useSimulationStore } from '../store';
 
@@ -16,6 +17,7 @@ const result = ref<SimulationResult | null>(null);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const activeTab = ref<'deck' | 'rules' | 'effects'>('deck');
+const isInspectorOpen = ref(false);
 
 const availableCategories = computed(() => Object.keys(deckContents.value));
 
@@ -61,7 +63,8 @@ const run = async () => {
             hand_size: handSize.value,
             simulations: simulations.value,
             rules: rules.value,
-            card_effects: store.cardEffects
+            card_effects: store.cardEffects,
+            record_hands: true,
         });
     } catch (e: any) {
         error.value = e.message;
@@ -157,13 +160,21 @@ const run = async () => {
         <!-- Desktop Sidebar -->
         <div class="hidden lg:flex lg:col-span-1 flex-col gap-6 sticky top-8">
             <Results :result="result" :loading="loading" />
-            
+
             <button 
               class="w-full py-5 text-xl font-black rounded-xl shadow-[0_0_30px_rgba(0,184,255,0.3)] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest bg-gradient-to-r from-primary to-blue-600 text-white"
               @click="run" 
               :disabled="loading"
             >
               {{ loading ? 'Processing...' : 'Run Simulation' }}
+            </button>
+
+            <button
+              v-if="result"
+              @click="isInspectorOpen = true"
+              class="w-full flex items-center justify-center gap-3 py-4 text-sm font-bold uppercase tracking-widest rounded-xl bg-surface-card border border-white/10 hover:bg-white/5 transition-colors text-white"
+            >
+              <span class="text-xl">🔍</span> Inspect Hands
             </button>
             
             <div v-if="error" class="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-lg text-sm font-medium animate-pulse">
@@ -197,6 +208,25 @@ const run = async () => {
         </button>
       </div>
     </div>
+
+    <!-- Mobile Hand Inspector Button -->
+    <div v-if="result" class="lg:hidden mt-2 pb-28 px-4">
+      <button
+        @click="isInspectorOpen = true"
+        class="w-full flex items-center justify-center gap-3 py-4 text-sm font-bold uppercase tracking-widest rounded-xl bg-surface-card border border-white/10 hover:bg-white/5 transition-colors text-white"
+      >
+        <span class="text-xl">🔍</span> Inspect Hands
+      </button>
+    </div>
+
+    <!-- Hand Inspector Modal -->
+    <HandInspector
+      v-if="result"
+      :is-open="isInspectorOpen"
+      :hand-records="result.hand_records"
+      :available-cards="availableCategories"
+      @close="isInspectorOpen = false"
+    />
   </div>
 </template>
 

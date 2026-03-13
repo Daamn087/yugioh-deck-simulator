@@ -183,9 +183,30 @@ class ConditionalDiscardEffect(CardEffect):
             # Find which of these are in our hand
             matching_cards = [card for card in new_hand if card in filter_cards]
         
-        # Discard up to discard_count matching cards
-        discarded = 0
+        # SMART DISCARD LOGIC: we want to discard cards that do NOT ruin our success conditions
+        # Helper to check if a hand state is successful
+        def _is_success(h: List[str]) -> bool:
+            counts = Counter(h)
+            for subcat, card_names in context.subcategory_map.items():
+                counts[subcat] = sum(counts[c] for c in card_names)
+            return any(cond(counts) for cond in context.success_conditions)
+            
+        # For each candidate card, simulate the hand without it
+        # Cards that leave the hand as a success are prioritized for discard (True -> False)
+        # So we sort: True (leaves success) comes before False (ruins success or was already brick)
+        candidate_scores = []
         for card in matching_cards:
+            test_hand = new_hand.copy()
+            test_hand.remove(card)
+            leaves_success = _is_success(test_hand)
+            candidate_scores.append((not leaves_success, card))  # sort prioritizes False (so not leaves_success)
+            
+        candidate_scores.sort(key=lambda x: x[0])
+        sorted_matching_cards = [card for _, card in candidate_scores]
+        
+        # Discard up to discard_count matching cards using the prioritized list
+        discarded = 0
+        for card in sorted_matching_cards:
             if discarded >= self.discard_count:
                 break
             if card in new_hand:

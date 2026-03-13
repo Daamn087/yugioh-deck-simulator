@@ -6,6 +6,13 @@ from collections import Counter
 from card_effects import CardEffect, EffectContext, create_effect_from_definition
 
 @dataclass
+class HandRecord:
+    """Record of a single simulated hand draw."""
+    initial_hand: List[str]   # Cards as originally drawn
+    final_hand: List[str]     # Cards after effect resolution
+    success: bool             # Whether the hand met any success condition
+
+@dataclass
 class SimulationResult:
     total_simulations: int
     success_count: int
@@ -14,6 +21,7 @@ class SimulationResult:
     brick_rate: float
     max_depth_reached_count: int = 0  # How many simulations hit max effect depth
     warnings: List[str] = field(default_factory=list)  # User-facing warnings
+    hand_records: List[HandRecord] = field(default_factory=list)  # Optional per-hand records
 
 class Deck:
     def __init__(self, deck_size: int, contents: Dict[str, int]):
@@ -223,11 +231,21 @@ class Simulator:
         # Never exceed depth with single-pass resolution
         return current_hand, False
 
+    def _evaluate_hand(self, hand: List[str], conditions: List[Callable[[Counter], bool]]) -> bool:
+        """Helper to evaluate if a specific hand state meets success conditions."""
+        hand_counts = Counter(hand)
+        for subcat, card_names in self.subcategory_map.items():
+            hand_counts[subcat] = sum(hand_counts[card] for card in card_names)
+            
+        for condition in conditions:
+            if condition(hand_counts):
+                return True
+        return False
+
     def check_success(self, hand: List[str], conditions: List[Callable[[Counter], bool]], 
-                     remaining_deck: Optional[List[str]] = None) -> tuple[bool, bool]:
+                     remaining_deck: Optional[List[str]] = None) -> tuple[bool, bool, List[str]]:
         """
-        Checks if a hand meets ANY of the success conditions.
-        Enhanced to support subcategory matching and card effects.
+        Checks if a hand meets ANY of the success conditions either BEFORE or AFTER effects.
         
         Args:
             hand: The list of cards drawn.
@@ -236,35 +254,28 @@ class Simulator:
             remaining_deck: Cards still in deck (for effect resolution). If None, no effects are resolved.
         
         Returns:
-            Tuple of (success, depth_exceeded)
+            Tuple of (success, depth_exceeded, final_hand)
         """
-        # Resolve effects if we have a deck and effects are defined
-        depth_exceeded = False
-        final_hand = hand
+        initial_success = self._evaluate_hand(hand, conditions)
         
+        depth_exceeded = False
+        final_hand = list(hand)
+        
+        # Resolve effects if we have a deck and effects are defined
         if remaining_deck is not None and self.card_effects:
             final_hand, depth_exceeded = self.resolve_effects(hand, remaining_deck, conditions)
         
-        # Count cards in final hand
-        hand_counts = Counter(final_hand)
+        final_success = False
+        if final_hand != hand:
+            final_success = self._evaluate_hand(final_hand, conditions)
         
-        # Add subcategory counts
-        # For each subcategory, count how many cards in hand belong to it
-        for subcat, card_names in self.subcategory_map.items():
-            hand_counts[subcat] = sum(hand_counts[card] for card in card_names)
-        
-        # Check conditions
-        success = False
-        for condition in conditions:
-            if condition(hand_counts):
-                success = True
-                break
-        
-        return success, depth_exceeded
+        return (initial_success or final_success), depth_exceeded, final_hand
 
-    def run(self, simulations: int, hand_size: int, conditions: List[Callable[[Counter], bool]]) -> SimulationResult:
+    def run(self, simulations: int, hand_size: int, conditions: List[Callable[[Counter], bool]],
+            record_hands: bool = False, max_hand_records: int = 10_000) -> SimulationResult:
         successes = 0
         max_depth_count = 0
+        hand_records: List[HandRecord] = []
         
         for _ in range(simulations):
             hand = self.deck.draw_hand(hand_size)
@@ -281,13 +292,21 @@ class Simulator:
                         remaining_deck.extend([card] * rem)
             
             # Check success with effect resolution
-            success, depth_exceeded = self.check_success(hand, conditions, remaining_deck)
+            success, depth_exceeded, final_hand = self.check_success(hand, conditions, remaining_deck)
             
             if success:
                 successes += 1
             
             if depth_exceeded:
                 max_depth_count += 1
+
+            # Record hand if opt-in and still under cap
+            if record_hands and len(hand_records) < max_hand_records:
+                hand_records.append(HandRecord(
+                    initial_hand=list(hand),
+                    final_hand=list(final_hand),
+                    success=success,
+                ))
         
         # Build warnings
         warnings = []
@@ -302,5 +321,6 @@ class Simulator:
             success_rate=(successes / simulations) * 100.0,
             brick_rate=((simulations - successes) / simulations) * 100.0,
             max_depth_reached_count=max_depth_count,
-            warnings=warnings
+            warnings=warnings,
+            hand_records=hand_records,
         )

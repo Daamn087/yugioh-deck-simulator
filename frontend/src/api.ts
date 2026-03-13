@@ -27,6 +27,13 @@ export interface SimulationConfig {
     simulations: number;
     rules: Requirement[][];
     card_effects?: CardEffectDefinition[];
+    record_hands?: boolean;  // Opt-in: store individual hand records (capped at 10 000)
+}
+
+export interface HandRecord {
+    initial_hand: string[];
+    final_hand: string[];
+    success: boolean;
 }
 
 export interface SimulationResult {
@@ -37,6 +44,7 @@ export interface SimulationResult {
     time_taken: number;
     max_depth_reached_count: number;
     warnings: string[];
+    hand_records: HandRecord[];
 }
 
 // Use environment variable for API URL or fallback to local

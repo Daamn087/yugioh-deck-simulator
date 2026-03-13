@@ -2,11 +2,11 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 try:
-    from .models import SimulationConfig, SimulationResult, CardEffectDefinition
+    from .models import SimulationConfig, SimulationResult, CardEffectDefinition, HandRecord
     from .ydk_deck_parser import parse_ydk_deck
     from .card_resolver import resolve_card_names, count_cards
 except (ImportError, ValueError):
-    from models import SimulationConfig, SimulationResult, CardEffectDefinition
+    from models import SimulationConfig, SimulationResult, CardEffectDefinition, HandRecord
     from ydk_deck_parser import parse_ydk_deck
     from card_resolver import resolve_card_names, count_cards
 import sys
@@ -170,7 +170,8 @@ def run_simulation(config: SimulationConfig):
         # 4. Run Simulation with subcategory and effect support
         sim = Simulator(deck, subcategory_map, card_effects)
         start_time = time.time()
-        result = sim.run(config.simulations, config.hand_size, sim_conditions)
+        result = sim.run(config.simulations, config.hand_size, sim_conditions,
+                         record_hands=config.record_hands)
         elapsed = time.time() - start_time
         
         # Add warning if card counts exceed nominal deck size
@@ -179,6 +180,16 @@ def run_simulation(config: SimulationConfig):
         if total_cards_defined > config.deck_size:
             warnings.insert(0, f"Defined cards ({total_cards_defined}) exceed deck size ({config.deck_size}). Simulation used {total_cards_defined} cards.")
         
+        # Serialise hand records (dataclasses → Pydantic models)
+        pydantic_hand_records = [
+            HandRecord(
+                initial_hand=r.initial_hand,
+                final_hand=r.final_hand,
+                success=r.success,
+            )
+            for r in result.hand_records
+        ]
+
         return SimulationResult(
             success_rate=result.success_rate,
             brick_rate=result.brick_rate,
@@ -186,7 +197,8 @@ def run_simulation(config: SimulationConfig):
             brick_count=result.brick_count,
             time_taken=elapsed,
             max_depth_reached_count=result.max_depth_reached_count,
-            warnings=warnings
+            warnings=warnings,
+            hand_records=pydantic_hand_records,
         )
 
     except ValueError as e:

@@ -48,9 +48,9 @@ Simulate the actual gameplay impact of draw power and consistency cards.
     # Create virtual environment
     python3 -m venv venv
     source venv/bin/activate
-    
+
     # Install dependencies
-    pip install fastapi uvicorn python-multipart httpx
+    pip install -r requirements.txt
     ```
 
 3.  **Frontend Setup:**
@@ -63,15 +63,16 @@ Simulate the actual gameplay impact of draw power and consistency cards.
 
 1.  **Start the Backend:**
     ```bash
-    # From project root with venv activated
+    # From project root
+    source venv/bin/activate
     python backend/main.py
     ```
     The API runs at `http://localhost:8000`.
 
 2.  **Start the Frontend:**
     ```bash
-    # From frontend/ directory
-    npm run dev
+    # From project root
+    cd frontend && npm run dev
     ```
     Open `http://localhost:5173` in your browser.
 
