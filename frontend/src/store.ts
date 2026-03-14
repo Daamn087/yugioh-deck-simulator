@@ -15,7 +15,7 @@ export const useSimulationStore = defineStore('simulation', {
         cardCategories: [] as CardCategory[],  // New field with subcategory support
         imageMap: {} as Record<string, string>, // Persistent cache for card images
         rules: [
-            [{ card_name: "Starter", min_count: 1, operator: 'AND' }]
+            [{ card_name: "", min_count: 1, operator: 'AND' }]
         ] as Requirement[][],
         cardEffects: [] as CardEffectDefinition[]
     }),
@@ -319,7 +319,7 @@ export const useSimulationStore = defineStore('simulation', {
             this.deckContents = {};
             this.cardCategories = [];
             this.imageMap = {};
-            this.rules = [[{ card_name: "Starter", min_count: 1, operator: 'AND' }]];
+            this.rules = [[{ card_name: "", min_count: 1, operator: 'AND' }]];
             this.cardEffects = [];
         }
     },
@@ -332,6 +332,12 @@ export const useSimulationStore = defineStore('simulation', {
             if (state.rules.length === 0) {
                 return "At least one success condition is required to run the simulation.";
             }
+
+            // Get all valid names once for performance
+            const validNames = new Set(state.cardCategories.map(c => c.name));
+            state.cardCategories.forEach(cat => {
+                cat.subcategories.forEach(sub => validNames.add(sub));
+            });
 
             for (let i = 0; i < state.rules.length; i++) {
                 const group = state.rules[i];
@@ -348,7 +354,10 @@ export const useSimulationStore = defineStore('simulation', {
                         } else if (!req.sub_requirements) {
                             // Only check card_name if it's a leaf requirement
                             if (!req.card_name || req.card_name.trim() === '') {
-                                return `A requirement in Success Condition #${i + 1} is missing a card name.`;
+                                return `A requirement in Success Condition #${i + 1} is missing a card or tag selection.`;
+                            }
+                            if (!validNames.has(req.card_name)) {
+                                return `Success Condition #${i + 1} references "${req.card_name}", which is not in your deck.`;
                             }
                         }
                     }

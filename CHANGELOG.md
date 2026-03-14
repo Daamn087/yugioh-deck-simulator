@@ -1,3 +1,10 @@
+## [0.4.1] - 2026-03-14
+
+### Fixed
+- Styling components and layout
+- Non-persistent behavior of certain services
+
+
 ## [0.4.0] - 2026-03-14
 
 ### Added
