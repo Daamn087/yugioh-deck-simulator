@@ -269,7 +269,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                     <img 
                       :src="imageForCard(card)!" 
                       :alt="card"
-                      class="h-20 w-auto rounded border border-white/20 shadow-sm transition-transform hover:scale-150 hover:z-10 bg-black/40"
+                      class="h-[130px] w-auto rounded border border-white/20 shadow-sm bg-black/40"
                       :class="selectedFilters.includes(card) ? 'ring-2 ring-white/80 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : ''"
                     />
                   </div>
