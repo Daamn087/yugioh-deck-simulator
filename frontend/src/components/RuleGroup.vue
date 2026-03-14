@@ -19,19 +19,17 @@ const currentDepth = computed(() => props.depth || 0);
 
 const addReq = () => {
     const newRules = [...props.modelValue];
-    const firstCat = props.allOptions.categories[0] || "Starter";
-    newRules.push({ card_name: firstCat, min_count: 1, operator: 'AND', comparison_operator: '>=' });
+    // Default to empty string to force user selection
+    newRules.push({ card_name: '', min_count: 1, operator: 'AND', comparison_operator: '>=' });
     emit('update:modelValue', newRules);
 };
 
 const addSubGroup = () => {
     const newRules = [...props.modelValue];
-    const firstCat = props.allOptions.categories[0] || "Starter";
-    // A group is a Requirement with sub_requirements
-    // Initialize with one default requirement inside
+    // Default to empty string to force user selection
     newRules.push({ 
         operator: 'AND',
-        sub_requirements: [{ card_name: firstCat, min_count: 1, operator: 'AND', comparison_operator: '>=' }]
+        sub_requirements: [{ card_name: '', min_count: 1, operator: 'AND', comparison_operator: '>=' }]
     });
     emit('update:modelValue', newRules);
 };
@@ -94,8 +92,10 @@ const updateSubRequirements = (index: number, newSubReqs: Requirement[]) => {
                      <select 
                         :value="req.card_name"
                         class="flex-1 bg-[#2a2a2a] border border-border-primary rounded px-3 py-2 sm:py-1.5 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
+                        :class="{ 'text-text-secondary/50 italic': !req.card_name }"
                         @change="updateReq(index, 'card_name', ($event.target as HTMLSelectElement).value)"
                     >
+                        <option value="" disabled selected>-- Select Card or Tag --</option>
                         <optgroup label="Card Names" class="bg-[#1a1a1a]">
                             <option v-for="cat in allOptions.categories" :key="cat" :value="cat">{{ cat }}</option>
                         </optgroup>

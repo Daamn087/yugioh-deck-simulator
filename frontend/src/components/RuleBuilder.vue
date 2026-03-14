@@ -38,9 +38,8 @@ const allOptions = computed(() => {
 });
 
 const addGroup = () => {
-    // Start with a default requirement if possible
-    const firstCat = props.availableCategories[0] || "Starter";
-    const newRule: Requirement[] = [{ card_name: firstCat, min_count: 1, operator: 'AND' }];
+    // Default to empty string to force user to select a card/tag
+    const newRule: Requirement[] = [{ card_name: '', min_count: 1, operator: 'AND' }];
     emit('update:rules', [...props.rules, newRule]);
 };
 
