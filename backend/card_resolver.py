@@ -7,21 +7,21 @@ from collections import Counter
 YGOPRODECK_API = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
 
 
-async def resolve_card_names(passcodes: List[str]) -> List[str]:
+async def resolve_card_data(passcodes: List[str]) -> tuple[List[str], Dict[str, str]]:
     """
-    Resolve card passcodes to card names using YGOProDeck API.
+    Resolve card passcodes to card names and image URLs using YGOProDeck API.
     
     Args:
         passcodes: List of card passcodes (with duplicates preserved)
         
     Returns:
-        List of card names in the same order as passcodes
+        Tuple of (list of card names in original order, mapping of card name to image URL)
         
     Raises:
         ValueError: If API call fails or passcodes are invalid
     """
     if not passcodes:
-        return []
+        return [], {}
     
     # Normalize passcodes to 8-digit strings (zero-padded)
     normalized_passcodes = [str(p).zfill(8) for p in passcodes]
@@ -53,21 +53,27 @@ async def resolve_card_names(passcodes: List[str]) -> List[str]:
     if "data" not in data:
         raise ValueError("Invalid response from YGOProDeck API")
     
-    # Build passcode -> name mapping
-    # We map NOT ONLY the primary ID, but also every alternative artwork ID found in the response.
-    # This ensures that if a user requests an alternative ID, it resolves to the base card name.
+    # Build mappings
     passcode_to_name = {}
+    name_to_image = {}
+    
     for card in data["data"]:
         card_name = card.get("name", "")
         if not card_name:
             continue
+            
+        # Extract small image URL
+        images = card.get("card_images", [])
+        if images:
+            # Prefer image_url_small for UI previews
+            name_to_image[card_name] = images[0].get("image_url_small") or images[0].get("image_url")
             
         # Map the primary ID
         primary_id = str(card.get("id", "")).zfill(8)
         passcode_to_name[primary_id] = card_name
         
         # Map all associated image IDs (alternative artworks/passcodes)
-        for img in card.get("card_images", []):
+        for img in images:
             img_id = str(img.get("id", "")).zfill(8)
             if img_id:
                 passcode_to_name[img_id] = card_name
@@ -88,7 +94,7 @@ async def resolve_card_names(passcodes: List[str]) -> List[str]:
             f"Could not resolve the following passcodes: {', '.join(sorted(set(unresolved)))}"
         )
     
-    return card_names
+    return card_names, name_to_image
 
 
 def count_cards(card_names: List[str]) -> Dict[str, int]:
@@ -119,10 +125,10 @@ if __name__ == "__main__":
     
     async def test():
         try:
-            names = await resolve_card_names(test_passcodes)
+            names, images = await resolve_card_data(test_passcodes)
             print("Resolved card names:")
             for name in names:
-                print(f"  {name}")
+                print(f"  {name} (Image: {images.get(name, 'N/A')})")
             
             counts = count_cards(names)
             print("\nCard counts:")

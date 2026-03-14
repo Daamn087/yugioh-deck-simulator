@@ -1,3 +1,13 @@
+## [0.4.0] - 2026-03-14
+
+### Added
+- **Card Images**: Full support for card artwork in the Deck Builder and Hand Inspector.
+- **Faster Loading**: Improved caching so decks and images load instantly after the first import.
+- **Simulation Hints**: Added helpful warnings for incomplete decks or success conditions.
+
+### Changed
+- **Performance**: Optimized internal logic for a smoother experience when building decks and validating rules.
+
 ## [0.3.0] - 2026-03-13
 
 ### Added

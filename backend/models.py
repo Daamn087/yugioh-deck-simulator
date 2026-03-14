@@ -54,5 +54,12 @@ class SimulationResult(BaseModel):
     warnings: List[str] = []  # User-facing warnings
     hand_records: List[HandRecord] = []  # Individual hand records (only when record_hands=True)
 
+class ResolveCardsRequest(BaseModel):
+    passcodes: List[str]
+
+class ResolveCardsResponse(BaseModel):
+    # Mapping of passcode to card info
+    resolved_cards: Dict[str, Dict[str, Any]]
+
 # For Pydantic v1 compatibility with recursive models
 Requirement.update_forward_refs()
