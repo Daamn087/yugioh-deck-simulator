@@ -11,15 +11,13 @@ import { useSimulationStore } from '../store';
 
 // State
 const store = useSimulationStore();
-const { deckSize, handSize, simulations, deckContents, rules } = storeToRefs(store);
+const { deckSize, handSize, simulations, deckContents, rules, validationError, availableCategories } = storeToRefs(store);
 
 const result = ref<SimulationResult | null>(null);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const activeTab = ref<'deck' | 'rules' | 'effects'>('deck');
 const isInspectorOpen = ref(false);
-
-const availableCategories = computed(() => Object.keys(deckContents.value));
 
 const simulationsFormatted = computed({
   get: () => simulations.value.toLocaleString('de-DE'),
@@ -53,8 +51,14 @@ const handleFileUpload = async (event: Event) => {
 };
 
 const run = async () => {
-    loading.value = true;
     error.value = null;
+
+    if (validationError.value) {
+        error.value = validationError.value;
+        return;
+    }
+
+    loading.value = true;
     try {
         result.value = await runSimulation({
             deck_size: deckSize.value,
@@ -177,7 +181,7 @@ const run = async () => {
               <span class="text-xl">🔍</span> Inspect Hands
             </button>
             
-            <div v-if="error" class="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-lg text-sm font-medium animate-pulse">
+            <div v-if="error" class="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-lg text-sm font-medium">
               Error: {{ error }}
             </div>
         </div>

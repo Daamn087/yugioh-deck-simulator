@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { HandRecord } from '../api';
+import { useSimulationStore } from '../store';
+
+const store = useSimulationStore();
 
 const props = withDefaults(defineProps<{
   handRecords?: HandRecord[];
@@ -77,6 +80,10 @@ function colorForCard(card: string): string {
   return cardColors.value[card] ?? '#555';
 }
 
+function imageForCard(card: string): string | null {
+  return store.imageMap[card] || null;
+}
+
 // ── Actions ──────────────────────────────────────────────────────────────────
 function addFilter() {
   const next = availableForFilter.value[0];
@@ -115,7 +122,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
       <div v-if="isOpen && handRecords.length > 0" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-black/80 backdrop-blur-sm" @click.self="close">
         
         <!-- Modal Dialog -->
-        <div class="card p-0 overflow-hidden w-full max-w-6xl max-h-full flex flex-col shadow-2xl border-white/10" role="dialog" aria-modal="true">
+        <div class="card p-0 overflow-hidden w-full max-w-6xl max-h-full h-full flex flex-col shadow-2xl border-white/10" role="dialog" aria-modal="true">
           
           <!-- ── Header ───────────────────────────────────────────────── -->
           <div class="flex items-center justify-between px-6 py-5 bg-surface-card border-b border-border-primary">
@@ -249,17 +256,32 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
               <span class="text-sm">{{ record.success ? '✅' : '❌' }}</span>
             </div>
 
-            <!-- Card chips -->
+            <!-- Card chips/Images -->
             <div class="flex flex-col gap-2 flex-1 min-w-0">
               <div class="flex flex-wrap gap-2">
-                <span
-                  v-for="(card, ci) in record.final_hand"
-                  :key="ci"
-                  class="text-sm px-3 py-1.5 rounded-full font-semibold truncate max-w-[200px] border border-white/10 shadow-sm"
-                  :class="selectedFilters.includes(card) ? 'ring-2 ring-white/60 drop-shadow-md' : ''"
-                  :style="{ backgroundColor: colorForCard(card) + '33', color: colorForCard(card) }"
-                  :title="card"
-                >{{ card }}</span>
+                <template v-for="(card, ci) in record.final_hand" :key="ci">
+                  <!-- Image thumbnail -->
+                  <div 
+                    v-if="imageForCard(card)"
+                    class="relative group/card"
+                    :title="card"
+                  >
+                    <img 
+                      :src="imageForCard(card)!" 
+                      :alt="card"
+                      class="h-20 w-auto rounded border border-white/20 shadow-sm transition-transform hover:scale-150 hover:z-10 bg-black/40"
+                      :class="selectedFilters.includes(card) ? 'ring-2 ring-white/80 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : ''"
+                    />
+                  </div>
+                  <!-- Fallback Name Chip -->
+                  <span
+                    v-else
+                    class="text-sm px-3 py-1.5 rounded-full font-semibold truncate max-w-[200px] border border-white/10 shadow-sm"
+                    :class="selectedFilters.includes(card) ? 'ring-2 ring-white/60 drop-shadow-md' : ''"
+                    :style="{ backgroundColor: colorForCard(card) + '33', color: colorForCard(card) }"
+                    :title="card"
+                  >{{ card }}</span>
+                </template>
               </div>
               
               <!-- Initial Hand (pre-effects) if different -->
@@ -268,13 +290,21 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                 class="flex flex-wrap gap-1.5 items-center mt-0.5 pl-3 border-l-2 border-white/10"
               >
                 <span class="text-[11px] uppercase tracking-wider text-text-secondary font-bold mr-1">Initial Draw:</span>
-                <span
-                  v-for="(card, ci) in record.initial_hand"
-                  :key="'init-'+ci"
-                  class="text-xs px-2 py-1 rounded-full font-medium truncate max-w-[160px] border border-white/5 opacity-70"
-                  :style="{ backgroundColor: colorForCard(card) + '22', color: colorForCard(card) }"
-                  :title="card"
-                >{{ card }}</span>
+                <template v-for="(card, ci) in record.initial_hand" :key="'init-'+ci">
+                  <img 
+                    v-if="imageForCard(card)"
+                    :src="imageForCard(card)!" 
+                    :alt="card"
+                    class="h-10 w-auto rounded border border-white/10 opacity-70 grayscale-[0.3]"
+                    :title="card"
+                  />
+                  <span
+                    v-else
+                    class="text-xs px-2 py-1 rounded-full font-medium truncate max-w-[160px] border border-white/5 opacity-70"
+                    :style="{ backgroundColor: colorForCard(card) + '22', color: colorForCard(card) }"
+                    :title="card"
+                  >{{ card }}</span>
+                </template>
               </div>
             </div>
           </li>

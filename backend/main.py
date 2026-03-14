@@ -1,14 +1,15 @@
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Response
 from fastapi.middleware.cors import CORSMiddleware
 try:
-    from .models import SimulationConfig, SimulationResult, CardEffectDefinition, HandRecord
+    from .models import SimulationConfig, SimulationResult, CardEffectDefinition, HandRecord, ResolveCardsRequest, ResolveCardsResponse
     from .ydk_deck_parser import parse_ydk_deck
-    from .card_resolver import resolve_card_names, count_cards
+    from .card_resolver import resolve_card_data, count_cards
 except (ImportError, ValueError):
-    from models import SimulationConfig, SimulationResult, CardEffectDefinition, HandRecord
+    from models import SimulationConfig, SimulationResult, CardEffectDefinition, HandRecord, ResolveCardsRequest, ResolveCardsResponse
     from ydk_deck_parser import parse_ydk_deck
-    from card_resolver import resolve_card_names, count_cards
+    from card_resolver import resolve_card_data, count_cards
+import httpx
 import sys
 import os
 import time
@@ -216,7 +217,7 @@ async def import_deck(file: UploadFile = File(...)):
         file: Uploaded YDK deck file
         
     Returns:
-        Dictionary mapping card names to counts for the main deck
+        Dictionary mapping card names and images to counts for the main deck
     """
     if not file.filename or not file.filename.endswith('.ydk'):
         raise HTTPException(status_code=400, detail="File must be a YDK file (.ydk)")
@@ -228,20 +229,81 @@ async def import_deck(file: UploadFile = File(...)):
         # Parse the YDK file to get passcodes
         passcodes = parse_ydk_deck(ydk_content)
         
-        # Resolve passcodes to card names using YGOProDeck API
-        card_names = await resolve_card_names(passcodes)
+        # Resolve passcodes to card names and images using YGOProDeck API
+        card_names, image_map = await resolve_card_data(passcodes)
         
         # Count occurrences
         deck_contents = count_cards(card_names)
         
         return {
             "deck_contents": deck_contents,
+            "image_map": image_map,
             "deck_size": sum(deck_contents.values())
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to import deck: {str(e)}")
+
+
+@app.post("/api/resolve-cards", response_model=ResolveCardsResponse)
+async def resolve_cards(request: ResolveCardsRequest):
+    """
+    Resolve a list of passcodes to card names and image URLs.
+    
+    Args:
+        request: ResolveCardsRequest containing list of passcodes
+        
+    Returns:
+        ResolveCardsResponse containing mapping of passcode to card info
+    """
+    if not request.passcodes:
+        return ResolveCardsResponse(resolved_cards={})
+    
+    try:
+        # We reuse resolve_card_data which already handles batching and normalization
+        card_names, image_map = await resolve_card_data(request.passcodes)
+        
+        # Build the response mapping
+        # Since resolve_card_data returns aligned card_names for the input passcodes,
+        # we can zip them.
+        resolved_cards = {}
+        for i, passcode in enumerate(request.passcodes):
+            normalized_passcode = str(passcode).zfill(8)
+            name = card_names[i]
+            resolved_cards[normalized_passcode] = {
+                "name": name,
+                "image_url": image_map.get(name)
+            }
+            
+        return ResolveCardsResponse(resolved_cards=resolved_cards)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to resolve cards: {str(e)}")
+
+@app.get("/api/proxy-image")
+async def proxy_image(url: str):
+    """
+    Proxies an image request to bypass CORS.
+    Used for client-side image optimization.
+    """
+    # Simple validation to ensure we're only proxying YGOProDeck images
+    if not url.startswith("https://images.ygoprodeck.com/"):
+        raise HTTPException(status_code=400, detail="Only YGOProDeck images are allowed")
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url)
+            response.raise_for_status()
+            
+            # Return the image with correct content type
+            return Response(
+                content=response.content,
+                media_type=response.headers.get("content-type", "image/jpeg")
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to proxy image: {str(e)}")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,9 @@ export interface CardCategory {
     name: string;
     count: number;
     subcategories: string[];
+    imageUrl?: string;
+    passcode?: string;
+    remoteImageUrl?: string;
 }
 
 export interface CardEffectDefinition {
@@ -49,6 +52,7 @@ export interface SimulationResult {
 
 // Use environment variable for API URL or fallback to local
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+export const PROXY_URL = `${API_URL}/api/proxy-image`;
 
 export async function runSimulation(config: SimulationConfig): Promise<SimulationResult> {
     const response = await fetch(`${API_URL}/simulate`, {
@@ -70,7 +74,7 @@ export async function runSimulation(config: SimulationConfig): Promise<Simulatio
     return response.json();
 }
 
-export async function importDeckFromYDK(file: File): Promise<{ deck_contents: Record<string, number>, deck_size: number }> {
+export async function importDeckFromYDK(file: File): Promise<{ deck_contents: Record<string, number>, image_map: Record<string, string>, deck_size: number }> {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -82,6 +86,27 @@ export async function importDeckFromYDK(file: File): Promise<{ deck_contents: Re
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.detail || "Failed to import deck");
+    }
+
+    return response.json();
+}
+
+export interface ResolveCardsResponse {
+    resolved_cards: Record<string, { name: string, image_url: string }>;
+}
+
+export async function resolveCards(passcodes: string[]): Promise<ResolveCardsResponse> {
+    const response = await fetch(`${API_URL}/api/resolve-cards`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passcodes }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to resolve cards");
     }
 
     return response.json();

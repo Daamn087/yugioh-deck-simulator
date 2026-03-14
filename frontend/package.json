@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "idb-keyval": "^6.2.2",
     "marked": "^17.0.3",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",

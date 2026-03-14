@@ -10,6 +10,7 @@ const props = defineProps<{
     name: string;
     count: number;
     subcategories: string[];
+    imageUrl?: string;
   };
   allExistingSubcategories: string[];
 }>();
@@ -75,6 +76,7 @@ const addSubcategory = () => {
     category.subcategories.push(newSubcategory.value.trim());
     newSubcategory.value = '';
   }
+  editingSubcategories.value = false;
 };
 
 const removeSubcategory = (subcategory: string) => {
@@ -101,6 +103,19 @@ const handleSubcategoryKeydown = (event: KeyboardEvent) => {
   <div class="group flex flex-col gap-3 bg-white/5 hover:bg-white/[0.07] border border-border-primary p-3 sm:p-3 rounded-xl transition-all">
     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
       <div class="flex items-center gap-3 flex-1 overflow-hidden">
+        <!-- Card Image Preview -->
+        <div 
+          v-if="store.imageMap[category.name]" 
+          class="shrink-0 w-10 h-14 bg-black/20 rounded border border-white/10 overflow-hidden shadow-sm flex items-center justify-center"
+        >
+          <img 
+            :src="store.imageMap[category.name]" 
+            :alt="category.name"
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        
         <input 
           v-if="editingCardName"
           v-model="editedCardName"
