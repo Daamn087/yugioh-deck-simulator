@@ -292,18 +292,33 @@ async def proxy_image(url: str):
     if not url.startswith("https://images.ygoprodeck.com/"):
         raise HTTPException(status_code=400, detail="Only YGOProDeck images are allowed")
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         try:
             response = await client.get(url)
             response.raise_for_status()
             
-            # Return the image with correct content type
+            # Use safe fallback for content type
+            content_type = response.headers.get("content-type", "image/jpeg")
+            
             return Response(
                 content=response.content,
-                media_type=response.headers.get("content-type", "image/jpeg")
+                media_type=content_type
             )
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(
+                status_code=e.response.status_code, 
+                detail=f"Upstream image server returned error: {str(e)}"
+            ) from e
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Failed to connect to image server: {str(e)}"
+            ) from e
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to proxy image: {str(e)}")
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Unexpected error proxying image: {str(e)}"
+            ) from e
 
 
 if __name__ == "__main__":

@@ -13,7 +13,6 @@ export interface CardCategory {
     subcategories: string[];
     imageUrl?: string;
     passcode?: string;
-    remoteImageUrl?: string;
 }
 
 export interface CardEffectDefinition {

@@ -54,7 +54,13 @@ const saveCardName = async () => {
   isProcessingSave.value = true;
   const category = store.cardCategories.find(c => c.name === props.category.name);
   if (category) {
-    category.name = editedCardName.value.trim();
+    const oldName = category.name;
+    const newName = editedCardName.value.trim();
+    category.name = newName;
+    if (store.imageMap[oldName] && !store.imageMap[newName]) {
+      store.imageMap[newName] = store.imageMap[oldName];
+      delete store.imageMap[oldName];
+    }
     store.syncDeckContents();
   }
   editingCardName.value = false;
