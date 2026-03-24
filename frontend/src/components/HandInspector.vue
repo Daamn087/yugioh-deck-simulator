@@ -311,7 +311,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                   <!-- Fallback Name Chip -->
                   <span
                     v-else
-                    class="text-xs px-3.5 py-2 rounded-lg font-bold truncate max-w-[280px] border shadow-sm transition-colors"
+                    class="text-xs px-3.5 py-2 rounded-lg font-bold truncate max-w-[280px] border shadow-sm transition-colors h-fit"
                     :class="selectedFilters.includes(card) ? 'ring-2 ring-primary border-primary/50' : 'border-white/10'"
                     :style="{ 
                       backgroundColor: colorForCard(card) + '15', 
