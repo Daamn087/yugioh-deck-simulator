@@ -169,13 +169,13 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
           <div class="flex flex-col flex-1 overflow-hidden bg-bg-dark">
 
         <!-- Filter bar -->
-        <div class="px-6 py-4 flex flex-wrap items-center gap-3 bg-white/[0.03] border-b border-white/5 shadow-sm">
+        <div class="px-6 py-2.5 flex flex-wrap items-center gap-3 bg-white/[0.03] border-b border-white/5 shadow-sm">
           <!-- Status Filter -->
-          <div class="flex items-center gap-3 pr-5 border-r border-white/10">
+          <div class="flex items-center gap-3 pr-4 border-r border-white/10">
             <span class="text-[10px] font-black uppercase tracking-widest text-white/50">Status</span>
             <select
               v-model="statusFilter"
-              class="text-xs font-bold bg-[#2a2a2a] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer w-[120px] shadow-sm hover:border-white/20 transition-all"
+              class="text-[10px] font-bold bg-[#2a2a2a] border border-white/10 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer w-[105px] shadow-sm hover:border-white/20 transition-all"
             >
               <option value="all">All Hands</option>
               <option value="success">✅ Success</option>
@@ -190,12 +190,12 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
             <div
               v-for="(filter, idx) in selectedFilters"
               :key="idx"
-              class="flex items-center gap-1 bg-primary/20 border border-primary/30 rounded pl-2.5 pr-1 py-1 shadow-sm animate-in fade-in zoom-in duration-200"
+              class="flex items-center gap-1 bg-primary/10 border border-primary/20 rounded-full pl-3 pr-1 py-0.5 shadow-sm animate-in fade-in zoom-in duration-200"
             >
               <select
                 :value="filter"
                 @change="e => selectedFilters[idx] = (e.target as HTMLSelectElement).value"
-                class="text-[10px] font-black uppercase tracking-tight bg-transparent border-none text-white focus:outline-none focus:ring-0 py-0 px-0 cursor-pointer min-w-[120px]"
+                class="text-[10px] font-black uppercase tracking-tight bg-transparent border-none text-white focus:outline-none focus:ring-0 py-0 px-0 cursor-pointer min-w-[100px]"
               >
                 <option
                   v-for="card in availableForFilter"
@@ -205,17 +205,17 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
               </select>
               <button
                 @click="removeFilter(idx)"
-                class="text-white/30 hover:text-red-400 p-1 hover:bg-white/5 rounded transition-all ml-1"
+                class="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded-full transition-all ml-1 text-white/40 hover:text-red-400"
                 title="Remove filter"
               >
-                <span class="text-[10px] leading-none">✕</span>
+                <span class="text-[10px] leading-none pb-[2px]">✕</span>
               </button>
             </div>
 
             <button
               v-if="availableForFilter.length > 0"
               @click="addFilter"
-              class="text-xs text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-lg transition-all font-bold shadow-sm active:scale-95"
+              class="text-[10px] text-primary border border-primary/30 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full transition-all font-bold shadow-sm active:scale-95"
             >+ Add Condition</button>
           </div>
 
@@ -231,7 +231,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
             <button
               v-if="selectedFilters.length > 0 || statusFilter !== 'all'"
               @click="clearFilters"
-              class="text-xs text-white/70 hover:text-white border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-bold shadow-sm active:scale-95"
+              class="text-[10px] text-white/70 hover:text-white border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full transition-all font-bold shadow-sm active:scale-95"
             >Clear All</button>
           </div>
         </div>
