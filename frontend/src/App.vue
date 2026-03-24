@@ -1,9 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useSimulationStore } from './store';
+import { getLatestChangelogVersion } from './utils/changelogUtils';
+import changelogRaw from '../../CHANGELOG.md?raw';
 
 const route = useRoute();
+const store = useSimulationStore();
 const error = ref<string | null>(null);
+
+const latestVersion = getLatestChangelogVersion(changelogRaw);
+
+const hasNewUpdate = computed(() => {
+  if (!latestVersion) return false;
+  return store.lastSeenChangelogVersion !== latestVersion;
+});
+
+// Watch for route changes to clear the notification
+watch(() => route.path, (newPath) => {
+  if (newPath === '/changelog' && latestVersion) {
+    store.lastSeenChangelogVersion = latestVersion;
+  }
+}, { immediate: true });
 </script>
 
 <template>
@@ -19,10 +37,11 @@ const error = ref<string | null>(null);
         <div class="flex items-center gap-4">
           <router-link 
             to="/changelog" 
-            class="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border shadow-sm active:scale-95"
+            class="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border shadow-sm active:scale-95 relative"
             :class="route.path === '/changelog' ? 'bg-primary border-primary text-black shadow-primary/20' : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'"
           >
             Changelog
+            <span v-if="hasNewUpdate" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-bg-dark shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse"></span>
           </router-link>
           <router-link 
             to="/docs-faq" 
