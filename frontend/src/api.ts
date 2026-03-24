@@ -35,6 +35,8 @@ export interface SimulationConfig {
 export interface HandRecord {
     initial_hand: string[];
     final_hand: string[];
+    cards_drawn: string[];
+    cards_discarded: string[];
     success: boolean;
 }
 

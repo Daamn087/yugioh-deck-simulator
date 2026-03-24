@@ -42,6 +42,8 @@ class HandRecord(BaseModel):
     """Record of a single simulated hand - returned when record_hands=True."""
     initial_hand: List[str]  # Cards as originally drawn
     final_hand: List[str]    # Cards after effect resolution
+    cards_drawn: List[str]   # Cards added by effects
+    cards_discarded: List[str] # Cards removed by effects
     success: bool            # Whether the hand met any success condition
 
 class SimulationResult(BaseModel):

@@ -181,11 +181,12 @@ def run_simulation(config: SimulationConfig):
         if total_cards_defined > config.deck_size:
             warnings.insert(0, f"Defined cards ({total_cards_defined}) exceed deck size ({config.deck_size}). Simulation used {total_cards_defined} cards.")
         
-        # Serialise hand records (dataclasses → Pydantic models)
         pydantic_hand_records = [
             HandRecord(
                 initial_hand=r.initial_hand,
                 final_hand=r.final_hand,
+                cards_drawn=r.cards_drawn,
+                cards_discarded=r.cards_discarded,
                 success=r.success,
             )
             for r in result.hand_records
