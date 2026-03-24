@@ -8,8 +8,10 @@ from card_effects import CardEffect, EffectContext, create_effect_from_definitio
 @dataclass
 class HandRecord:
     """Record of a single simulated hand draw."""
-    initial_hand: List[str]   # Cards as originally drawn
-    final_hand: List[str]     # Cards after effect resolution
+    initial_hand: List[str]    # Cards as originally drawn
+    final_hand: List[str]      # Cards after effect resolution
+    cards_drawn: List[str]     # Cards added by effects
+    cards_discarded: List[str] # Cards removed by effects
     success: bool             # Whether the hand met any success condition
 
 @dataclass
@@ -140,23 +142,19 @@ class Simulator:
         self.deck_counts = Counter(self.deck.cards)
 
     def resolve_effects(self, hand: List[str], remaining_deck: List[str], 
-                       conditions: List[Callable[[Counter], bool]], max_depth: int = 10) -> tuple[List[str], bool]:
+                        conditions: List[Callable[[Counter], bool]], max_depth: int = 10) -> tuple[List[str], bool, List[str], List[str]]:
         """
         Resolve all card effects in the starting hand (single pass only).
         Cards drawn by effects do NOT activate their effects.
         All cards are treated as once-per-turn (OPT).
         
-        Args:
-            hand: Initial hand drawn
-            remaining_deck: Cards still in deck (for drawing)
-            conditions: Success conditions (for context)
-            max_depth: Unused, kept for API compatibility
-        
         Returns:
-            Tuple of (final_hand, depth_exceeded) - depth_exceeded is always False
+            Tuple of (final_hand, depth_exceeded, all_drawn, all_discarded)
         """
         current_hand = hand.copy()
         current_deck = remaining_deck.copy()
+        all_drawn = []
+        all_discarded = []
         
         # Track which cards have already activated (OPT)
         activated_cards = set()
@@ -167,8 +165,8 @@ class Simulator:
         # PHASE 1: Apply all draw effects first (simultaneous resolution)
         # This ensures all cards are drawn before any conditional effects check the hand
         for card_name in set(cards_with_effects):
-            # Skip if already activated (OPT)
-            if card_name in activated_cards:
+            # Skip if already activated (OPT) or if card was discarded by a previous effect
+            if card_name in activated_cards or card_name not in current_hand:
                 continue
             
             effect = self.card_effects[card_name]
@@ -178,6 +176,14 @@ class Simulator:
             if not isinstance(effect, DrawEffect):
                 continue
             
+            # Check if effect can activate
+            if not effect.can_activate(current_hand, current_deck):
+                continue
+            
+            # Consume activating card from hand (spent to activate — not a discard result)
+            current_hand.remove(card_name)
+            activated_cards.add(card_name)
+            
             # Create effect context
             context = EffectContext(
                 subcategory_map=self.subcategory_map,
@@ -186,21 +192,18 @@ class Simulator:
                 current_depth=0
             )
             
-            # Check if effect can activate
-            if not effect.can_activate(current_hand, current_deck):
-                continue
-            
             # Apply the draw effect
             result = effect.apply(current_hand, current_deck, context)
             current_hand = result.hand
             current_deck = result.remaining_deck
-            activated_cards.add(card_name)
+            all_drawn.extend(result.cards_drawn)
+            all_discarded.extend(result.cards_discarded)
         
         # PHASE 2: Apply all conditional/discard effects on the final hand
         # This ensures discards check the hand AFTER all draws are complete
         for card_name in set(cards_with_effects):
-            # Skip if already activated (OPT)
-            if card_name in activated_cards:
+            # Skip if already activated (OPT) or if card was discarded by a previous effect
+            if card_name in activated_cards or card_name not in current_hand:
                 continue
             
             effect = self.card_effects[card_name]
@@ -210,6 +213,14 @@ class Simulator:
             if isinstance(effect, DrawEffect):
                 continue
             
+            # Check if effect can activate
+            if not effect.can_activate(current_hand, current_deck):
+                continue
+
+            # Consume activating card from hand (spent to activate — not a discard result)
+            current_hand.remove(card_name)
+            activated_cards.add(card_name)
+            
             # Create effect context
             context = EffectContext(
                 subcategory_map=self.subcategory_map,
@@ -218,18 +229,26 @@ class Simulator:
                 current_depth=0
             )
             
-            # Check if effect can activate
-            if not effect.can_activate(current_hand, current_deck):
-                continue
-            
             # Apply the conditional effect
             result = effect.apply(current_hand, current_deck, context)
-            current_hand = result.hand
-            current_deck = result.remaining_deck
-            activated_cards.add(card_name)
+            
+            if result.fully_reverted:
+                # The effect couldn't meet its conditions and rolled everything back.
+                # Restore the activating card so the hand is fully unchanged.
+                current_hand = result.hand.copy()
+                current_hand.append(card_name)
+                current_deck = result.remaining_deck
+                # Still record what was drawn so the UI can show why the effect failed
+                all_drawn.extend(result.cards_drawn)
+                # (activated_cards already has card_name — won't retry)
+            else:
+                current_hand = result.hand
+                current_deck = result.remaining_deck
+                all_drawn.extend(result.cards_drawn)
+                all_discarded.extend(result.cards_discarded)
         
         # Never exceed depth with single-pass resolution
-        return current_hand, False
+        return current_hand, False, all_drawn, all_discarded
 
     def _evaluate_hand(self, hand: List[str], conditions: List[Callable[[Counter], bool]]) -> bool:
         """Helper to evaluate if a specific hand state meets success conditions."""
@@ -243,7 +262,7 @@ class Simulator:
         return False
 
     def check_success(self, hand: List[str], conditions: List[Callable[[Counter], bool]], 
-                     remaining_deck: Optional[List[str]] = None) -> tuple[bool, bool, List[str]]:
+                     remaining_deck: Optional[List[str]] = None) -> tuple[bool, bool, List[str], List[str], List[str]]:
         """
         Checks if a hand meets ANY of the success conditions either BEFORE or AFTER effects.
         
@@ -254,22 +273,25 @@ class Simulator:
             remaining_deck: Cards still in deck (for effect resolution). If None, no effects are resolved.
         
         Returns:
-            Tuple of (success, depth_exceeded, final_hand)
+            Tuple of (success, depth_exceeded, final_hand, cards_drawn, cards_discarded)
         """
         initial_success = self._evaluate_hand(hand, conditions)
         
         depth_exceeded = False
         final_hand = list(hand)
+        cards_drawn = []
+        cards_discarded = []
         
-        # Resolve effects if we have a deck and effects are defined
-        if remaining_deck is not None and self.card_effects:
-            final_hand, depth_exceeded = self.resolve_effects(hand, remaining_deck, conditions)
+        # Only resolve effects when the hand is NOT already a success.
+        # If the condition is already met, there is no need to fire any effect.
+        if not initial_success and remaining_deck is not None and self.card_effects:
+            final_hand, depth_exceeded, cards_drawn, cards_discarded = self.resolve_effects(hand, remaining_deck, conditions)
         
         final_success = False
         if final_hand != hand:
             final_success = self._evaluate_hand(final_hand, conditions)
         
-        return (initial_success or final_success), depth_exceeded, final_hand
+        return (initial_success or final_success), depth_exceeded, final_hand, cards_drawn, cards_discarded
 
     def run(self, simulations: int, hand_size: int, conditions: List[Callable[[Counter], bool]],
             record_hands: bool = False, max_hand_records: int = 10_000) -> SimulationResult:
@@ -292,7 +314,7 @@ class Simulator:
                         remaining_deck.extend([card] * rem)
             
             # Check success with effect resolution
-            success, depth_exceeded, final_hand = self.check_success(hand, conditions, remaining_deck)
+            success, depth_exceeded, final_hand, drawn, discarded = self.check_success(hand, conditions, remaining_deck)
             
             if success:
                 successes += 1
@@ -305,6 +327,8 @@ class Simulator:
                 hand_records.append(HandRecord(
                     initial_hand=list(hand),
                     final_hand=list(final_hand),
+                    cards_drawn=list(drawn),
+                    cards_discarded=list(discarded),
                     success=success,
                 ))
         

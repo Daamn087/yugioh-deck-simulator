@@ -30,10 +30,14 @@ class EffectResult:
     remaining_deck: List[str]  # Remaining deck after drawing
     depth_exceeded: bool = False  # Whether max depth was reached
     cards_drawn: List[str] = None  # Cards that were drawn by this effect
+    cards_discarded: List[str] = None  # Cards that were discarded by this effect
+    fully_reverted: bool = False  # True when the entire effect was rolled back (activating card should be restored)
     
     def __post_init__(self):
         if self.cards_drawn is None:
             self.cards_drawn = []
+        if self.cards_discarded is None:
+            self.cards_discarded = []
 
 
 class CardEffect(ABC):
@@ -205,27 +209,31 @@ class ConditionalDiscardEffect(CardEffect):
         sorted_matching_cards = [card for _, card in candidate_scores]
         
         # Discard up to discard_count matching cards using the prioritized list
-        discarded = 0
+        discarded_cards = []
         for card in sorted_matching_cards:
-            if discarded >= self.discard_count:
+            if len(discarded_cards) >= self.discard_count:
                 break
             if card in new_hand:
                 new_hand.remove(card)
-                discarded += 1
+                discarded_cards.append(card)
         
-        # If we failed to discard the required number of cards, the effect fails
-        # We revert to the state before drawing (simulating that the condition could not be met)
-        if discarded < self.discard_count:
+        # If we failed to discard the required number of cards, the effect fully reverts.
+        # We restore the hand/deck to pre-draw state, but we still surface cards_drawn so
+        # the UI can show the user what Vision actually drew (and why no discard was possible).
+        if len(discarded_cards) < self.discard_count:
             return EffectResult(
                 hand=hand,
                 remaining_deck=remaining_deck,
-                cards_drawn=[]
+                cards_drawn=draw_result.cards_drawn,  # show what was drawn, even though reverted
+                cards_discarded=[],
+                fully_reverted=True
             )
             
         return EffectResult(
             hand=new_hand,
             remaining_deck=draw_result.remaining_deck,
-            cards_drawn=draw_result.cards_drawn
+            cards_drawn=draw_result.cards_drawn,
+            cards_discarded=discarded_cards
         )
 
 

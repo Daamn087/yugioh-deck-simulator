@@ -41,7 +41,22 @@ const filteredHands = computed(() => {
     
     // 2. Card Filters
     if (selectedFilters.value.length > 0) {
-      if (!selectedFilters.value.every(card => record.final_hand.includes(card))) return false;
+      // Count required copies from filters
+      const filterCounts: Record<string, number> = {};
+      for (const card of selectedFilters.value) {
+        filterCounts[card] = (filterCounts[card] || 0) + 1;
+      }
+
+      // Count copies in the initial hand
+      const handCounts: Record<string, number> = {};
+      for (const card of record.initial_hand) {
+        handCounts[card] = (handCounts[card] || 0) + 1;
+      }
+
+      // Ensure hand has at least the required amount of each filtered card
+      for (const [card, requiredCount] of Object.entries(filterCounts)) {
+        if ((handCounts[card] || 0) < requiredCount) return false;
+      }
     }
     
     return true;
@@ -55,10 +70,7 @@ const pagedHands = computed(() => {
   return filteredHands.value.slice(start, start + PAGE_SIZE);
 });
 
-// Cards not yet selected, to avoid duplicates in filter dropdowns
-const availableForFilter = computed(() =>
-  props.availableCards.filter(c => !selectedFilters.value.includes(c))
-);
+const availableForFilter = computed(() => props.availableCards);
 
 // Assign a stable color per unique card name for the hand chips
 const cardColors = computed(() => {
@@ -71,8 +83,8 @@ const cardColors = computed(() => {
   props.availableCards.forEach((card, i) => {
     map[card] = palette[i % palette.length] ?? '#555';
   });
-  // Fallback for cards not in availableCards (e.g. _Generic_)
-  map['_Generic_'] = '#555';
+  // Fallback for cards not in availableCards (e.g. Blank)
+  map['Blank'] = '#555';
   return map;
 });
 
@@ -269,8 +281,8 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                     <img 
                       :src="imageForCard(card)!" 
                       :alt="card"
-                      class="h-[130px] w-auto rounded border border-white/20 shadow-sm bg-black/40"
-                      :class="selectedFilters.includes(card) ? 'ring-2 ring-white/80 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : ''"
+                      class="h-[130px] w-auto rounded border border-white/20 shadow-sm bg-black/40 transition-all"
+                      :class="selectedFilters.includes(card) ? 'ring-2 ring-white/80 scale-105 z-10' : ''"
                     />
                   </div>
                   <!-- Fallback Name Chip -->
@@ -283,28 +295,45 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                   >{{ card }}</span>
                 </template>
               </div>
+
               
-              <!-- Initial Hand (pre-effects) if different -->
+              <!-- Effect Flow: only shown when effects actually resolved (and toggle is on) -->
               <div 
-                v-if="showInitialHands && record.initial_hand.join(',') !== record.final_hand.join(',')" 
-                class="flex flex-wrap gap-1.5 items-center mt-0.5 pl-3 border-l-2 border-white/10"
+                v-if="showInitialHands && (record.cards_drawn.length > 0 || record.cards_discarded.length > 0)" 
+                class="flex flex-col gap-3 mt-4 p-4 rounded-xl bg-white/[0.03] border border-white/5"
               >
-                <span class="text-[11px] uppercase tracking-wider text-text-secondary font-bold mr-1">Initial Draw:</span>
-                <template v-for="(card, ci) in record.initial_hand" :key="'init-'+ci">
-                  <img 
-                    v-if="imageForCard(card)"
-                    :src="imageForCard(card)!" 
-                    :alt="card"
-                    class="h-10 w-auto rounded border border-white/10 opacity-70 grayscale-[0.3]"
-                    :title="card"
-                  />
-                  <span
-                    v-else
-                    class="text-xs px-2 py-1 rounded-full font-medium truncate max-w-[160px] border border-white/5 opacity-70"
-                    :style="{ backgroundColor: colorForCard(card) + '22', color: colorForCard(card) }"
-                    :title="card"
-                  >{{ card }}</span>
-                </template>
+                <!-- Initial hand (before effects) -->
+                <div class="flex items-center gap-3">
+                  <span class="text-[10px] uppercase tracking-widest text-text-secondary font-bold w-20">Initial</span>
+                  <div class="flex flex-wrap gap-2">
+                    <template v-for="(card, ci) in record.initial_hand" :key="'init-'+ci">
+                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-white/10 opacity-70 grayscale-[0.3]" :title="card" />
+                      <span v-else class="text-xs px-2 py-1 rounded-full border border-white/5 opacity-70" :style="{ backgroundColor: colorForCard(card) + '22', color: colorForCard(card) }">{{ card }}</span>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Cards drawn by the effect -->
+                <div v-if="record.cards_drawn.length > 0" class="flex items-center gap-3">
+                  <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold w-20">Drawn</span>
+                  <div class="flex flex-wrap gap-2">
+                    <template v-for="(card, ci) in record.cards_drawn" :key="'drawn-'+ci">
+                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-emerald-500/30" :title="card" />
+                      <span v-else class="text-xs px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">{{ card }}</span>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Cards discarded by the effect (only for conditional_discard effects) -->
+                <div v-if="record.cards_discarded.length > 0" class="flex items-center gap-3">
+                  <span class="text-[10px] uppercase tracking-widest text-red-400 font-bold w-20">Discarded</span>
+                  <div class="flex flex-wrap gap-2">
+                    <template v-for="(card, ci) in record.cards_discarded" :key="'disc-'+ci">
+                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-red-500/30 grayscale opacity-40" :title="card" />
+                      <span v-else class="text-xs px-2 py-1 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 opacity-80">{{ card }}</span>
+                    </template>
+                  </div>
+                </div>
               </div>
             </div>
           </li>
