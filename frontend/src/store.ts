@@ -370,6 +370,6 @@ export const useSimulationStore = defineStore('simulation', {
 
             return null;
         },
-        availableCategories: (state) => state.cardCategories.map(c => c.name)
+        availableCategories: (state) => [...new Set(state.cardCategories.map(c => c.name))]
     }
 });
