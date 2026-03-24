@@ -14,6 +14,7 @@ export const useSimulationStore = defineStore('simulation', {
         } as Record<string, number>,  // Keep for backward compatibility
         cardCategories: [] as CardCategory[],  // New field with subcategory support
         imageMap: {} as Record<string, string>, // Persistent cache for card images
+        lastSeenChangelogVersion: null as string | null, // Track the last seen changelog version
         rules: [
             [{ card_name: "", min_count: 1, operator: 'AND' }]
         ] as Requirement[][],

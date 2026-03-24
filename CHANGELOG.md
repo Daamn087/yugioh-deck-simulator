@@ -1,3 +1,9 @@
+## [0.7.0] - 2026-03-24
+
+### Added
+- **Update Notifications**: A red dot now appears on the Changelog button whenever there are new updates to read.
+- **Seen Status**: The notification disappears automatically once you visit the changelog page.
+
 ## [0.6.0] - 2026-03-24
 
 ### Changed
