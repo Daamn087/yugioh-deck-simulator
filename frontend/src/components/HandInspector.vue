@@ -70,7 +70,8 @@ const pagedHands = computed(() => {
   return filteredHands.value.slice(start, start + PAGE_SIZE);
 });
 
-const availableForFilter = computed(() => props.availableCards);
+// Cards not yet selected, to avoid duplicates in filter dropdowns
+const availableForFilter = computed(() => [...new Set(props.availableCards)]);
 
 // Assign a stable color per unique card name for the hand chips
 const cardColors = computed(() => {
@@ -188,9 +189,8 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
             <select
               :value="filter"
               @change="e => selectedFilters[idx] = (e.target as HTMLSelectElement).value"
-              class="text-xs bg-transparent border-none text-white focus:outline-none focus:ring-0 py-0 px-1 cursor-pointer max-w-[180px]"
+              class="text-xs bg-transparent border-none text-white focus:outline-none focus:ring-0 py-0 px-1 cursor-pointer min-w-[120px]"
             >
-              <option :value="filter">{{ filter }}</option>
               <option
                 v-for="card in availableForFilter"
                 :key="card"
@@ -288,7 +288,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                   <!-- Fallback Name Chip -->
                   <span
                     v-else
-                    class="text-sm px-3 py-1.5 rounded-full font-semibold truncate max-w-[200px] border border-white/10 shadow-sm"
+                    class="text-sm px-3 py-1.5 rounded-full font-semibold truncate max-w-[300px] border border-white/10 shadow-sm"
                     :class="selectedFilters.includes(card) ? 'ring-2 ring-white/60 drop-shadow-md' : ''"
                     :style="{ backgroundColor: colorForCard(card) + '33', color: colorForCard(card) }"
                     :title="card"
