@@ -45,187 +45,202 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto bg-surface-card rounded-2xl border border-border-primary overflow-hidden shadow-2xl animate-fade-in">
+  <div class="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-white/5 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
     <!-- Header -->
-    <div class="px-8 py-6 bg-gradient-to-r from-bg-dark to-surface-card border-b border-border-primary flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
-          Documentation & FAQ
-        </h2>
-        <p class="text-text-secondary text-sm mt-1">Everything you need to know about the simulator</p>
+    <div class="px-10 py-12 bg-[#0a0a0a] border-b border-white/5 relative overflow-hidden">
+      <div class="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 blur-[100px] rounded-full"></div>
+      <div class="relative z-10 flex flex-col md:flex-row justify-between items-end gap-6">
+        <div>
+          <p class="text-sm font-black uppercase tracking-[0.3em] text-primary mb-3">Documentation & resources</p>
+          <h1 class="text-4xl font-black tracking-tighter text-white">
+            KNOWLEDGE BASE
+          </h1>
+        </div>
+        <router-link 
+          to="/"
+          class="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white transition-all border border-white/10 hover:border-primary/50"
+        >
+          <span>←</span> Back to Simulator
+        </router-link>
       </div>
-      <router-link 
-        to="/"
-        class="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-semibold transition-all border border-border-primary hover:border-text-secondary"
-      >
-        <span>←</span> Back to Simulator
-      </router-link>
     </div>
 
-    <div class="flex flex-col md:flex-row min-h-[600px]">
+    <div class="flex flex-col md:flex-row min-h-[700px] bg-[#0c0c0c]">
       <!-- Sidebar Navigation -->
-      <nav class="w-full md:w-64 bg-bg-dark/50 border-r border-border-primary p-4 shrink-0">
-        <div class="sticky top-6 flex flex-col gap-1">
+      <nav class="w-full md:w-72 border-r border-white/5 p-6 shrink-0 bg-[#0d0d0d]/50">
+        <div class="sticky top-10 flex flex-col gap-2">
+          <p class="px-4 text-sm font-black uppercase tracking-[0.2em] text-white/30 mb-2">Sections</p>
           <button 
             v-for="section in sections" 
             :key="section.id"
             @click="scrollTo(section.id)"
-            class="text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
-            :class="activeSection === section.id ? 'bg-primary/20 text-primary border-l-4 border-primary' : 'text-text-secondary hover:text-white hover:bg-white/5'"
+            class="text-left px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-between group"
+            :class="activeSection === section.id 
+              ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--color-primary),0.05)]' 
+              : 'text-white/40 hover:text-white hover:bg-white/5'"
           >
             {{ section.title }}
+            <span v-if="activeSection === section.id" class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--color-primary),1)]"></span>
+            <span v-else class="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
           </button>
         </div>
       </nav>
 
       <!-- Content Area -->
-      <div class="flex-1 p-8 overflow-y-auto max-h-[800px] scroll-smooth custom-scrollbar">
-        <div class="space-y-12">
+      <div class="flex-1 p-10 overflow-y-auto max-h-[900px] scroll-smooth custom-scrollbar bg-gradient-to-b from-transparent to-black/20">
+        <div class="space-y-20">
           
           <!-- Introduction -->
-          <section id="introduction" class="scroll-mt-8">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">01.</span> Introduction
-            </h3>
-            <div class="prose prose-invert max-w-none text-text-secondary leading-relaxed space-y-4">
-              <p>
-                The Yu-Gi-Oh! Deck Simulator is a powerful tool designed to help players calculate the consistency of their decks. Unlike static calculators that use pure math (Hypergeometric Distribution), this tool uses <strong>Monte Carlo Simulation</strong>.
+          <section id="introduction" class="scroll-mt-10">
+            <div class="flex items-center gap-4 mb-6">
+              <span class="text-sm font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">01</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">Introduction</h3>
+            </div>
+            <div class="prose prose-invert max-w-none text-white/60 leading-relaxed space-y-4">
+              <p class="text-lg text-white/80 font-medium">
+                The Yu-Gi-Oh! Deck Simulator is a high-performance analytical tool designed to quantify deck consistency through simulation.
               </p>
-              <div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-r-lg">
-                <p class="text-sm italic">
-                  "Why Simulation?" - Because Yu-Gi-Oh is complex. Static math struggles when you add effects like 'Pot of Greed' or 'Draw until you have 3'. Simulation simply 'plays' thousands of hands to see what actually happens.
+              <p>
+                Unlike static calculators that rely on simplified hypergeometric distribution, this tool employs <strong>Monte Carlo Simulation</strong>. This allows us to account for complex card interactions, varying draw counts, and conditional requirements that mathematical formulas struggle to capture.
+              </p>
+              <div class="bg-white/5 border border-white/10 p-6 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-1 h-full bg-primary/40 group-hover:bg-primary transition-colors"></div>
+                <p class="text-xs italic text-white/70 leading-relaxed">
+                  "Simulation bridges the gap between theory and actual play. It accounts for every 'Pot of Desires', every 'Upstart Goblin', and every conditional search, providing a realistic consistency percentage based on millions of virtual trials."
                 </p>
               </div>
             </div>
           </section>
 
           <!-- How to Use -->
-          <section id="how-to-use" class="scroll-mt-8">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">02.</span> How to Use
-            </h3>
-            <div class="prose prose-invert max-w-none text-text-secondary leading-relaxed">
-              <ol class="list-decimal list-inside space-y-3">
-                <li><span class="text-white font-medium">Build your Deck:</span> Enter card names or tags (e.g., "Starter") and their counts. You can also import YDK files from DuelingBook. (See FAQ section for details)</li>
-                <li><span class="text-white font-medium">Define Rules:</span> Set up what counts as a "Success". For example: <code>Starter >= 1</code>.</li>
-                <li><span class="text-white font-medium">Add Effects:</span> (Optional) Add cards that draw or discard during the simulation.</li>
-                <li><span class="text-white font-medium">Simulate:</span> Choose the number of simulations (default is 1 million, but can be manually adjusted) and click Run!</li>
-              </ol>
+          <section id="how-to-use" class="scroll-mt-10">
+            <div class="flex items-center gap-4 mb-8">
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">02</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">How to Use</h3>
+            </div>
+            <div class="grid gap-4">
+              <div v-for="(step, i) in [
+                { t: 'Build Deck', d: 'Enter card names or tags and their counts, or import YDK files directly.' },
+                { t: 'Define Rules', d: 'Set up success conditions using AND/OR logic (e.g., Starter >= 1).' },
+                { t: 'Add Effects', d: 'Configure cards that draw or discard to simulate realistic resolution.' },
+                { t: 'Simulate', d: 'Run up to millions of iterations for statistically significant results.' }
+              ]" :key="i" class="flex gap-4 p-5 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 transition-all group">
+                <span class="text-lg font-black text-white/20 group-hover:text-primary/40 transition-colors">0{{i+1}}</span>
+                <div>
+                  <h4 class="text-sm font-black text-white uppercase tracking-tighter mb-1">{{ step.t }}</h4>
+                  <p class="text-xs text-white/50 leading-relaxed">{{ step.d }}</p>
+                </div>
+              </div>
             </div>
           </section>
 
           <!-- Success Conditions -->
-          <section id="success-conditions" class="scroll-mt-8">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">03.</span> Defining Success Conditions
-            </h3>
-            <div class="prose prose-invert max-w-none text-text-secondary leading-relaxed space-y-4">
-              <p>
-                Success conditions determine if a hand is "good". You can use <strong>AND</strong> and <strong>OR</strong> logic to create complex requirements.
+          <section id="success-conditions" class="scroll-mt-10">
+            <div class="flex items-center gap-4 mb-8">
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">03</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">Success Conditions</h3>
+            </div>
+            <div class="space-y-6">
+              <p class="text-white/60 text-sm leading-relaxed">
+                Conditions determine the quality of a hand. You can stack multiple requirements using nested logic groups.
               </p>
-              <div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6">
-                <p class="text-sm font-semibold text-blue-400 mb-1 italic">Logic Restriction:</p>
-                <p class="text-sm text-text-secondary leading-tight">
-                  Top-level requirements within a Success Option are always connected with <strong>AND</strong>. To use <strong>OR</strong>, you must place your requirements inside a <strong>Parentheses Group</strong>.
+              
+              <div class="bg-primary/5 border border-primary/20 p-5 rounded-2xl">
+                <p class="text-sm font-black uppercase tracking-widest text-primary mb-2">Logic Hierarchy</p>
+                <p class="text-xs text-white/70 leading-relaxed">
+                  Top-level requirements are always connected with <strong>AND</strong>. Use <strong>Parentheses Groups</strong> to implement <strong>OR</strong> logic or complex nesting.
                 </p>
               </div>
-              <h4 class="text-white font-semibold flex items-center gap-2 mt-6">
-                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Nesting Logic:
-              </h4>
-              <p>
-                You can nest conditions within groups. For example:
-              </p>
-              <div class="bg-bg-dark p-4 rounded-xl border border-border-primary font-mono text-sm">
-                (Starter >= 1) <span class="text-primary">AND</span><br/>
-                &nbsp;&nbsp;(<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;(Extender >= 1) <span class="text-blue-400">OR</span><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;(Draw Card >= 1)<br/>
-                &nbsp;&nbsp;)
+
+              <div class="bg-black p-6 rounded-2xl border border-white/5 font-mono text-xs overflow-hidden relative group">
+                <div class="absolute top-4 right-4 text-sm font-black text-white/10 uppercase tracking-widest">Example Logic</div>
+                <div class="space-y-1">
+                  <p class="text-white/40">(Starter >= 1) <span class="text-primary font-bold">AND</span></p>
+                  <p class="text-white/40">&nbsp;&nbsp;(<span class="text-white/40"> (Extender >= 1) </span> <span class="text-blue-400 font-bold">OR</span> <span class="text-white/40"> (Draw Card >= 1) </span>)</p>
+                </div>
               </div>
-              <p>
-                This rule means you need at least one Starter AND (either an Extender OR a Draw Card).
-              </p>
             </div>
           </section>
 
           <!-- Card Effects -->
-          <section id="card-effects" class="scroll-mt-8">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">04.</span> Adding Effects
-            </h3>
-            <div class="prose prose-invert max-w-none text-text-secondary leading-relaxed space-y-4">
-              <p>
-                Card effects allow the simulator to "play" consistency cards.
-              </p>
-              <ul class="list-disc list-inside space-y-2">
-                <li><span class="text-white">Draw:</span> Adds cards from the deck to the hand.</li>
-                <li><span class="text-white">Discard:</span> Removes cards from the hand.</li>
-                <li><span class="text-white">Once Per Turn (OPT):</span> Ensures the effect only triggers once per hand.</li>
-              </ul>
-              <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-r-lg mt-4">
-                <p class="text-sm font-semibold text-yellow-500 mb-1">Important Implementation Details:</p>
-                <ul class="text-sm list-disc list-inside space-y-1">
-                  <li><strong>Resolution Order:</strong> All "Draw" effects in the initial hand are resolved first, followed by "Conditional Discard" effects. Among the same type, they resolve in the order they were defined.</li>
-                  <li><strong>Initial Hand Only:</strong> Only cards in the <em>starting hand</em> trigger their effects. For example, if you use 'Pot of Greed' and draw into a second 'Pot of Greed', that second one will <strong>not</strong> resolve.</li>
-                  <li><strong>No Complex Priority:</strong> The simulator does not yet prioritize specific deck-thinning orders (like searching before drawing). It simply applies effects in a single pass.</li>
-                  <li><strong>Revert on Failure:</strong> If an effect requires a discard but you have no matching cards, the effect reverts (simulating that it couldn't be activated).</li>
+          <section id="card-effects" class="scroll-mt-10">
+            <div class="flex items-center gap-4 mb-8">
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">04</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">Adding Effects</h3>
+            </div>
+            <div class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                  <p class="text-sm font-black text-primary uppercase tracking-widest mb-1">Type A</p>
+                  <p class="text-sm font-bold text-white mb-1">Draw</p>
+                  <p class="text-[10px] text-white/40">Adds cards from deck to hand.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                  <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Type B</p>
+                  <p class="text-sm font-bold text-white mb-1">Discard</p>
+                  <p class="text-[10px] text-white/40">Removes cards from hand.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                  <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Constraint</p>
+                  <p class="text-sm font-bold text-white mb-1">Once Per Turn</p>
+                  <p class="text-[10px] text-white/40">Restricts trigger count per hand.</p>
+                </div>
+              </div>
+
+              <div class="bg-amber-500/5 border border-amber-500/20 p-6 rounded-2xl space-y-3">
+                <p class="text-sm font-black uppercase tracking-widest text-amber-500">Implementation Details</p>
+                <ul class="space-y-2">
+                  <li v-for="note in [
+                    { t: 'Resolution', d: 'Draw effects resolve first, then conditional discards.' },
+                    { t: 'Scope', d: 'Only cards in the initial hand trigger their effects.' },
+                    { t: 'Revert', d: 'If an effect requirement isn\'t met, the action is reverted.' }
+                  ]" :key="note.t" class="text-xs text-white/60">
+                    <strong class="text-white/80">{{ note.t }}:</strong> {{ note.d }}
+                  </li>
                 </ul>
               </div>
             </div>
           </section>
 
           <!-- FAQ -->
-          <section id="faq" class="scroll-mt-8">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">05.</span> FAQ
-            </h3>
-            <div class="space-y-4">
-              <div v-for="(q, i) in faqs" :key="i" :id="`faq-${i}`" class="bg-bg-dark/30 rounded-xl p-5 border border-border-primary hover:border-primary/30 transition-colors scroll-mt-8">
-                <h4 class="text-white font-semibold mb-2">Q: {{ q.question }}</h4>
-                <p class="text-text-secondary text-sm">A: {{ q.answer }}</p>
+          <section id="faq" class="scroll-mt-10">
+            <div class="flex items-center gap-4 mb-8">
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">05</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">FAQ</h3>
+            </div>
+            <div class="grid gap-3">
+              <div v-for="(q, i) in faqs" :key="i" :id="`faq-${i}`" class="group bg-white/5 rounded-2xl p-6 border border-white/5 hover:border-primary/20 transition-all hover:bg-white/[0.07] scroll-mt-10">
+                <p class="text-sm font-black uppercase tracking-widest text-primary/50 mb-3">Question 0{{i+1}}</p>
+                <h4 class="text-white font-bold mb-3 flex justify-between items-start gap-4">
+                  {{ q.question }}
+                </h4>
+                <div class="h-px w-8 bg-white/10 mb-4 group-hover:w-full transition-all duration-500"></div>
+                <p class="text-white/50 text-xs leading-relaxed">
+                  {{ q.answer }}
+                </p>
               </div>
             </div>
           </section>
 
           <!-- Contact -->
-          <section id="contact" class="scroll-mt-8">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">06.</span> Contact & Feedback
-            </h3>
-            <div class="bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-2xl p-6 border border-primary/20">
-              <p class="text-text-secondary mb-6">
-                Want to propose changes, report a bug, or just give feedback? Reach out to me:
-              </p>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="mailto:philgastberger@gmail.com" class="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors border border-white/10 group">
-                  <span class="text-xl group-hover:scale-110 transition-transform">📧</span>
-                  <div>
-                    <div class="text-xs text-text-secondary">Email</div>
-                    <div class="text-sm font-medium">philgastberger@gmail.com</div>
-                  </div>
-                </a>
-                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10 group">
-                  <span class="text-xl group-hover:scale-110 transition-transform">💬</span>
-                  <div>
-                    <div class="text-xs text-text-secondary">Discord</div>
-                    <div class="text-sm font-medium">daamn_it</div>
-                  </div>
+          <section id="contact" class="scroll-mt-10 pb-10">
+            <div class="flex items-center gap-4 mb-8">
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">06</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">Contact</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a v-for="c in [
+                { icon: '📧', label: 'Email', value: 'philgastberger@gmail.com', href: 'mailto:philgastberger@gmail.com' },
+                { icon: '💬', label: 'Discord', value: 'daamn_it' },
+                { icon: '🎮', label: 'DuelingBook', value: 'Daamn' },
+                { icon: '📸', label: 'Instagram', value: '@phillicheese_', href: 'https://instagram.com/phillicheese_' }
+              ]" :key="c.label" :href="c.href" :target="c.href ? '_blank' : undefined" class="flex items-center gap-4 p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group">
+                <span class="text-2xl grayscale group-hover:grayscale-0 transition-all">{{ c.icon }}</span>
+                <div>
+                  <p class="text-sm font-black uppercase tracking-widest text-white/30">{{ c.label }}</p>
+                  <p class="text-xs font-bold text-white">{{ c.value }}</p>
                 </div>
-                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10 group">
-                  <span class="text-xl group-hover:scale-110 transition-transform">🎮</span>
-                  <div>
-                    <div class="text-xs text-text-secondary">DuelingBook</div>
-                    <div class="text-sm font-medium">Daamn</div>
-                  </div>
-                </div>
-                <a href="https://instagram.com/phillicheese_" target="_blank" class="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors border border-white/10 group">
-                  <span class="text-xl group-hover:scale-110 transition-transform">📸</span>
-                  <div>
-                    <div class="text-xs text-text-secondary">Instagram</div>
-                    <div class="text-sm font-medium">@phillicheese_</div>
-                  </div>
-                </a>
-              </div>
+              </a>
             </div>
           </section>
 

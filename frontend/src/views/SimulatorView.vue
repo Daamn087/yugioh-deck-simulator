@@ -83,21 +83,21 @@ const run = async () => {
     <!-- Animated Content Container -->
     <div class="animate-fade-in space-y-8 pb-32 lg:pb-0">
       <!-- Utility Bar (Desktop/Tablets) -->
-      <div class="flex flex-col sm:flex-row items-center gap-4 bg-surface-card p-3 rounded-xl border border-border-primary shadow-inner w-full">
-        <label class="flex items-center justify-between sm:justify-start gap-3 text-sm font-medium text-text-secondary w-full sm:w-auto px-2 sm:px-0">
+      <div class="flex flex-col sm:flex-row items-center gap-4 bg-surface-card p-4 rounded-2xl border border-white/10 shadow-lg w-full">
+        <label class="flex items-center justify-between sm:justify-start gap-4 text-[10px] font-black uppercase tracking-widest text-white/50 w-full sm:w-auto px-2 sm:px-0">
             <span class="whitespace-nowrap">Simulations:</span>
-            <input type="text" v-model.lazy="simulationsFormatted" class="w-full sm:w-32 bg-[#2a2a2a] border border-[#444] rounded px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            <input type="text" v-model.lazy="simulationsFormatted" class="w-full sm:w-36 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-primary shadow-inner transition-all hover:border-white/20">
         </label>
-        <div class="flex items-center gap-2 w-full sm:w-auto ml-auto">
-          <button @click="handleExport" class="flex-1 sm:flex-none bg-gray-700 hover:bg-gray-600 px-4 py-2 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Download configuration">
-            <span>⬇️</span> Export
+        <div class="flex items-center gap-3 w-full sm:w-auto ml-auto">
+          <button @click="handleExport" class="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2" title="Download configuration">
+            <span class="text-sm">⬇️</span> Export
           </button>
-          <button @click="handleImportClick" class="flex-1 sm:flex-none bg-gray-700 hover:bg-gray-600 px-4 py-2 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Upload configuration">
-            <span>⬆️</span> Import
+          <button @click="handleImportClick" class="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2" title="Upload configuration">
+            <span class="text-sm">⬆️</span> Import
           </button>
-          <button @click="store.resetToDefaults" class="bg-red-900/40 hover:bg-red-900/80 border border-red-800/50 p-2 sm:px-4 sm:py-1 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2" title="Clear all settings">
-            <span class="sm:hidden">🔄</span>
-            <span class="hidden sm:inline">🔄 Reset</span>
+          <div class="w-px h-6 bg-white/10 mx-1 hidden sm:block"></div>
+          <button @click="store.resetToDefaults" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-red-400 transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2" title="Clear all settings">
+            <span>🔄</span> <span class="hidden sm:inline text-red-400">Reset</span>
           </button>
           <input 
             type="file" 

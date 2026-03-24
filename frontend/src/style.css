@@ -11,11 +11,12 @@
 @layer base {
   :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
+    line-height: 1.6;
     font-weight: 400;
+    font-size: 112.5%; /* This sets 18px base if default is 16px */
 
     color-scheme: light dark;
-    +color: rgba(255, 255, 255, 0.87);
+    color: rgba(255, 255, 255, 0.87);
     background-color: var(--color-bg-dark);
 
     font-synthesis: none;
