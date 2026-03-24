@@ -1,3 +1,11 @@
+## [0.8.0] - 2026-03-24
+
+### Added
+- **Hand Inspector Guide**: A new section in the Knowledge Base that explains how to use the Hand Inspector to analyze your simulated hands.
+
+### Changed
+- **Sleek Filter Bar**: Refined the design of the card filters in the Hand Inspector to be slimmer and more visually integrated.
+
 ## [0.7.0] - 2026-03-24
 
 ### Added

@@ -10,6 +10,7 @@ const sections = [
   { id: 'how-to-use', title: 'How to Use' },
   { id: 'success-conditions', title: 'Success Conditions' },
   { id: 'card-effects', title: 'Card Effects' },
+  { id: 'hand-inspector', title: 'Hand Inspector' },
   { id: 'faq', title: 'FAQ' },
   { id: 'contact', title: 'Contact' },
 ];
@@ -202,10 +203,47 @@ onMounted(() => {
             </div>
           </section>
 
+          <!-- Hand Inspector -->
+          <section id="hand-inspector" class="scroll-mt-10">
+            <div class="flex items-center gap-4 mb-8">
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">05</span>
+              <h3 class="text-xl font-black tracking-tight text-white uppercase">Hand Inspector</h3>
+            </div>
+            <div class="space-y-6">
+              <p class="text-white/60 text-sm leading-relaxed">
+                The Hand Inspector is a powerful debugging and analytical tool that allows you to examine individual simulated hands. Its main purpose is to help you gain a deeper understanding of how the simulator calculates success and how your card effects interact in practice.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10 group">
+                  <h4 class="text-xs font-black text-primary uppercase tracking-widest mb-3">Granular Filtering</h4>
+                  <ul class="space-y-2 text-[11px] text-white/50">
+                    <li><strong class="text-white/70">Status Filter:</strong> Isolate "Success" hands to study winning patterns or "Fail" hands to identify weaknesses and bricks.</li>
+                    <li><strong class="text-white/70">Card Filters:</strong> Filter records to only show hands that contained specific cards in the initial 5-card opening.</li>
+                  </ul>
+                </div>
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10 group">
+                  <h4 class="text-xs font-black text-primary uppercase tracking-widest mb-3">Effect Flow Analysis</h4>
+                  <ul class="space-y-2 text-[11px] text-white/50">
+                    <li><strong class="text-white/70">Initial Hand:</strong> See exactly what you started with before any effects triggered.</li>
+                    <li><strong class="text-white/70">Draw & Discard:</strong> The flow section highlights exactly which cards were drawn from the deck and which were discarded during simulation.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="bg-primary/5 border border-primary/20 p-5 rounded-2xl flex items-start gap-4">
+                <span class="text-xl">💡</span>
+                <p class="text-xs text-white/70 leading-relaxed">
+                  <strong>Pro Tip:</strong> Use the Hand Inspector when you're seeing unexpected consistency results. Reviewing 10-20 "Fail" hands often reveals missing success conditions or incorrectly configured card effects.
+                </p>
+              </div>
+            </div>
+          </section>
+
           <!-- FAQ -->
           <section id="faq" class="scroll-mt-10">
             <div class="flex items-center gap-4 mb-8">
-              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">05</span>
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">06</span>
               <h3 class="text-xl font-black tracking-tight text-white uppercase">FAQ</h3>
             </div>
             <div class="grid gap-3">
@@ -225,7 +263,7 @@ onMounted(() => {
           <!-- Contact -->
           <section id="contact" class="scroll-mt-10 pb-10">
             <div class="flex items-center gap-4 mb-8">
-              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">06</span>
+              <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">07</span>
               <h3 class="text-xl font-black tracking-tight text-white uppercase">Contact</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
