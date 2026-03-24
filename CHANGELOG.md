@@ -1,3 +1,12 @@
+## [0.6.0] - 2026-03-24
+
+### Changed
+- Improved user interface and overall accessibility
+- Polished layout and typography across all pages
+
+### Fixed
+- Minor bug fixes and technical improvements
+
 ## [0.5.0] - 2026-03-15
 
 ### Added
