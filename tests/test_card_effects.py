@@ -416,6 +416,45 @@ class TestCardEffects(unittest.TestCase):
 
         self.assertTrue(found_discard_case,
             "Expected Vision to discard a Quick-Play A in at least 1 of 300 trials")
+    def test_revert_returns_copies(self):
+        """Test that the revert code path returns shallow copies of the original lists"""
+        from deck_sim import Deck
+        from card_effects import ConditionalDiscardEffect, EffectContext
+        
+        # Create deck and effect
+        deck = Deck(40, {"Vision": 3, "Blank": 37})
+        subcategory_map = {"quick play": ["NonExistent"]}
+        vision_effect = ConditionalDiscardEffect(draw_count=2, discard_filter="quick play", discard_count=1)
+        
+        # Original lists
+        hand = ["Vision", "Blank", "Blank", "Blank", "Blank"]
+        remaining_deck = ["Blank"] * 35
+        context = EffectContext(subcategory_map=subcategory_map, success_conditions=[])
+        
+        # Apply effect - will revert because discard_filter matches nothing
+        result = vision_effect.apply(hand, remaining_deck, context)
+        
+        self.assertTrue(result.fully_reverted)
+        
+        # Identity check: returned lists should NOT be the same objects as the inputs
+        self.assertIsNot(result.hand, hand)
+        self.assertIsNot(result.remaining_deck, remaining_deck)
+        
+        # Mutation check: modifying the returned list should NOT affect the original list
+        result.hand.append("New Card")
+        self.assertNotIn("New Card", hand)
+        
+        result.remaining_deck.pop()
+        self.assertEqual(len(remaining_deck), 35)
+        
+        # Verify cards_drawn is also a copy
+        self.assertIsInstance(result.cards_drawn, list)
+        self.assertEqual(len(result.cards_drawn), 2)
+        
+        # If we modify it, it shouldn't affect anything else we hold
+        original_drawn = result.cards_drawn.copy()
+        result.cards_drawn.append("Something Else")
+        self.assertNotEqual(result.cards_drawn, original_drawn)
 
 
 if __name__ == '__main__':

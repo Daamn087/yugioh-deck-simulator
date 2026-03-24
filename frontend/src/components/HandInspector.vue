@@ -307,7 +307,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                   <span class="text-[10px] uppercase tracking-widest text-text-secondary font-bold w-20">Initial</span>
                   <div class="flex flex-wrap gap-2">
                     <template v-for="(card, ci) in record.initial_hand" :key="'init-'+ci">
-                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-white/10 opacity-70 grayscale-[0.3]" :title="card" />
+                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-white/10 opacity-70 grayscale-[0.3]" :title="card" :alt="card" />
                       <span v-else class="text-xs px-2 py-1 rounded-full border border-white/5 opacity-70" :style="{ backgroundColor: colorForCard(card) + '22', color: colorForCard(card) }">{{ card }}</span>
                     </template>
                   </div>
@@ -318,7 +318,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                   <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold w-20">Drawn</span>
                   <div class="flex flex-wrap gap-2">
                     <template v-for="(card, ci) in record.cards_drawn" :key="'drawn-'+ci">
-                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-emerald-500/30" :title="card" />
+                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-emerald-500/30" :title="card" :alt="card" />
                       <span v-else class="text-xs px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">{{ card }}</span>
                     </template>
                   </div>
@@ -329,7 +329,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
                   <span class="text-[10px] uppercase tracking-widest text-red-400 font-bold w-20">Discarded</span>
                   <div class="flex flex-wrap gap-2">
                     <template v-for="(card, ci) in record.cards_discarded" :key="'disc-'+ci">
-                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-red-500/30 grayscale opacity-40" :title="card" />
+                      <img v-if="imageForCard(card)" :src="imageForCard(card)!" class="h-10 w-auto rounded border border-red-500/30 grayscale opacity-40" :title="card" :alt="card"/>
                       <span v-else class="text-xs px-2 py-1 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 opacity-80">{{ card }}</span>
                     </template>
                   </div>

@@ -4,7 +4,7 @@
 - **Detailed Effect Tracking**: The Hand Inspector now shows exactly which cards were **drawn** and **discarded** during effect resolution.
 
 ### Fixed
-- Condtional drawing cards were not correctly included in the simulation
+- Conditional drawing cards were not correctly included in the simulation
 
 ## [0.4.1] - 2026-03-14
 

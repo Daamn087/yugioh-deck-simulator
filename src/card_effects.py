@@ -222,9 +222,9 @@ class ConditionalDiscardEffect(CardEffect):
         # the UI can show the user what Vision actually drew (and why no discard was possible).
         if len(discarded_cards) < self.discard_count:
             return EffectResult(
-                hand=hand,
-                remaining_deck=remaining_deck,
-                cards_drawn=draw_result.cards_drawn,  # show what was drawn, even though reverted
+                hand=hand.copy(),
+                remaining_deck=remaining_deck.copy(),
+                cards_drawn=draw_result.cards_drawn.copy(),  # show what was drawn, even though reverted
                 cards_discarded=[],
                 fully_reverted=True
             )
